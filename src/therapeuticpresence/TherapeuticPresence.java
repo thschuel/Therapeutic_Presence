@@ -308,6 +308,7 @@ public class TherapeuticPresence extends PApplet {
 			ellipse(0,0,5,10);
 			colorMode(RGB,255,255,255);
 		}
+		
 	}
 	
 	
