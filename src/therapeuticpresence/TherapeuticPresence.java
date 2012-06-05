@@ -8,87 +8,121 @@ import processing.core.*;
 import generativedesign.*;
 import SimpleOpenNI.*;
 import processing.opengl.*;
+import ddf.minim.*;
 
 public class TherapeuticPresence extends PApplet {
 
 	private static final long serialVersionUID = 1L;
 	
+	// --- setup constants ---
 	public static final short MAX_USER = 4;
 	public static final short DRAW_SKELETONS = 1;
 	public static final short DRAW_DEPTHMAP = 2;
 	public static final short DRAW_TREE = 3;
+	public static final short DRAW_AUDIOSKELETONS = 4;
+	public static final short MIRROR_OFF = 0;
+	public static final short MIRROR_LEFT = 1;
+	public static final short MIRROR_RIGHT = 2;
 	
-	SimpleOpenNI kinect;
+	// --- static setup ---
+	public static boolean fullBodyTracking = false; // control for full body tracking
+	public static boolean recordFlag = true; // set to false for playback
+	public static boolean debugOutput = true;
 	
+	// --- setup variables ---
+	public short visualisation = TherapeuticPresence.DRAW_DEPTHMAP;
+	public short mirrorTherapy = TherapeuticPresence.MIRROR_OFF;
+	public boolean drawCamFrustrum = false; // control drawing of the kinect camera
+	public boolean autoCalibration = false; // control for auto calibration of skeleton
+	
+	// --- interfaces to other modules ---
+	// interface to talk to kinect
+	protected SimpleOpenNI kinect;
+	
+	// interfaces to use audio visualisation
+	protected Minim minim;
+	protected AudioPlayer audioPlayer;
+	protected AudioVisuals audioVisuals;
+	
+	// the skeletons that control the scene, only one user for now
+	protected HashMap<Integer,Skeleton> skeletons = new HashMap<Integer,Skeleton>();
+		
+	// user interface
+	protected GuiHud guiHud;
+	
+	// --- internal variables ---
 	// setup scene, values can be controlled by user input
-	float translateX = 0.0f;
-	float translateY = 0.0f;
-	float translateZ = 0.0f;
-	float rotX = radians(0);  // by default rotate the hole scene 180deg around the x-axis, the data from openni comes upside down
-	float rotY = radians(0);
-	float rotZ = radians(180);
-	
-	short visualisation = TherapeuticPresence.DRAW_DEPTHMAP;
-	
-	// control drawing of the kinect camera
-	boolean drawCamFrustrum = false;
-	
-	// control for full body tracking
-	boolean fullBodyTracking = false;
+	private float translateX = 0.0f;
+	private float translateY = 0.0f;
+	private float translateZ = 0.0f;
+	private float rotX = radians(0);  // by default rotate the hole scene 180deg around the x-axis, the data from openni comes upside down
+	private float rotY = radians(0);
+	private float rotZ = radians(180);
 
 	// calculate colors for trace from image
-	int[] colors; 
-	PImage img;
-	float actColor = 0.f;
-	int	colorsSize;
-	float colorsStepSize = 10.f;
+	private int[] colors; 
+	private PImage img;
+	private float actColor = 0.f;
+	private int	colorsSize;
+	private float colorsStepSize = 10.f;
 	
 	// variables to calculate and draw the tree
-	float curlx = 0;
-	float curly = 0;
-	float f = sqrt(2)/2.f;
-	float delay = 20;
-	float growth = 0;
-	float growthTarget = 0;
-	int branches = 17;
-	
-	// the skeleton that controls the scene, only one user for now
-	HashMap<Integer,Skeleton> skeletons = new HashMap<Integer,Skeleton>();
-	
-	GuiHud guiHud;
+	private float curlx = 0;
+	private float curly = 0;
+	private float f = sqrt(2)/2.f;
+	private float delay = 20;
+	private float growth = 0;
+	private float growthTarget = 0;
+	private int branches = 17;
 	
 	
 	// -----------------------------------------------------------------
 	public void setup() {		
-		size(screenWidth-2,screenHeight-100,OPENGL);  // strange, get drawing error in the cameraFrustum if i use P3D, in opengl there is no problem
+		size(screenWidth-2,screenHeight-100,OPENGL);
 		
 		// establish connection to kinect/openni
 		setupKinect();
+		
+		// setup Audio Controls
+		setupAudio();
 		
 		// build color set
 		calculateColorSet();
 
 		// generate HUD
 		guiHud = new GuiHud(this);
-		
 		  
 	}
 	
 	private void setupKinect () {
 		kinect = new SimpleOpenNI(this);
-		// enable/disable mirror
-		kinect.setMirror(true);
-		// enable depthMap generation 
-		kinect.enableDepth();
-		if (fullBodyTracking) {
-			// enable skeleton generation for all joints
-			kinect.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
-		} else {
-			// enable skeleton generation for upper joints
-			kinect.enableUser(SimpleOpenNI.SKEL_PROFILE_UPPER);
-		}
 		
-}
+		if (recordFlag) {
+			// enable/disable mirror
+			kinect.setMirror(true);
+			// enable depthMap generation 
+			kinect.enableDepth();
+			if (fullBodyTracking) {
+				// enable skeleton generation for all joints
+				kinect.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
+			} else {
+				// enable skeleton generation for upper joints
+				kinect.enableUser(SimpleOpenNI.SKEL_PROFILE_UPPER);
+			}
+		} else {
+			// playback
+			kinect.openFileRecording("./data/test.oni");
+			//kinect.enableScene();
+		}
+	}
+	
+	private void setupAudio () {
+		minim = new Minim(this);
+		audioPlayer = minim.loadFile("../data/moan.mp3",1024);
+		audioPlayer.loop();
+		audioVisuals = new AudioVisuals(this);
+		audioPlayer.addListener(audioVisuals);
+	}
 	
 	private void calculateColorSet () {
 		// load Image and calculate histogram
@@ -144,6 +178,10 @@ public class TherapeuticPresence extends PApplet {
 			case TherapeuticPresence.DRAW_TREE:
 				drawTree();
 				break;
+				
+			case TherapeuticPresence.DRAW_AUDIOSKELETONS:
+				drawAudioSkeletons();
+				break;
 			
 			default:
 				drawDepthMap();
@@ -151,45 +189,7 @@ public class TherapeuticPresence extends PApplet {
 		}
 		// draw the HUD
 		guiHud.draw();
-		guiHud.resetGuiMessages();
-	}
-	
-	private void drawSkeletons () {
-		// reset the scene
-		background(0,0,0);
-		guiHud.guiTextColor = 255;
-		// set the camera to the position of the kinect, facing towards the scene
-		camera(0,0,0,0,0,1,0,1,0);
-		// rotate the scene: kinect data comes upside down!
-		pushMatrix();
-		rotateX(rotX);
-		rotateY(rotY);
-		rotateZ(rotZ);
-		translate(translateX,translateY,translateZ);
-					
-		Iterator it = skeletons.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry me = (Map.Entry)it.next();
-			int currUserId = (Integer)me.getKey();
-			Skeleton currSkel = (Skeleton)me.getValue();
-			
-			if (kinect.isTrackingSkeleton(currUserId)) {
-				currSkel.drawSkeleton(this);
-				currSkel.drawJointOrientations(100f,this);
-				currSkel.drawJoints(20f,this);
-				currSkel.drawMirrorPlane(this);
-				float angleLeftArm = currSkel.angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_HAND,Skeleton.NECK,Skeleton.TORSO);
-				guiHud.sendGuiMessage("Angle lArm to Body Axis: "+guiHud.df.format(angleLeftArm));
-				float angleBodyAxis = currSkel.angleToUpAxis(Skeleton.NECK,Skeleton.TORSO);
-				guiHud.sendGuiMessage("Angle Body to Up Axis: "+guiHud.df.format(angleBodyAxis));
-				float distance = currSkel.distanceToKinect();
-				guiHud.sendGuiMessage("Distance of Skeleton: "+guiHud.df.format(distance));
-			}
-		}
-		
-		if (drawCamFrustrum) kinect.drawCamFrustum();
-		
-		popMatrix();
+
 	}
 	
 	private void drawDepthMap () {
@@ -220,12 +220,80 @@ public class TherapeuticPresence extends PApplet {
 				}
 			} 
 		}
+
+		// draw the camera
+		if (drawCamFrustrum) kinect.drawCamFrustum();
 		popMatrix();
 	} 
 	
+	private void drawSkeletons () {
+		// reset the scene
+		background(0,0,0);
+		// set the camera to the position of the kinect, facing towards the scene
+		camera(0,0,0,0,0,1,0,1,0);
+		// rotate the scene: kinect data comes upside down!
+		pushMatrix();
+		rotateX(rotX);
+		rotateY(rotY);
+		rotateZ(rotZ);
+		translate(translateX,translateY,translateZ);
+					
+		Iterator it = skeletons.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry me = (Map.Entry)it.next();
+			int currUserId = (Integer)me.getKey();
+			Skeleton currSkel = (Skeleton)me.getValue();
+			
+			if (kinect.isTrackingSkeleton(currUserId)) {
+				currSkel.drawSkeleton(color(0,255,255));
+				currSkel.drawJointOrientations(100f);
+				currSkel.drawJoints(20f,color(0,0,255));
+				currSkel.drawMirrorPlane(color(100,100,100));
+//				float angleLeftArm = currSkel.angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_HAND,Skeleton.NECK,Skeleton.TORSO);
+//				guiHud.sendGuiMessage("Angle lArm to Body Axis: "+guiHud.df.format(angleLeftArm));
+//				float angleBodyAxis = currSkel.angleToUpAxis(Skeleton.NECK,Skeleton.TORSO);
+//				guiHud.sendGuiMessage("Angle Body to Up Axis: "+guiHud.df.format(angleBodyAxis));
+//				float distance = currSkel.distanceToKinect();
+//				guiHud.sendGuiMessage("Distance of Skeleton: "+guiHud.df.format(distance));
+			}
+		}
+
+		// draw the camera
+		if (drawCamFrustrum) kinect.drawCamFrustum();
+		popMatrix();
+	}
+	
+	public void drawAudioSkeletons () {
+		// reset the scene
+		background(0,0,0);
+		// set the camera to the position of the kinect, facing towards the scene
+		camera(0,0,0,0,0,1,0,1,0);
+		// rotate the scene: kinect data comes upside down!
+		pushMatrix();
+		rotateX(rotX);
+		rotateY(rotY);
+		rotateZ(rotZ);
+		translate(translateX,translateY,translateZ);
+		// iterate through all skeletons in the scene			
+		Iterator it = skeletons.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry me = (Map.Entry)it.next();
+			int currUserId = (Integer)me.getKey();
+			Skeleton currSkel = (Skeleton)me.getValue();
+			if (kinect.isTrackingSkeleton(currUserId)) {
+				// draw the skeleton
+				currSkel.drawSkeleton(color(170,170,170));
+				//currSkel.drawJoints(10f,color(50,50,50));
+				audioVisuals.draw(currSkel,color(50,20,200));
+			}
+		}
+		// draw the kinect cam
+		if (drawCamFrustrum) kinect.drawCamFrustum();
+		popMatrix();
+	}
+	
 	private void drawTree () {
 		background(250);
-		guiHud.guiTextColor = 0;
 		camera();
 		
 		Iterator it = skeletons.entrySet().iterator();
@@ -275,8 +343,7 @@ public class TherapeuticPresence extends PApplet {
 				//guiHud.sendGuiMessage("Angle Body to Up Axis: "+guiHud.df.format(angleBodyAxis));
 			}
 		}
-	}
-	  
+	} 
 	private void branch(float length, int count)
 	{
 		length *= f;
@@ -313,32 +380,14 @@ public class TherapeuticPresence extends PApplet {
 	
 	
 	// -----------------------------------------------------------------
-	// call back function for menu event, called by guiHud
-	public void switchMirrorTherapy () {
-		Iterator it = skeletons.entrySet().iterator();
-		
-		while (it.hasNext()) {
-			Map.Entry me = (Map.Entry)it.next();
-			Skeleton currSkel = (Skeleton)me.getValue();
-			currSkel.switchMirrorTherapy(guiHud.mirrorTherapy);
-		}
-	}
-	
-	public void switchVisualisation () {
-		visualisation = guiHud.visualisation;
-	}
-	
-	
-	// -----------------------------------------------------------------
 	// is triggered by SimpleOpenNI on "onEndCalibration"
 	// starts tracking of a Skeleton
 	private void newSkeletonFound (int _userId) {
 		if (skeletons.containsKey(_userId)) {
 			skeletons.remove(_userId);
 		}
-		skeletons.put(_userId, new Skeleton(kinect,_userId,fullBodyTracking));
-		skeletons.get(_userId).switchMirrorTherapy(guiHud.mirrorTherapy);
-		visualisation = TherapeuticPresence.DRAW_TREE;
+		skeletons.put(_userId, new Skeleton(kinect,_userId,this));
+		visualisation = TherapeuticPresence.DRAW_AUDIOSKELETONS;
 	}
 	
 	// is triggered by SimpleOpenNi on "onLostUser"
@@ -355,45 +404,49 @@ public class TherapeuticPresence extends PApplet {
 
 	public void onNewUser(int userId)
 	{
-		println("onNewUser - userId: " + userId);
-		println("  start pose detection");
+		guiHud.sendGuiMessage("onNewUser - userId: " + userId);
+		guiHud.sendGuiMessage("  start pose detection");
 	  
-		kinect.startPoseDetection("Psi",userId);
+
+		if(autoCalibration)
+		    kinect.requestCalibrationSkeleton(userId,true);
+		else    
+		    kinect.startPoseDetection("Psi",userId);
 	}
 
 	public void onLostUser(int userId)
 	{
-		println("onLostUser - userId: " + userId);
+		guiHud.sendGuiMessage("onLostUser - userId: " + userId);
 		this.skeletonLost(userId);
 	}
 
 	public void onStartCalibration(int userId)
 	{
-		println("onStartCalibration - userId: " + userId);
+		guiHud.sendGuiMessage("onStartCalibration - userId: " + userId);
 	}
 
 	public void onEndCalibration(int userId, boolean successfull)
 	{
-		println("onEndCalibration - userId: " + userId + ", successfull: " + successfull);
+		guiHud.sendGuiMessage("onEndCalibration - userId: " + userId + ", successfull: " + successfull);
 	  
 		if (successfull) 
 		{ 
-			println("  User calibrated !!!");
+			guiHud.sendGuiMessage("  User calibrated !!!");
 			kinect.startTrackingSkeleton(userId); 
 			this.newSkeletonFound(userId);
 		} 
 		else 
 		{ 
-			println("  Failed to calibrate user !!!");
-			println("  Start pose detection");
+			guiHud.sendGuiMessage("  Failed to calibrate user !!!");
+			guiHud.sendGuiMessage("  Start pose detection");
 			kinect.startPoseDetection("Psi",userId);
 		}
 	}
 
 	public void onStartPose(String pose,int userId)
 	{
-		println("onStartdPose - userId: " + userId + ", pose: " + pose);
-		println(" stop pose detection");
+		guiHud.sendGuiMessage("onStartdPose - userId: " + userId + ", pose: " + pose);
+		guiHud.sendGuiMessage(" stop pose detection");
 	  
 		kinect.stopPoseDetection(userId); 
 		kinect.requestCalibrationSkeleton(userId, true);
@@ -402,7 +455,7 @@ public class TherapeuticPresence extends PApplet {
 
 	public void onEndPose(String pose,int userId)
 	{
-		println("onEndPose - userId: " + userId + ", pose: " + pose);
+		guiHud.sendGuiMessage("onEndPose - userId: " + userId + ", pose: " + pose);
 	}
 
 	
@@ -418,17 +471,17 @@ public class TherapeuticPresence extends PApplet {
 		switch(key)
 		{
 		  	// save user calibration data
-			case 's':
+			case 'o':
 		  		if(userList.size() < 1 ){
-		  			println("There is no calibration data to save. "+userList.size()+" users active.");
+		  			guiHud.sendGuiMessage("There is no calibration data to save. "+userList.size()+" users active.");
 			  		break;
 		  		}
 		  		for (int i=0; i<userList.size(); i++) {
 		  			if (kinect.isTrackingSkeleton(userList.get(i))) {
 		  				if(kinect.saveCalibrationDataSkeleton(userList.get(i),"calibration"+userList.get(i)+".skel"))
-		  					println("Saved current calibration for user "+userList.get(i)+" to file.");      
+		  					guiHud.sendGuiMessage("Saved current calibration for user "+userList.get(i)+" to file.");      
 		  				else
-		  					println("Can't save calibration for user "+userList.get(i)+" to file.");      
+		  					guiHud.sendGuiMessage("Can't save calibration for user "+userList.get(i)+" to file.");      
 		  			}
 		  		}
 		  		break;
@@ -436,7 +489,7 @@ public class TherapeuticPresence extends PApplet {
 		  	// load user calibration data
 		  	case 'l':
 		  		if(userList.size() < 1 ){
-		  			println("There is no calibration data to load. "+userList.size()+" users active.");
+		  			guiHud.sendGuiMessage("There is no calibration data to load. "+userList.size()+" users active.");
 			  		break;
 		  		}
 		  		for (int i=0; i<userList.size(); i++) {
@@ -444,59 +497,62 @@ public class TherapeuticPresence extends PApplet {
 		  				kinect.startTrackingSkeleton(userList.get(i));
 		  				kinect.stopPoseDetection(userList.get(i));
 		  				this.newSkeletonFound(userList.get(i));
-		  				println("Loaded calibration for user "+userList.get(i)+" from file.");
+		  				guiHud.sendGuiMessage("Loaded calibration for user "+userList.get(i)+" from file.");
 		  			} else {
-		  				println("Can't load calibration file for user "+userList.get(i));      
+		  				guiHud.sendGuiMessage("Can't load calibration file for user "+userList.get(i));      
 		  			}
 		  		}
 			    break;
 			    
-			case ' ':
+			case 'm':
 				kinect.setMirror(!kinect.mirror());
+				break;
+				
+			case 'w':
+				translateZ -= 100.0f;
+				break;
+				
+			case 'W':
+				translateY -= 100.0f;
+				break;
+				
+			case 'a':
+				translateX += 100.0f;
+				break;
+				
+			case 's':
+				translateZ += 100.0f;
+				break;
+				
+			case 'S':
+				translateY += 100.0f;
+				break;
+				
+			case 'd':
+				translateX -= 100.0f;
 				break;
 		}
 	    
 		switch(keyCode)
 		{
 	    	case LEFT:
-	    		if (keyEvent.isControlDown())
-	    			translateX += 100.0f;
-	    		else
-	    			rotX += 100.0f;
+	    		rotY += 100.0f;
 	    		break;
 	    	case RIGHT:
-	    		if (keyEvent.isControlDown())
-	    			translateX -= 100.0f;
-	    		else
-	    			rotX -= 100.0f;
+	    		rotY -= 100.0f;
 	    		break;
 	    	case UP:
-	    		if (keyEvent.isControlDown()) {
-	    			if(keyEvent.isShiftDown())
-	    				translateZ -= 100.0f;
-	    			else
-	    				translateY += 100.0f;
-	    		} else {
-	    			if(keyEvent.isShiftDown())
-	    				rotZ += 100.0f;
-	    			else
-	    				rotY += 100.0f;
-	    		}
+    			if(keyEvent.isShiftDown())
+    				rotZ += 100.0f;
+    			else
+    				rotX += 100.0f;
 	    		break;
 	    	case DOWN:
-	    		if (keyEvent.isControlDown()) {
-	    			if(keyEvent.isShiftDown())
-	    				translateZ += 100.0f;
-	    			else
-	    				translateY -= 100.0f;
-	    		} else {
-	    			if(keyEvent.isShiftDown())
-	    				rotZ -= 100.0f;
-	    			else
-	    				rotY -= 100.0f;
-	    			break;
-	    		}
-	    	
+    			if(keyEvent.isShiftDown())
+    				rotZ -= 100.0f;
+    			else
+    				rotX -= 100.0f;
+    			break;
 		}
 	}
 	

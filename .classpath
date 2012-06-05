@@ -33,9 +33,9 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/thschuel/Documents/eclipse/Therapeutic_Presence/lib/base/opengl/library"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/user/SimpleOpenNI/SimpleOpenNI.jar">
+	<classpathentry kind="lib" path="lib/user/SimpleOpenNI-0.26/SimpleOpenNI.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/thschuel/Documents/eclipse/Therapeutic_Presence/lib/user/SimpleOpenNI"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/thschuel/Documents/eclipse/Therapeutic_Presence/lib/user/SimpleOpenNI-0.26"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/user/GenerativeDesing/generativedesign.jar"/>
@@ -44,5 +44,12 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Therapeutic_Presence/lib/user/fullscreen"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/user/minim/minim.jar"/>
+	<classpathentry kind="lib" path="lib/user/minim/jl1.0.jar"/>
+	<classpathentry kind="lib" path="lib/user/minim/jsminim.jar"/>
+	<classpathentry kind="lib" path="lib/user/minim/minim-spi.jar"/>
+	<classpathentry kind="lib" path="lib/user/minim/mp3spi1.9.4.jar"/>
+	<classpathentry kind="lib" path="lib/user/minim/tritonus_aos.jar"/>
+	<classpathentry kind="lib" path="lib/user/minim/tritonus_share.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -23,45 +23,39 @@ public class Skeleton {
 	public static final short RIGHT_KNEE = 13;
 	public static final short RIGHT_FOOT = 14;
 	
+	// The interface to talk to kinect
+	protected SimpleOpenNI kinect;
+	
+	// interface to main Applet
+	private TherapeuticPresence mainApplet;
+	
 	// stores skeleton Points in 3d Space
-	PVector[] skeletonPoints = new PVector[15]; 
-	float[] confidenceSkeletonPoints = new float[15];
+	protected PVector[] skeletonPoints = new PVector[15]; 
+	protected float[] confidenceSkeletonPoints = new float[15];
 	
 	// stores joint orientation
-	PMatrix3D[] jointOrientations = new PMatrix3D[15];
-	float[] confidenceJointOrientations = new float[15];
+	protected PMatrix3D[] jointOrientations = new PMatrix3D[15];
+	protected float[] confidenceJointOrientations = new float[15];
 	
 	// calculation of mirror plane
-	PVector[] bodyPoints = new PVector[7]; // stores body points of skeleton 
-	PVector	rMP = new PVector(); // MirrorPlane in HNF: r*n0-d=0
-	PVector	n0MP = new PVector();
-	float dMP = 0.0f;
-	PVector	rBFP = new PVector(); // Best Fitting Plane in HNF: r*n0-d=0
-	PVector	n0BFP = new PVector();
-	float dBFP = 0.0f;
+	private PVector[] bodyPoints = new PVector[7]; // stores body points of skeleton 
+	private PVector	rMP = new PVector(); // MirrorPlane in HNF: r*n0-d=0
+	private PVector	n0MP = new PVector();
+	private float dMP = 0.0f;
+	private PVector	rBFP = new PVector(); // Best Fitting Plane in HNF: r*n0-d=0
+	private PVector	n0BFP = new PVector();
+	private float dBFP = 0.0f;
 	
 	// controls state of skeleton
-	boolean isUpdated = false;
-	
-	// switches mirrorTherapy on/off, left/right
-	public static final short MIRROR_OFF = 0;
-	public static final short MIRROR_LEFT = 1;
-	public static final short MIRROR_RIGHT = 2;
-	short mirrorTherapy = Skeleton.MIRROR_OFF;
-	
-	// control for full body tracking
-	boolean fullBodyTracking;
-	
-	// The interface to talk to kinect
-	SimpleOpenNI kinect;
+	public boolean isUpdated = false;
 	
 	// skeleton of user
-	int userId;
+	private int userId;
 	
-	Skeleton (SimpleOpenNI _kinect, int _userId, boolean _fullBodyTracking) {
+	public Skeleton (SimpleOpenNI _kinect, int _userId, TherapeuticPresence _mainApplet) {
 		kinect = _kinect;
 		userId = _userId;
-		fullBodyTracking = _fullBodyTracking;
+		mainApplet = _mainApplet;
 		for (int i=0; i<15; i++){
 			skeletonPoints[i] = new PVector();
 			jointOrientations[i] = new PMatrix3D();
@@ -84,7 +78,7 @@ public class Skeleton {
 		confidenceJointOrientations[Skeleton.RIGHT_SHOULDER] = kinect.getJointOrientationSkeleton(userId,SimpleOpenNI.SKEL_RIGHT_SHOULDER,jointOrientations[Skeleton.RIGHT_SHOULDER]);
 		confidenceSkeletonPoints[Skeleton.TORSO] = kinect.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_TORSO,skeletonPoints[Skeleton.TORSO]);
 		confidenceJointOrientations[Skeleton.TORSO] = kinect.getJointOrientationSkeleton(userId,SimpleOpenNI.SKEL_TORSO,jointOrientations[Skeleton.TORSO]);
-		if (fullBodyTracking) {
+		if (TherapeuticPresence.fullBodyTracking) {
 			confidenceSkeletonPoints[Skeleton.LEFT_HIP] = kinect.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_LEFT_HIP,skeletonPoints[Skeleton.LEFT_HIP]);
 			confidenceJointOrientations[Skeleton.LEFT_HIP] = kinect.getJointOrientationSkeleton(userId,SimpleOpenNI.SKEL_LEFT_HIP,jointOrientations[Skeleton.LEFT_HIP]);
 			confidenceSkeletonPoints[Skeleton.LEFT_KNEE] = kinect.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_LEFT_KNEE,skeletonPoints[Skeleton.LEFT_KNEE]);
@@ -99,8 +93,8 @@ public class Skeleton {
 			confidenceJointOrientations[Skeleton.RIGHT_FOOT] = kinect.getJointOrientationSkeleton(userId,SimpleOpenNI.SKEL_RIGHT_FOOT,jointOrientations[Skeleton.RIGHT_FOOT]);
 		}
 			
-		switch (mirrorTherapy) {
-			case Skeleton.MIRROR_OFF:
+		switch (mainApplet.mirrorTherapy) {
+			case TherapeuticPresence.MIRROR_OFF:
 				confidenceSkeletonPoints[Skeleton.LEFT_ELBOW] = kinect.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_LEFT_ELBOW,skeletonPoints[Skeleton.LEFT_ELBOW]);
 				confidenceJointOrientations[Skeleton.LEFT_ELBOW] = kinect.getJointOrientationSkeleton(userId,SimpleOpenNI.SKEL_LEFT_ELBOW,jointOrientations[Skeleton.LEFT_ELBOW]);
 				confidenceSkeletonPoints[Skeleton.LEFT_HAND] = kinect.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_LEFT_HAND,skeletonPoints[Skeleton.LEFT_HAND]);
@@ -111,7 +105,7 @@ public class Skeleton {
 				confidenceJointOrientations[Skeleton.RIGHT_HAND] = kinect.getJointOrientationSkeleton(userId,SimpleOpenNI.SKEL_RIGHT_HAND,jointOrientations[Skeleton.RIGHT_HAND]);
 				break;
 				
-			case Skeleton.MIRROR_LEFT:
+			case TherapeuticPresence.MIRROR_LEFT:
 				// left body side will be mirrored to right body side
 				confidenceSkeletonPoints[Skeleton.LEFT_ELBOW] = kinect.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_LEFT_ELBOW,skeletonPoints[Skeleton.LEFT_ELBOW]);
 				confidenceJointOrientations[Skeleton.LEFT_ELBOW] = kinect.getJointOrientationSkeleton(userId,SimpleOpenNI.SKEL_LEFT_ELBOW,jointOrientations[Skeleton.LEFT_ELBOW]);
@@ -145,7 +139,7 @@ public class Skeleton {
 				confidenceJointOrientations[Skeleton.RIGHT_HAND] = confidenceJointOrientations[Skeleton.LEFT_HAND];
 				break;
 				
-			case Skeleton.MIRROR_RIGHT:
+			case TherapeuticPresence.MIRROR_RIGHT:
 				// right body side will be mirrored to left body side
 				confidenceSkeletonPoints[Skeleton.RIGHT_ELBOW] = kinect.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_RIGHT_ELBOW,skeletonPoints[Skeleton.RIGHT_ELBOW]);
 				confidenceJointOrientations[Skeleton.RIGHT_ELBOW] = kinect.getJointOrientationSkeleton(userId,SimpleOpenNI.SKEL_RIGHT_ELBOW,jointOrientations[Skeleton.RIGHT_ELBOW]);
@@ -186,13 +180,6 @@ public class Skeleton {
 
 	// -----------------------------------------------------------------
 	// methods to communicate
-	public void switchMirrorTherapy (short _mirror) {
-		if (_mirror >= 0 && _mirror <= 2) 
-			mirrorTherapy = _mirror;
-		else
-			mirrorTherapy = 0;
-	}
-	
 	public PVector getJoint (short jointType) {
 		if (jointType >= 0 && jointType <= 14) 
 			return skeletonPoints[jointType];
@@ -200,11 +187,6 @@ public class Skeleton {
 			return new PVector();
 	}
 	
-	public void setFullBodyTracking (boolean _fullBodyTracking) {
-		fullBodyTracking = _fullBodyTracking;
-	}
-	
-
 	// -----------------------------------------------------------------
 	// methods to calculate body posture
 
@@ -362,56 +344,56 @@ public class Skeleton {
 	
 	// -----------------------------------------------------------------
 	// drawing methods
-	public void drawSkeleton (PApplet mainApplet) {
+	public void drawSkeleton (int color) {
 		
-		drawLineBetweenJoints(Skeleton.HEAD,Skeleton.NECK,mainApplet);
-		drawLineBetweenJoints(Skeleton.NECK,Skeleton.LEFT_SHOULDER,mainApplet);
-		drawLineBetweenJoints(Skeleton.NECK,Skeleton.RIGHT_SHOULDER,mainApplet);
-		drawLineBetweenJoints(Skeleton.LEFT_SHOULDER,Skeleton.TORSO,mainApplet);
-		drawLineBetweenJoints(Skeleton.RIGHT_SHOULDER,Skeleton.TORSO,mainApplet);
+		drawLineBetweenJoints(Skeleton.HEAD,Skeleton.NECK,color);
+		drawLineBetweenJoints(Skeleton.NECK,Skeleton.LEFT_SHOULDER,color);
+		drawLineBetweenJoints(Skeleton.NECK,Skeleton.RIGHT_SHOULDER,color);
+		drawLineBetweenJoints(Skeleton.LEFT_SHOULDER,Skeleton.TORSO,color);
+		drawLineBetweenJoints(Skeleton.RIGHT_SHOULDER,Skeleton.TORSO,color);
 
-		drawLineBetweenJoints(Skeleton.LEFT_SHOULDER,Skeleton.LEFT_ELBOW,mainApplet);
-		drawLineBetweenJoints(Skeleton.LEFT_ELBOW,Skeleton.LEFT_HAND,mainApplet);
-		drawLineBetweenJoints(Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_ELBOW,mainApplet);
-		drawLineBetweenJoints(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_HAND,mainApplet);
+		drawLineBetweenJoints(Skeleton.LEFT_SHOULDER,Skeleton.LEFT_ELBOW,color);
+		drawLineBetweenJoints(Skeleton.LEFT_ELBOW,Skeleton.LEFT_HAND,color);
+		drawLineBetweenJoints(Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_ELBOW,color);
+		drawLineBetweenJoints(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_HAND,color);
 
-		if (fullBodyTracking) {
-			drawLineBetweenJoints(Skeleton.TORSO,Skeleton.LEFT_HIP,mainApplet);
-			drawLineBetweenJoints(Skeleton.LEFT_HIP,Skeleton.LEFT_KNEE,mainApplet);
-			drawLineBetweenJoints(Skeleton.LEFT_KNEE,Skeleton.LEFT_FOOT,mainApplet);
-			drawLineBetweenJoints(Skeleton.TORSO,Skeleton.RIGHT_HIP,mainApplet);
-			drawLineBetweenJoints(Skeleton.RIGHT_HIP,Skeleton.RIGHT_KNEE,mainApplet);
-			drawLineBetweenJoints(Skeleton.RIGHT_KNEE,Skeleton.RIGHT_FOOT,mainApplet);
+		if (TherapeuticPresence.fullBodyTracking) {
+			drawLineBetweenJoints(Skeleton.TORSO,Skeleton.LEFT_HIP,color);
+			drawLineBetweenJoints(Skeleton.LEFT_HIP,Skeleton.LEFT_KNEE,color);
+			drawLineBetweenJoints(Skeleton.LEFT_KNEE,Skeleton.LEFT_FOOT,color);
+			drawLineBetweenJoints(Skeleton.TORSO,Skeleton.RIGHT_HIP,color);
+			drawLineBetweenJoints(Skeleton.RIGHT_HIP,Skeleton.RIGHT_KNEE,color);
+			drawLineBetweenJoints(Skeleton.RIGHT_KNEE,Skeleton.RIGHT_FOOT,color);
 		}
 		
 	}
 	
-	private void drawLineBetweenJoints (int jointType1, int jointType2, PApplet mainApplet) {
+	private void drawLineBetweenJoints (int jointType1, int jointType2, int color) {
 		float meanConfidence = (confidenceSkeletonPoints[jointType1]+confidenceSkeletonPoints[jointType2]) / 2.0f;
-		mainApplet.stroke(255,50,50,meanConfidence*255);
+		mainApplet.stroke(color,meanConfidence*255);
 		mainApplet.line(skeletonPoints[jointType1].x,skeletonPoints[jointType1].y,skeletonPoints[jointType1].z,
 						skeletonPoints[jointType2].x,skeletonPoints[jointType2].y,skeletonPoints[jointType2].z);
 	}
 	
-	public void drawJoints (float radius, PApplet mainApplet) {
+	public void drawJoints (float radius, int color) {
 		int count;
-		if (fullBodyTracking) count = 15;
+		if (TherapeuticPresence.fullBodyTracking) count = 15;
 		else count = 9;
 		
 		for (int i=0; i<count; i++) {
 			mainApplet.pushMatrix();
 			mainApplet.translate(skeletonPoints[i].x,skeletonPoints[i].y,skeletonPoints[i].z);
 			mainApplet.noStroke();
-			mainApplet.fill(0,0,255,confidenceSkeletonPoints[i] * 255);
+			mainApplet.fill(color,confidenceSkeletonPoints[i] * 255);
 			mainApplet.sphere(radius);
 			mainApplet.popMatrix();
 		}
 	}
 	
-	public void drawJointOrientations(float length, PApplet mainApplet)
+	public void drawJointOrientations(float length)
 	{
 		int count;
-		if (fullBodyTracking) count = 15;
+		if (TherapeuticPresence.fullBodyTracking) count = 15;
 		else count = 9;
 		
 		for (int i=0; i<count; i++) {
@@ -437,10 +419,10 @@ public class Skeleton {
 		}
 	}
 
-	public void drawMirrorPlane (PApplet mainApplet) {
+	public void drawMirrorPlane (int color) {
 		// for debug: show mirror plane
 		// draw plane by finding 4 points in that plane
-		if (mirrorTherapy != Skeleton.MIRROR_OFF) {
+		if (mainApplet.mirrorTherapy != TherapeuticPresence.MIRROR_OFF) {
 			PVector u = n0MP.cross(new PVector(0,0,1)); // cross product of n0 with arbitrary vector -> u lies on the plane
 			PVector v = n0MP.cross(u); // v is orthogonal to both N and u (again is in the plane) 
 			u.normalize();
@@ -458,7 +440,7 @@ public class Skeleton {
 			// draw your vertices
 			mainApplet.pushMatrix();
 			mainApplet.noStroke();
-			mainApplet.fill(255,255,255,40);
+			mainApplet.fill(color,40);
 			mainApplet.beginShape(PApplet.QUADS);
 				mainApplet.vertex(P1.x,P1.y,P1.z);
 				mainApplet.vertex(P2.x,P2.y,P2.z);
