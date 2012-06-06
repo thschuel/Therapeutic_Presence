@@ -162,23 +162,19 @@ public class GuiHud {
 	}
 	
 	private void switchVisualisationDepthMap (int theValue) {
-		TherapeuticPresence.visualisationMethod = TherapeuticPresence.DRAW_DEPTHMAP;
-		mainApplet.setupVisualisation();
+		mainApplet.setupVisualisation(TherapeuticPresence.DRAW_DEPTHMAP);
 	}
 	
 	private void switchVisualisationSkeletons (int theValue) {
-		TherapeuticPresence.visualisationMethod = TherapeuticPresence.DRAW_SKELETON;
-		mainApplet.setupVisualisation();
+		mainApplet.setupVisualisation(TherapeuticPresence.DRAW_SKELETON);
 	}
 	
 	private void switchVisualisationTree (int theValue) {
-		TherapeuticPresence.visualisationMethod = TherapeuticPresence.DRAW_TREE;
-		mainApplet.setupVisualisation();
+		mainApplet.setupVisualisation(TherapeuticPresence.DRAW_TREE);
 	}
 	
 	private void switchVisualisationAudioSkeletons (int theValue) {
-		TherapeuticPresence.visualisationMethod = TherapeuticPresence.DRAW_AUDIOSKELETONS;
-		mainApplet.setupVisualisation();
+		mainApplet.setupVisualisation(TherapeuticPresence.DRAW_AUDIOSKELETONS);
 	}
 	
 	private void switchAutoCalibration (int theValue) {

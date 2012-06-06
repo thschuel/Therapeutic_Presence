@@ -85,6 +85,11 @@ public class TherapeuticPresence extends PApplet {
 	}
 	
 	public void setupVisualisation () {
+		this.setupVisualisation(TherapeuticPresence.visualisationMethod);
+	}
+	
+	public void setupVisualisation (short _visualisationMethod) {
+		TherapeuticPresence.visualisationMethod = _visualisationMethod;
 		switch (TherapeuticPresence.visualisationMethod) {
 			case TherapeuticPresence.DRAW_SKELETON:
 				visualisation = new StickfigureVisualisation(this,skeleton);
@@ -141,8 +146,7 @@ public class TherapeuticPresence extends PApplet {
 				guiHud.sendGuiMessage("Skeleton of user "+skeleton.userId+" replaced with skeleton of user "+_userId+"!");
 			}
 			skeleton = new Skeleton(kinect,_userId);
-			TherapeuticPresence.visualisationMethod = TherapeuticPresence.DRAW_SKELETON;
-			setupVisualisation();
+			setupVisualisation(TherapeuticPresence.DRAW_SKELETON);
 		}
 	}
 	
@@ -152,8 +156,7 @@ public class TherapeuticPresence extends PApplet {
 			guiHud.sendGuiMessage("skeletonLost: User id "+_userId+" outside range. Maximum users: "+TherapeuticPresence.MAX_USERS);
 		} else {
 			skeleton = null;
-			TherapeuticPresence.visualisationMethod = TherapeuticPresence.DRAW_DEPTHMAP;
-			setupVisualisation();
+			setupVisualisation(TherapeuticPresence.DRAW_DEPTHMAP);
 		}
 	}
 	
