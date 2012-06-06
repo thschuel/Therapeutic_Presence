@@ -33,9 +33,9 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/thschuel/Documents/eclipse/Therapeutic_Presence/lib/base/opengl/library"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/user/SimpleOpenNI-0.26/SimpleOpenNI.jar">
+	<classpathentry kind="lib" path="lib/user/SimpleOpenNI-0.27/SimpleOpenNI.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/thschuel/Documents/eclipse/Therapeutic_Presence/lib/user/SimpleOpenNI-0.26"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/thschuel/Documents/eclipse/Therapeutic_Presence/lib/user/SimpleOpenNI-0.27"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/user/GenerativeDesing/generativedesign.jar"/>

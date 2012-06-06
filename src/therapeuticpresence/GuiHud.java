@@ -115,7 +115,7 @@ public class GuiHud {
 		drawTree.setCaptionLabel("Draw Tree");
 		drawTree.plugTo(this);
 
-		controlP5.Button drawAudioSkeletons = control.addButton("switchVisualisationAudioSkeletons",TherapeuticPresence.DRAW_AUDIOSKELETONS,0,120,150,20);
+		controlP5.Button drawAudioSkeletons = control.addButton("switchVisualisationAudioSkeletons",TherapeuticPresence.DRAW_AUDIOSKELETON,0,120,150,20);
 		drawAudioSkeletons.moveTo(menu);
 		drawAudioSkeletons.setCaptionLabel("Draw AudioSkeletons");
 		drawAudioSkeletons.plugTo(this);
@@ -174,7 +174,7 @@ public class GuiHud {
 	}
 	
 	private void switchVisualisationAudioSkeletons (int theValue) {
-		mainApplet.setupVisualisation(TherapeuticPresence.DRAW_AUDIOSKELETONS);
+		mainApplet.setupVisualisation(TherapeuticPresence.DRAW_AUDIOSKELETON);
 	}
 	
 	private void switchAutoCalibration (int theValue) {

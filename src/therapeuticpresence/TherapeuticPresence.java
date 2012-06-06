@@ -19,7 +19,7 @@ public class TherapeuticPresence extends PApplet {
 	public static final short DRAW_SKELETON = 1;
 	public static final short DRAW_DEPTHMAP = 2;
 	public static final short DRAW_TREE = 3;
-	public static final short DRAW_AUDIOSKELETONS = 4;
+	public static final short DRAW_AUDIOSKELETON = 4;
 	public static final short MIRROR_OFF = 0;
 	public static final short MIRROR_LEFT = 1;
 	public static final short MIRROR_RIGHT = 2;
@@ -31,7 +31,7 @@ public class TherapeuticPresence extends PApplet {
 	public static short visualisationMethod = TherapeuticPresence.DRAW_DEPTHMAP;
 	public static short mirrorTherapy = TherapeuticPresence.MIRROR_OFF;
 	public static boolean drawCamFrustum = false; // control drawing of the kinect camera
-	public static boolean autoCalibration = false; // control for auto calibration of skeleton
+	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
@@ -78,9 +78,10 @@ public class TherapeuticPresence extends PApplet {
 				kinect.enableUser(SimpleOpenNI.SKEL_PROFILE_UPPER);
 			}
 		} else {
-			// playback
-			kinect.openFileRecording("./data/test.oni");
-			//kinect.enableScene();
+			if (kinect.openFileRecording("../data/test.oni") == false) {
+				println("fehler");
+			}
+			//skeleton = new Skeleton(kinect,1);
 		}
 	}
 	
@@ -101,8 +102,8 @@ public class TherapeuticPresence extends PApplet {
 				visualisation.setup();
 				break;
 				
-			case TherapeuticPresence.DRAW_AUDIOSKELETONS:
-				visualisation = new AudioVisuals(this,skeleton);
+			case TherapeuticPresence.DRAW_AUDIOSKELETON:
+				visualisation = new AudioVisualisation(this,skeleton);
 				visualisation.setup();
 				break;
 			
@@ -146,7 +147,7 @@ public class TherapeuticPresence extends PApplet {
 				guiHud.sendGuiMessage("Skeleton of user "+skeleton.userId+" replaced with skeleton of user "+_userId+"!");
 			}
 			skeleton = new Skeleton(kinect,_userId);
-			setupVisualisation(TherapeuticPresence.DRAW_SKELETON);
+			setupVisualisation(TherapeuticPresence.DRAW_AUDIOSKELETON);
 		}
 	}
 	
