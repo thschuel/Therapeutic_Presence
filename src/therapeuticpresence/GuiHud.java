@@ -105,7 +105,7 @@ public class GuiHud {
 		drawDepthMap.setCaptionLabel("Draw DepthMap");
 		drawDepthMap.plugTo(this);
 		
-		controlP5.Button drawSkeletons = control.addButton("switchVisualisationSkeletons",TherapeuticPresence.DRAW_SKELETONS,0,80,150,20);
+		controlP5.Button drawSkeletons = control.addButton("switchVisualisationSkeletons",TherapeuticPresence.DRAW_SKELETON,0,80,150,20);
 		drawSkeletons.moveTo(menu);
 		drawSkeletons.setCaptionLabel("Draw Skeletons");
 		drawSkeletons.plugTo(this);
@@ -123,7 +123,7 @@ public class GuiHud {
 		controlP5.Textarea autoCalibrationLabel = control.addTextarea("autoCalibrationLabel","Toggle AutoCalibration",2,144,128,16);
 		autoCalibrationLabel.moveTo(menu);
 		
-		controlP5.Toggle autoCalibration = control.addToggle("switchAutoCalibration",mainApplet.autoCalibration,130,140,20,20);
+		controlP5.Toggle autoCalibration = control.addToggle("switchAutoCalibration",TherapeuticPresence.autoCalibration,130,140,20,20);
 		autoCalibration.moveTo(menu);
 		autoCalibration.setLabelVisible(false);
 		autoCalibration.plugTo(this);
@@ -131,7 +131,7 @@ public class GuiHud {
 		controlP5.Textarea drawCameraLabel = control.addTextarea("drawCameraLabel","Toggle DrawCamera",2,164,128,16);
 		drawCameraLabel.moveTo(menu);
 		
-		controlP5.Toggle drawCamera = control.addToggle("switchDrawCamera",mainApplet.drawCamFrustrum,130,160,20,20);
+		controlP5.Toggle drawCamera = control.addToggle("switchDrawCamera",TherapeuticPresence.drawCamFrustum,130,160,20,20);
 		drawCamera.moveTo(menu);
 		drawCamera.setLabelVisible(false);
 		drawCamera.plugTo(this);
@@ -150,39 +150,43 @@ public class GuiHud {
 	}
 	
 	private void switchMirrorTherapyOff (int theValue) {
-		mainApplet.mirrorTherapy = TherapeuticPresence.MIRROR_OFF;
+		TherapeuticPresence.mirrorTherapy = TherapeuticPresence.MIRROR_OFF;
 	}
 	
 	private void switchMirrorTherapyLeft (int theValue) {
-		mainApplet.mirrorTherapy = TherapeuticPresence.MIRROR_LEFT;
+		TherapeuticPresence.mirrorTherapy = TherapeuticPresence.MIRROR_LEFT;
 	}
 	
 	private void switchMirrorTherapyRight (int theValue) {
-		mainApplet.mirrorTherapy = TherapeuticPresence.MIRROR_RIGHT;
+		TherapeuticPresence.mirrorTherapy = TherapeuticPresence.MIRROR_RIGHT;
 	}
 	
 	private void switchVisualisationDepthMap (int theValue) {
-		mainApplet.visualisation = TherapeuticPresence.DRAW_DEPTHMAP;
+		TherapeuticPresence.visualisationMethod = TherapeuticPresence.DRAW_DEPTHMAP;
+		mainApplet.setupVisualisation();
 	}
 	
 	private void switchVisualisationSkeletons (int theValue) {
-		mainApplet.visualisation = TherapeuticPresence.DRAW_SKELETONS;
+		TherapeuticPresence.visualisationMethod = TherapeuticPresence.DRAW_SKELETON;
+		mainApplet.setupVisualisation();
 	}
 	
 	private void switchVisualisationTree (int theValue) {
-		mainApplet.visualisation = TherapeuticPresence.DRAW_TREE;
+		TherapeuticPresence.visualisationMethod = TherapeuticPresence.DRAW_TREE;
+		mainApplet.setupVisualisation();
 	}
 	
 	private void switchVisualisationAudioSkeletons (int theValue) {
-		mainApplet.visualisation = TherapeuticPresence.DRAW_AUDIOSKELETONS;
+		TherapeuticPresence.visualisationMethod = TherapeuticPresence.DRAW_AUDIOSKELETONS;
+		mainApplet.setupVisualisation();
 	}
 	
 	private void switchAutoCalibration (int theValue) {
-		mainApplet.autoCalibration = !mainApplet.autoCalibration;
+		TherapeuticPresence.autoCalibration = !mainApplet.autoCalibration;
 	}
 	
 	private void switchDrawCamera (int theValue) {
-		mainApplet.drawCamFrustrum = !mainApplet.drawCamFrustrum;
+		TherapeuticPresence.drawCamFrustum = !mainApplet.drawCamFrustum;
 	}
 
 }
