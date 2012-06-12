@@ -134,6 +134,14 @@ public class TherapeuticPresence extends PApplet {
 			guiHud.draw();
 
 	}
+	
+	public void debugMessage (String _message) {
+		if (TherapeuticPresence.debugOutput) {
+			guiHud.sendGuiMessage(_message);
+		} else {
+			// TODO: write text-file output
+		}
+	}
 
 	
 	// -----------------------------------------------------------------
@@ -141,10 +149,10 @@ public class TherapeuticPresence extends PApplet {
 	// starts tracking of a Skeleton
 	private void newSkeletonFound (int _userId) {
 		if (_userId < 0 || _userId > TherapeuticPresence.MAX_USERS) {
-			guiHud.sendGuiMessage("newSkeletonFound: User id "+_userId+" outside range. Maximum users: "+TherapeuticPresence.MAX_USERS);
+			debugMessage("newSkeletonFound: User id "+_userId+" outside range. Maximum users: "+TherapeuticPresence.MAX_USERS);
 		} else {
 			if (skeleton != null ) {
-				guiHud.sendGuiMessage("Skeleton of user "+skeleton.userId+" replaced with skeleton of user "+_userId+"!");
+				debugMessage("Skeleton of user "+skeleton.userId+" replaced with skeleton of user "+_userId+"!");
 			}
 			skeleton = new Skeleton(kinect,_userId);
 			setupVisualisation(TherapeuticPresence.DRAW_AUDIOSKELETON);
@@ -154,7 +162,7 @@ public class TherapeuticPresence extends PApplet {
 	// is triggered by SimpleOpenNi on "onLostUser"
 	private void skeletonLost (int _userId) {
 		if (_userId < 0 || _userId > TherapeuticPresence.MAX_USERS) {
-			guiHud.sendGuiMessage("skeletonLost: User id "+_userId+" outside range. Maximum users: "+TherapeuticPresence.MAX_USERS);
+			debugMessage("skeletonLost: User id "+_userId+" outside range. Maximum users: "+TherapeuticPresence.MAX_USERS);
 		} else {
 			skeleton = null;
 			setupVisualisation(TherapeuticPresence.DRAW_DEPTHMAP);
@@ -166,8 +174,8 @@ public class TherapeuticPresence extends PApplet {
 	// SimpleOpenNI user events
 	public void onNewUser(int userId)
 	{
-		guiHud.sendGuiMessage("onNewUser - userId: " + userId);
-		guiHud.sendGuiMessage("  start pose detection");
+		debugMessage("onNewUser - userId: " + userId);
+		debugMessage("  start pose detection");
 	  
 
 		if(TherapeuticPresence.autoCalibration)
@@ -178,37 +186,37 @@ public class TherapeuticPresence extends PApplet {
 
 	public void onLostUser(int userId)
 	{
-		guiHud.sendGuiMessage("onLostUser - userId: " + userId);
+		debugMessage("onLostUser - userId: " + userId);
 		this.skeletonLost(userId);
 	}
 
 	public void onStartCalibration(int userId)
 	{
-		guiHud.sendGuiMessage("onStartCalibration - userId: " + userId);
+		debugMessage("onStartCalibration - userId: " + userId);
 	}
 
 	public void onEndCalibration(int userId, boolean successfull)
 	{
-		guiHud.sendGuiMessage("onEndCalibration - userId: " + userId + ", successfull: " + successfull);
+		debugMessage("onEndCalibration - userId: " + userId + ", successfull: " + successfull);
 	  
 		if (successfull) 
 		{ 
-			guiHud.sendGuiMessage("  User calibrated !!!");
+			debugMessage("  User calibrated !!!");
 			kinect.startTrackingSkeleton(userId); 
 			this.newSkeletonFound(userId);
 		} 
 		else 
 		{ 
-			guiHud.sendGuiMessage("  Failed to calibrate user !!!");
-			guiHud.sendGuiMessage("  Start pose detection");
+			debugMessage("  Failed to calibrate user !!!");
+			debugMessage("  Start pose detection");
 			kinect.startPoseDetection("Psi",userId);
 		}
 	}
 
 	public void onStartPose(String pose,int userId)
 	{
-		guiHud.sendGuiMessage("onStartdPose - userId: " + userId + ", pose: " + pose);
-		guiHud.sendGuiMessage(" stop pose detection");
+		debugMessage("onStartdPose - userId: " + userId + ", pose: " + pose);
+		debugMessage(" stop pose detection");
 	  
 		kinect.stopPoseDetection(userId); 
 		kinect.requestCalibrationSkeleton(userId, true);
@@ -217,7 +225,7 @@ public class TherapeuticPresence extends PApplet {
 
 	public void onEndPose(String pose,int userId)
 	{
-		guiHud.sendGuiMessage("onEndPose - userId: " + userId + ", pose: " + pose);
+		debugMessage("onEndPose - userId: " + userId + ", pose: " + pose);
 	}
 
 	
@@ -230,11 +238,11 @@ public class TherapeuticPresence extends PApplet {
 			case 'o':
 		  		if(skeleton != null && kinect.isTrackingSkeleton(skeleton.userId)){
 		  			if(kinect.saveCalibrationDataSkeleton(skeleton.userId,"../data/calibration"+skeleton.userId+".skel"))
-	  					guiHud.sendGuiMessage("Saved current calibration for user "+skeleton.userId+" to file.");      
+	  					debugMessage("Saved current calibration for user "+skeleton.userId+" to file.");      
 	  				else
-	  					guiHud.sendGuiMessage("Can't save calibration for user "+skeleton.userId+" to file.");
+	  					debugMessage("Can't save calibration for user "+skeleton.userId+" to file.");
 		  		} else {
-		  			guiHud.sendGuiMessage("There is no calibration data to save. No skeleton found.");
+		  			debugMessage("There is no calibration data to save. No skeleton found.");
 			  	}
 		  		break;
 		  	
@@ -247,12 +255,12 @@ public class TherapeuticPresence extends PApplet {
 		  				kinect.startTrackingSkeleton(userList.get(0));
 		  				kinect.stopPoseDetection(userList.get(0));
 		  				this.newSkeletonFound(userList.get(0));
-		  				guiHud.sendGuiMessage("Loaded calibration for user "+userList.get(0)+" from file.");
+		  				debugMessage("Loaded calibration for user "+userList.get(0)+" from file.");
 		  			} else {
-		  				guiHud.sendGuiMessage("Can't load calibration file for user "+userList.get(0));      
+		  				debugMessage("Can't load calibration file for user "+userList.get(0));      
 		  			}
 		  		} else {
-		  			guiHud.sendGuiMessage("No calibration data loaded. You need at least one active user!");
+		  			debugMessage("No calibration data loaded. You need at least one active user!");
 		  		}
 			    break;
 			    
