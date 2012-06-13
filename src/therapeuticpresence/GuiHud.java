@@ -127,14 +127,6 @@ public class GuiHud {
 		autoCalibration.moveTo(menu);
 		autoCalibration.setLabelVisible(false);
 		autoCalibration.plugTo(this);
-
-		controlP5.Textarea drawCameraLabel = control.addTextarea("drawCameraLabel","Toggle DrawCamera",2,164,128,16);
-		drawCameraLabel.moveTo(menu);
-		
-		controlP5.Toggle drawCamera = control.addToggle("switchDrawCamera",TherapeuticPresence.drawCamFrustum,130,160,20,20);
-		drawCamera.moveTo(menu);
-		drawCamera.setLabelVisible(false);
-		drawCamera.plugTo(this);
 		
 	}
 	
@@ -181,8 +173,5 @@ public class GuiHud {
 		TherapeuticPresence.autoCalibration = !mainApplet.autoCalibration;
 	}
 	
-	private void switchDrawCamera (int theValue) {
-		TherapeuticPresence.drawCamFrustum = !mainApplet.drawCamFrustum;
-	}
 
 }

@@ -30,7 +30,6 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean debugOutput = true;
 	public static short visualisationMethod = TherapeuticPresence.DRAW_DEPTHMAP;
 	public static short mirrorTherapy = TherapeuticPresence.MIRROR_OFF;
-	public static boolean drawCamFrustum = false; // control drawing of the kinect camera
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	
 	// --- interfaces to other modules ---
@@ -126,10 +125,6 @@ public class TherapeuticPresence extends PApplet {
 		if (visualisation != null)
 			visualisation.draw();
 		
-		// draw the camera
-		if (TherapeuticPresence.drawCamFrustum) 
-			kinect.drawCamFrustum();
-		
 		if (guiHud != null)
 			guiHud.draw();
 
@@ -172,66 +167,53 @@ public class TherapeuticPresence extends PApplet {
 	
 	// -----------------------------------------------------------------
 	// SimpleOpenNI user events
-	public void onNewUser(int userId)
-	{
-		debugMessage("onNewUser - userId: " + userId);
-		debugMessage("  start pose detection");
-	  
-
-		if(TherapeuticPresence.autoCalibration)
-		    kinect.requestCalibrationSkeleton(userId,true);
-		else    
-		    kinect.startPoseDetection("Psi",userId);
+	public void onNewUser(int userId) {
+		debugMessage("New User "+userId+" entered the scene.");
+		if (skeleton == null) {
+			debugMessage("  start pose detection");
+			if(TherapeuticPresence.autoCalibration) kinect.requestCalibrationSkeleton(userId,true);
+			else kinect.startPoseDetection("Psi",userId);
+		} else {
+			debugMessage("  no pose detection, skeleton is already tracked");
+		}
 	}
 
-	public void onLostUser(int userId)
-	{
+	public void onLostUser(int userId) {
 		debugMessage("onLostUser - userId: " + userId);
 		this.skeletonLost(userId);
 	}
 
-	public void onStartCalibration(int userId)
-	{
+	public void onStartCalibration(int userId) {
 		debugMessage("onStartCalibration - userId: " + userId);
 	}
 
-	public void onEndCalibration(int userId, boolean successfull)
-	{
+	public void onEndCalibration(int userId, boolean successfull) {
 		debugMessage("onEndCalibration - userId: " + userId + ", successfull: " + successfull);
-	  
-		if (successfull) 
-		{ 
+		if (successfull) { 
 			debugMessage("  User calibrated !!!");
 			kinect.startTrackingSkeleton(userId); 
 			this.newSkeletonFound(userId);
-		} 
-		else 
-		{ 
+		} else { 
 			debugMessage("  Failed to calibrate user !!!");
 			debugMessage("  Start pose detection");
 			kinect.startPoseDetection("Psi",userId);
 		}
 	}
 
-	public void onStartPose(String pose,int userId)
-	{
+	public void onStartPose(String pose,int userId) {
 		debugMessage("onStartdPose - userId: " + userId + ", pose: " + pose);
 		debugMessage(" stop pose detection");
-	  
 		kinect.stopPoseDetection(userId); 
 		kinect.requestCalibrationSkeleton(userId, true);
-	 
 	}
 
-	public void onEndPose(String pose,int userId)
-	{
+	public void onEndPose(String pose,int userId) {
 		debugMessage("onEndPose - userId: " + userId + ", pose: " + pose);
 	}
 
 	
 	// Keyboard events
-	public void keyPressed()
-	{
+	public void keyPressed() {
 		switch(key)
 		{
 		  	// save user calibration data
@@ -293,8 +275,7 @@ public class TherapeuticPresence extends PApplet {
 				break;
 		}
 	    
-		switch(keyCode)
-		{
+		switch(keyCode) {
 	    	case LEFT:
 	    		visualisation.rotY += 100.0f;
 	    		break;
