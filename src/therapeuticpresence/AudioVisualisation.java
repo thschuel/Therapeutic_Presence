@@ -27,7 +27,7 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 	protected int centerX, centerY;
 	protected int rightQuarterX, rightQuarterY;
 	protected int rightX, rightY;
-	protected int delay = 5;
+	protected int delay = 8;
 	
 	
 	public AudioVisualisation (PApplet _mainApplet, Skeleton _skeleton) {
