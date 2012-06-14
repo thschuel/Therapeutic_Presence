@@ -10,6 +10,15 @@ import SimpleOpenNI.*;
 import processing.opengl.*;
 import ddf.minim.*;
 
+/* The main application class. 
+ * TherapeuticPresence maintains interfaces to 
+ *   the kinect
+ *   the skeleton in the scene
+ *   the active visualisation
+ *   the gui
+ *   
+ */
+
 public class TherapeuticPresence extends PApplet {
 
 	private static final long serialVersionUID = 1L;
@@ -35,13 +44,10 @@ public class TherapeuticPresence extends PApplet {
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
 	protected SimpleOpenNI kinect;
-	
 	// interface to the chosen visualisation object
 	protected Visualisation visualisation = null;
-	
 	// the skeleton that control the scene, only one user for now
 	protected Skeleton skeleton = null;
-		
 	// user interface
 	protected GuiHud guiHud;
 	
