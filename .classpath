@@ -3,12 +3,12 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/base/core/ant-launcher.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Processing_OpenNI/lib/base/core"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Therapeutic_Presence/lib/base/core"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/base/core/ant.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Processing_OpenNI/lib/base/core"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Therapeutic_Presence/lib/base/core"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/base/core/core.jar">
@@ -17,25 +17,15 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/Users/thschuel/Documents/eclipse/Therapeutic_Presence/lib/base/opengl/jogl.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/thschuel/Documents/eclipse/Therapeutic_Presence/lib/base/opengl/library"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/thschuel/Documents/eclipse/Therapeutic_Presence/lib/base/opengl/opengl.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/thschuel/Documents/eclipse/Therapeutic_Presence/lib/base/opengl/library"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/user/ControlP5/controlP5.jar"/>
 	<classpathentry kind="lib" path="lib/base/opengl/gluegen-rt.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/thschuel/Documents/eclipse/Therapeutic_Presence/lib/base/opengl/library"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Therapeutic_Presence/lib/base/opengl/library"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/user/SimpleOpenNI-0.27/SimpleOpenNI.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/thschuel/Documents/eclipse/Therapeutic_Presence/lib/user/SimpleOpenNI-0.27"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Therapeutic_Presence/lib/user/SimpleOpenNI-0.27"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/user/GenerativeDesing/generativedesign.jar"/>
@@ -51,5 +41,15 @@
 	<classpathentry kind="lib" path="lib/user/minim/mp3spi1.9.4.jar"/>
 	<classpathentry kind="lib" path="lib/user/minim/tritonus_aos.jar"/>
 	<classpathentry kind="lib" path="lib/user/minim/tritonus_share.jar"/>
+	<classpathentry kind="lib" path="lib/base/opengl/jogl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Therapeutic_Presence/lib/base/opengl/library"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/base/opengl/opengl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Therapeutic_Presence/lib/base/opengl/library"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
