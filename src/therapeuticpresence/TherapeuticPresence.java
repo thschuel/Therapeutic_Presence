@@ -1,14 +1,8 @@
 package therapeuticpresence;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import processing.core.*;
-import generativedesign.*;
 import SimpleOpenNI.*;
 import processing.opengl.*;
-import ddf.minim.*;
 
 /* The main application class. 
  * TherapeuticPresence maintains interfaces to 
@@ -16,9 +10,16 @@ import ddf.minim.*;
  *   the skeleton in the scene
  *   the active visualisation
  *   the gui
- *   
+ * It also contains the basic setup variables. It handles keyboard events.
+ * Workflow is
+ *   setting up the kinect and the gui according to setup variables
+ *   set up depth map visualisation
+ *   wait for user to enter the scene
+ *   calibrate user (automatic or pose)
+ *   set up skeleton from kinect data (skeleton updates itself)
+ *   set up chosen visualisation and play
+ *   wait for user input
  */
-
 public class TherapeuticPresence extends PApplet {
 
 	private static final long serialVersionUID = 1L;
@@ -183,16 +184,13 @@ public class TherapeuticPresence extends PApplet {
 			debugMessage("  no pose detection, skeleton is already tracked");
 		}
 	}
-
 	public void onLostUser(int userId) {
 		debugMessage("onLostUser - userId: " + userId);
 		this.skeletonLost(userId);
 	}
-
 	public void onStartCalibration(int userId) {
 		debugMessage("onStartCalibration - userId: " + userId);
 	}
-
 	public void onEndCalibration(int userId, boolean successfull) {
 		debugMessage("onEndCalibration - userId: " + userId + ", successfull: " + successfull);
 		if (successfull) { 
@@ -205,14 +203,12 @@ public class TherapeuticPresence extends PApplet {
 			kinect.startPoseDetection("Psi",userId);
 		}
 	}
-
 	public void onStartPose(String pose,int userId) {
 		debugMessage("onStartdPose - userId: " + userId + ", pose: " + pose);
 		debugMessage(" stop pose detection");
 		kinect.stopPoseDetection(userId); 
 		kinect.requestCalibrationSkeleton(userId, true);
 	}
-
 	public void onEndPose(String pose,int userId) {
 		debugMessage("onEndPose - userId: " + userId + ", pose: " + pose);
 	}
