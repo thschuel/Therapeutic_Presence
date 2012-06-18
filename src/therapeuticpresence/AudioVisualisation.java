@@ -2,11 +2,14 @@ package therapeuticpresence;
 
 import java.util.ArrayList;
 
+import javax.media.opengl.GL;
+
 import Visuals.SkeletonVisualisation;
 
 import processing.core.*;
 import ddf.minim.*;
 import ddf.minim.analysis.FFT;
+import processing.opengl.*;
 
 public class AudioVisualisation extends SkeletonVisualisation implements AudioListener {
 
@@ -43,7 +46,7 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 	protected int delay = 8;
 	protected int radiation = 40;
 	protected float scaleDC = 1f;
-	protected float scaleAC = 15f;
+	protected float scaleAC = 12f;
 	
 	public AudioVisualisation (PApplet _mainApplet, Skeleton _skeleton) {
 		super(_mainApplet,_skeleton);
@@ -116,7 +119,6 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 		
 		mainApplet.colorMode(PApplet.HSB,bands,255,255,255);
 		mainApplet.noFill();
-		mainApplet.smooth();
 		
 		if (skeleton.isUpdated && leftChannelSamples != null && rightChannelSamples != null) {
 			if (calcFFT) {

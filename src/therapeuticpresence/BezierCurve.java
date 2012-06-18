@@ -32,16 +32,22 @@ public class BezierCurve {
 			controlPointsY[controlPointsCounter++] = _y;
 		}
 	}
+	
 	public void draw (PApplet _mainApplet) {
 		if (transparency > 0f && anchorPointsCounter > 1 && controlPointsCounter > 0) {
 			_mainApplet.stroke(color,transparency);
-			_mainApplet.strokeWeight(strokeWeight*=GROWTH_FACTOR);
-			_mainApplet.beginShape();
-			for (int i=0; i<anchorPointsCounter-1; i++) {
-				if (i==0) _mainApplet.vertex(anchorPointsX[i],anchorPointsY[i]);
-				_mainApplet.bezierVertex(controlPointsX[i],controlPointsY[i],controlPointsX[i],controlPointsY[i],anchorPointsX[i+1],anchorPointsY[i+1]);
+			//_mainApplet.strokeWeight(strokeWeight*=GROWTH_FACTOR);
+			// use multiple lines instead of high stroke weight. thick lines produce artefacts
+			int lines = PApplet.round(strokeWeight);
+			strokeWeight*=GROWTH_FACTOR;
+			for (int j=-lines; j<=lines;j++) {
+				_mainApplet.beginShape();
+				for (int i=0; i<anchorPointsCounter-1; i++) {
+					if (i==0) _mainApplet.vertex(anchorPointsX[i],anchorPointsY[i]+j);
+					_mainApplet.bezierVertex(controlPointsX[i],controlPointsY[i]+j,controlPointsX[i],controlPointsY[i]+j,anchorPointsX[i+1],anchorPointsY[i+1]+j);
+				}
+				_mainApplet.endShape();
 			}
-			_mainApplet.endShape();
 			
 			transparency -= MAX_TRANSPARENCY/(FADE_OUT_SECONDS*_mainApplet.frameRate);
 		}

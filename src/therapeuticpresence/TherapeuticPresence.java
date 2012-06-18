@@ -1,5 +1,7 @@
 package therapeuticpresence;
 
+import javax.media.opengl.GL;
+
 import processing.core.*;
 import SimpleOpenNI.*;
 import Visuals.DepthMapVisualisation;
@@ -60,6 +62,7 @@ public class TherapeuticPresence extends PApplet {
 	// -----------------------------------------------------------------
 	public void setup() {		
 		size(screenWidth-2,screenHeight-100,OPENGL);
+		hint(PConstants.ENABLE_OPENGL_4X_SMOOTH);
 		
 		// establish connection to kinect/openni
 		setupKinect();
@@ -101,6 +104,7 @@ public class TherapeuticPresence extends PApplet {
 	
 	public void setupVisualisation (short _visualisationMethod) {
 		TherapeuticPresence.visualisationMethod = _visualisationMethod;
+		
 		switch (TherapeuticPresence.visualisationMethod) {
 			case TherapeuticPresence.DRAW_SKELETON:
 				visualisation = new StickfigureVisualisation(this,skeleton);
