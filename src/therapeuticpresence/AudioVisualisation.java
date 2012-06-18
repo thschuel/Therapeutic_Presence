@@ -2,6 +2,8 @@ package therapeuticpresence;
 
 import java.util.ArrayList;
 
+import Visuals.SkeletonVisualisation;
+
 import processing.core.*;
 import ddf.minim.*;
 import ddf.minim.analysis.FFT;

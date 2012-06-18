@@ -1,4 +1,4 @@
-package therapeuticpresence;
+package Visuals;
 
 import SimpleOpenNI.SimpleOpenNI;
 import processing.core.*;

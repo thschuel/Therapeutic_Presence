@@ -4,8 +4,9 @@ import processing.core.PApplet;
 
 public class BezierCurve {
 	public static final int MAX_POINTS = 16;
-	public static final float FADE_OUT_SECONDS = 0.5f;
+	public static final float FADE_OUT_SECONDS = 0.1f;
 	public static final float MAX_TRANSPARENCY = 255f;
+	public static final float GROWTH_FACTOR = 2.7f;
 	private int anchorPointsX[] = new int[MAX_POINTS], anchorPointsY[] = new int[MAX_POINTS];
 	private int anchorPointsCounter = 0;
 	private int controlPointsX[] = new int[MAX_POINTS-1], controlPointsY[] = new int[MAX_POINTS-1];
@@ -14,7 +15,6 @@ public class BezierCurve {
 	private float strokeWeight; 
 	private int color;
 	public float transparency = MAX_TRANSPARENCY;
-	public float growth = 1.3f;
 	
 	public BezierCurve (float _strokeWeight, int _color) {
 		strokeWeight = _strokeWeight;
@@ -35,7 +35,7 @@ public class BezierCurve {
 	public void draw (PApplet _mainApplet) {
 		if (transparency > 0f && anchorPointsCounter > 1 && controlPointsCounter > 0) {
 			_mainApplet.stroke(color,transparency);
-			_mainApplet.strokeWeight(strokeWeight*=growth);
+			_mainApplet.strokeWeight(strokeWeight*=GROWTH_FACTOR);
 			_mainApplet.beginShape();
 			for (int i=0; i<anchorPointsCounter-1; i++) {
 				if (i==0) _mainApplet.vertex(anchorPointsX[i],anchorPointsY[i]);

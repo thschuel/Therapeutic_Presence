@@ -2,6 +2,10 @@ package therapeuticpresence;
 
 import processing.core.*;
 import SimpleOpenNI.*;
+import Visuals.DepthMapVisualisation;
+import Visuals.GenerativeTreeVisualisation;
+import Visuals.StickfigureVisualisation;
+import Visuals.Visualisation;
 import processing.opengl.*;
 
 /* The main application class. 

@@ -1,6 +1,8 @@
-package therapeuticpresence;
+package Visuals;
 
 import processing.core.*;
+import therapeuticpresence.Skeleton;
+import therapeuticpresence.TherapeuticPresence;
 
 public class StickfigureVisualisation extends SkeletonVisualisation {
 

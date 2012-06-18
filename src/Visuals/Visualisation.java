@@ -1,4 +1,4 @@
-package therapeuticpresence;
+package Visuals;
 
 import processing.core.PApplet;
 

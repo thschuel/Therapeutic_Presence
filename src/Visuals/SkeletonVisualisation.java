@@ -1,6 +1,7 @@
-package therapeuticpresence;
+package Visuals;
 
 import processing.core.PApplet;
+import therapeuticpresence.Skeleton;
 
 public abstract class SkeletonVisualisation extends Visualisation {
 	protected Skeleton skeleton = null;

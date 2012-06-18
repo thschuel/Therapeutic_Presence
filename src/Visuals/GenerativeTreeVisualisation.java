@@ -1,6 +1,7 @@
-package therapeuticpresence;
+package Visuals;
 
 import processing.core.*;
+import therapeuticpresence.Skeleton;
 
 public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 
