@@ -44,10 +44,15 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation implement
 	protected float downScale = 0.9f;
 	protected float transparency = 150;
 	
+	protected AudioVisualisation av;
+	
 	
 	public GenerativeTreeVisualisation (PApplet _mainApplet, Skeleton _skeleton) {
 		super (_mainApplet,_skeleton);
 		minim = new Minim(mainApplet);
+		audioPlayer = minim.loadFile("../data/moan.mp3",1024);
+		audioPlayer.loop();
+		audioPlayer.addListener(this);
 	}
 
 	public void samples(float[] samp) {
@@ -68,10 +73,6 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation implement
 		}
 		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 		
-		audioPlayer = minim.loadFile("../data/moan.mp3",1024);
-		audioPlayer.loop();
-		audioPlayer.addListener(this);
-
 		float gain = .125f;
 	    fft = new FFT(audioPlayer.bufferSize(), audioPlayer.sampleRate());
 	    maxFFT =  audioPlayer.sampleRate() / audioPlayer.bufferSize() * gain;
@@ -79,6 +80,10 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation implement
 		leftFFT = new float[bands];
 		rightFFT = new float[bands];
 	    fft.linAverages(bands);
+	    
+	    av = new AudioVisualisation(mainApplet,skeleton,minim,audioPlayer);
+	    av.setup();
+	    
 	}
 
 	public void reset() {
@@ -96,8 +101,11 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation implement
 			    fft.forward(rightChannelSamples);
 			    for(int i = 0; i < bands; i++) rightFFT[i] = fft.getAvg(i);
 			}
+
+			av.draw();
 			
 			// draw trunk of the tree
+			mainApplet.pushMatrix();
 			mainApplet.translate(mainApplet.width/2,mainApplet.height);
 			mainApplet.stroke(strokeColor,transparency);
 			float strokeWeight = (leftFFT[0]+rightFFT[0])/2f * initialScale;
@@ -117,6 +125,8 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation implement
 			actColor = 0.f;
 			// start branching
 			branch(mainApplet.height/4.f,branchCount,strokeWeight*downScale);
+			
+			mainApplet.popMatrix();
 		}
 		
 	}

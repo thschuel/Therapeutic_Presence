@@ -1,10 +1,12 @@
-package therapeuticpresence;
+package Visuals;
 
 import java.util.ArrayList;
 
-import Visuals.SkeletonVisualisation;
 
 import processing.core.*;
+import therapeuticpresence.BezierCurve;
+import therapeuticpresence.Skeleton;
+import therapeuticpresence.TherapeuticPresence;
 import ddf.minim.*;
 import ddf.minim.analysis.FFT;
 
@@ -48,6 +50,16 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 	public AudioVisualisation (PApplet _mainApplet, Skeleton _skeleton) {
 		super(_mainApplet,_skeleton);
 		minim = new Minim(mainApplet);
+		audioPlayer = minim.loadFile("../data/moan.mp3",1024);
+		audioPlayer.loop();
+		audioPlayer.addListener(this);
+	}
+	
+	public AudioVisualisation (PApplet _mainApplet, Skeleton _skeleton, Minim _minim, AudioPlayer _audioPlayer) {
+		super(_mainApplet,_skeleton);
+		minim = _minim;
+		audioPlayer = _audioPlayer;
+		audioPlayer.addListener(this);
 	}
 	
 	public void samples(float[] samp) {
@@ -60,13 +72,10 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 	}
 	
 	public void setup() {
-		audioPlayer = minim.loadFile("../data/moan.mp3",1024);
-		audioPlayer.loop();
-		audioPlayer.addListener(this);
 		
-		backgroundImg = new PImage(mainApplet.width,mainApplet.height);
-		PImage temp = mainApplet.loadImage("../data/circles.png");
-		backgroundImg.copy(temp, 0, 0, temp.width,temp.height, backgroundImg.width/2-temp.width/2, backgroundImg.height/2-temp.height/2, temp.width,temp.height);
+//		backgroundImg = new PImage(mainApplet.width,mainApplet.height);
+//		PImage temp = mainApplet.loadImage("../data/circles.png");
+//		backgroundImg.copy(temp, 0, 0, temp.width,temp.height, backgroundImg.width/2-temp.width/2, backgroundImg.height/2-temp.height/2, temp.width,temp.height);
 		
 		//backgroundColor = mainApplet.color(255,255,255);
 		
@@ -105,7 +114,6 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 		anchorR1Y = right1Y + ((right2Y-right1Y)/2);
 	}
 
-	@Override
 	public void reset() {
 		// reset the scene
 		mainApplet.background(backgroundColor);

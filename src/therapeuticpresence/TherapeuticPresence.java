@@ -4,6 +4,7 @@ import javax.media.opengl.GL;
 
 import processing.core.*;
 import SimpleOpenNI.*;
+import Visuals.AudioVisualisation;
 import Visuals.DepthMapVisualisation;
 import Visuals.GenerativeTreeVisualisation;
 import Visuals.StickfigureVisualisation;
