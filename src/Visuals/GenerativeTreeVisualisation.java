@@ -3,7 +3,11 @@ package Visuals;
 import processing.core.*;
 import therapeuticpresence.Skeleton;
 
-public class GenerativeTreeVisualisation extends SkeletonVisualisation {
+import ddf.minim.*;
+import ddf.minim.analysis.FFT;
+
+
+public class GenerativeTreeVisualisation extends SkeletonVisualisation implements AudioListener {
 
 	private int strokeColor = 0;
 
@@ -19,12 +23,40 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 	// colors of leafs
 	private int[] leafColors;
 	private float actColor = 0.f;
-	private int	colorsSize = 360;
+	private int colorsSize = 360;
 	private float colorsStepSize = 10.f;
+	
+	// audio responsive tree
+	protected float[] leftChannelSamples = null;
+	protected float[] rightChannelSamples = null;
+
+	protected Minim minim;
+	protected AudioPlayer audioPlayer;
+	
+	protected boolean calcFFT = true; 
+	protected int bands = 8;
+	protected FFT fft; 
+	protected float maxFFT;
+	protected float[] leftFFT = null;
+	protected float[] rightFFT = null;
+	
+	protected float initialScale = 3f;
+	protected float downScale = 0.9f;
+	protected float transparency = 150;
 	
 	
 	public GenerativeTreeVisualisation (PApplet _mainApplet, Skeleton _skeleton) {
 		super (_mainApplet,_skeleton);
+		minim = new Minim(mainApplet);
+	}
+
+	public void samples(float[] samp) {
+		leftChannelSamples = samp;
+	}
+
+	public void samples(float[] sampL, float[] sampR) {
+		leftChannelSamples = sampL;
+		rightChannelSamples = sampR;
 	}
 	
 	public void setup() {
@@ -35,50 +67,61 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 			leafColors[i] = mainApplet.color(i,100,100);
 		}
 		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
+		
+		audioPlayer = minim.loadFile("../data/moan.mp3",1024);
+		audioPlayer.loop();
+		audioPlayer.addListener(this);
+
+		float gain = .125f;
+	    fft = new FFT(audioPlayer.bufferSize(), audioPlayer.sampleRate());
+	    maxFFT =  audioPlayer.sampleRate() / audioPlayer.bufferSize() * gain;
+	    fft.window(FFT.HAMMING);
+		leftFFT = new float[bands];
+		rightFFT = new float[bands];
+	    fft.linAverages(bands);
+	}
+
+	public void reset() {
+		mainApplet.background(250,250,250);
+		mainApplet.camera();
 	}
 
 	public void draw() {
-		mainApplet.background(250,250,250);
-		mainApplet.camera();
-		// different colors for different skeletons
-		mainApplet.stroke(strokeColor);
-		// different positions for different skeletons
-		mainApplet.translate(mainApplet.width/2,mainApplet.height);
-		//float angleBodyAxis = currSkel.angleToUpAxis(Skeleton.NECK,Skeleton.TORSO);
-		/*PVector neck = currSkel.getJoint(Skeleton.NECK);
-		PVector torso = currSkel.getJoint(Skeleton.TORSO);
-		PVector body = PVector.sub(neck,torso);
-		float angleBodyAxis = PVector.angleBetween(new PVector(body.x,body.y,0), new PVector(0,1,0));
-		if (neck.x < torso.x) {
-			angleBodyAxis *= -1;
+		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
+		
+		if (skeleton.isUpdated && leftChannelSamples != null && rightChannelSamples != null) {
+			if (calcFFT) {
+			    fft.forward(leftChannelSamples);
+			    for(int i = 0; i < bands; i++) leftFFT[i] = fft.getAvg(i);
+			    fft.forward(rightChannelSamples);
+			    for(int i = 0; i < bands; i++) rightFFT[i] = fft.getAvg(i);
+			}
+			
+			// draw trunk of the tree
+			mainApplet.translate(mainApplet.width/2,mainApplet.height);
+			mainApplet.stroke(strokeColor,transparency);
+			float strokeWeight = (leftFFT[0]+rightFFT[0])/2f * initialScale;
+			mainApplet.strokeWeight(strokeWeight);
+			mainApplet.line(0,0,0,-mainApplet.height/3);
+			mainApplet.translate(0,-mainApplet.height/3);
+			
+			float anglelArmToBodyAxis = skeleton.angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_HAND,Skeleton.TORSO,Skeleton.NECK); 
+			float anglerArmToBodyAxis = skeleton.angleBetween(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_HAND,Skeleton.TORSO,Skeleton.NECK);
+			 
+			// trees react to body posture with a delay
+			curlx += (anglelArmToBodyAxis*0.75-curlx)/delay;
+			curly += (anglerArmToBodyAxis*0.75-curly)/delay;				
+			int branchCount = (int)(13*skeleton.distanceToKinect()/3000f);
+			// colors of leafs differ in HSB-space
+			colorsStepSize = colorsSize/PApplet.pow(2,branchCount); 
+			actColor = 0.f;
+			// start branching
+			branch(mainApplet.height/4.f,branchCount,strokeWeight*downScale);
 		}
-		rotate(angleBodyAxis);*/
-		mainApplet.line(0,0,0,-mainApplet.height/3);
-		mainApplet.translate(0,-mainApplet.height/3);
 		
-		float anglelArmToBodyAxis = skeleton.angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_HAND,Skeleton.TORSO,Skeleton.NECK); 
-		float anglerArmToBodyAxis = skeleton.angleBetween(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_HAND,Skeleton.TORSO,Skeleton.NECK);
-		float angleLArmToRArm = skeleton.angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_HAND,Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_HAND);
-		 
-		// trees react to body posture
-		curlx += (anglelArmToBodyAxis*0.75-curlx)/delay;
-		curly += (anglerArmToBodyAxis*0.75-curly)/delay;				
-		int branchCount = (int)(13*skeleton.distanceToKinect()/3000f);
-		// colors of leafs differ in HSB-space
-		colorsStepSize = colorsSize/PApplet.pow(2,branchCount); 
-		actColor = 0.f;
-		
-		branch(mainApplet.height/4.f,branchCount);
-		
-		// for debug
-//		guiHud.sendGuiMessage("Angle lArm to rArm Axis: "+guiHud.df.format(angleLArmToRArm));
-//		guiHud.sendGuiMessage("Angle lArm to Body Axis: "+guiHud.df.format(anglelArmToBodyAxis));
-//		guiHud.sendGuiMessage("Angle rArm to Body Axis: "+guiHud.df.format(anglerArmToBodyAxis));
-		//guiHud.sendGuiMessage("Angle Body to Up Axis: "+guiHud.df.format(angleBodyAxis));
-
 	}
 	
-	private void branch(float length, int count)
+	private void branch(float length, int count, float strokeWeight)
 	{
 		length *= f;
 		count -= 1;
@@ -87,25 +130,30 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 			mainApplet.pushMatrix();
 		    
 			mainApplet.rotate(-curlx);
+			mainApplet.stroke(strokeColor,transparency);
+			mainApplet.strokeWeight(strokeWeight);
 			mainApplet.line(0,0,0,-length);
 			mainApplet.translate(0,-length);
-		    branch(length,count);
+		    branch(length,count,strokeWeight*downScale);
 		    
 		    mainApplet.popMatrix();
 	      
 		    mainApplet.pushMatrix();
 		    
 		    mainApplet.rotate(curly);
-		    mainApplet.line(0,0,0,-length);
+			mainApplet.stroke(strokeColor,transparency);
+			mainApplet.strokeWeight(strokeWeight);
+			mainApplet.line(0,0,0,-length);
 		    mainApplet.translate(0,-length);
-		    branch(length,count);
+		    branch(length,count,strokeWeight*downScale);
 		    
 		    mainApplet.popMatrix();
 		} else {
 			// draw leafs
-			mainApplet.fill(leafColors[PApplet.round(actColor+=colorsStepSize)],200);
+			mainApplet.strokeWeight(1);
+			mainApplet.fill(leafColors[PApplet.round(actColor+=colorsStepSize)],transparency);
 			mainApplet.translate(0,-5);
-			mainApplet.ellipse(0,0,5,10);
+			mainApplet.ellipse(0,0,15,30);
 		}
 		
 	}

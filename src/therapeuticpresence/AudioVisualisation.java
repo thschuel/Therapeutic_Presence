@@ -2,14 +2,11 @@ package therapeuticpresence;
 
 import java.util.ArrayList;
 
-import javax.media.opengl.GL;
-
 import Visuals.SkeletonVisualisation;
 
 import processing.core.*;
 import ddf.minim.*;
 import ddf.minim.analysis.FFT;
-import processing.opengl.*;
 
 public class AudioVisualisation extends SkeletonVisualisation implements AudioListener {
 
@@ -107,11 +104,15 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 		anchorR2Y = right1Y + ((right2Y-right1Y)/2);
 		anchorR1Y = right1Y + ((right2Y-right1Y)/2);
 	}
-	
-	public void draw () {
+
+	@Override
+	public void reset() {
 		// reset the scene
 		mainApplet.background(backgroundColor);
 		mainApplet.camera(); // reset the camera for 2d drawing
+	}
+	
+	public void draw () {
 
 		//mainApplet.tint(255,0);
 		//backgroundImg.copy(backgroundImg, 5,5,backgroundImg.width-5,backgroundImg.height-5, 0,0,backgroundImg.width,backgroundImg.height);

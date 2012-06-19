@@ -137,8 +137,10 @@ public class TherapeuticPresence extends PApplet {
 			skeleton.updateSkeleton();
 		
 		// -------- drawing --------------------------------
-		if (visualisation != null)
+		if (visualisation != null) {
+			visualisation.reset();
 			visualisation.draw();
+		}
 		
 		if (guiHud != null)
 			guiHud.draw();
@@ -165,7 +167,7 @@ public class TherapeuticPresence extends PApplet {
 				debugMessage("Skeleton of user "+skeleton.userId+" replaced with skeleton of user "+_userId+"!");
 			}
 			skeleton = new Skeleton(kinect,_userId);
-			setupVisualisation(TherapeuticPresence.DRAW_AUDIOSKELETON);
+			setupVisualisation(TherapeuticPresence.DRAW_TREE);
 		}
 	}
 	

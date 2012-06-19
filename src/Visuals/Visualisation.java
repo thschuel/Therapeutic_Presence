@@ -19,5 +19,6 @@ public abstract class Visualisation {
 		backgroundColor = mainApplet.color(0,0,0);
 	}
 	public abstract void setup ();
+	public abstract void reset ();
 	public abstract void draw ();
 }

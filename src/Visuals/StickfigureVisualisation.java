@@ -24,10 +24,13 @@ public class StickfigureVisualisation extends SkeletonVisualisation {
 		radiusJoints = 20f;
 	}
 
-	public void draw() {
+	public void reset() {
 		// reset the scene
 		mainApplet.background(backgroundColor);
 		mainApplet.camera(0,0,0,0,0,1,0,1,0); // set the camera to the position of the kinect, facing towards the scene
+	}
+
+	public void draw() {
 		// rotate the scene: kinect data comes upside down!
 		mainApplet.pushMatrix();
 		mainApplet.rotateX(rotX);

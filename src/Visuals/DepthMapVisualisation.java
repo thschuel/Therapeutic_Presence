@@ -15,11 +15,14 @@ public class DepthMapVisualisation extends Visualisation {
 	public void setup() {
 	}
 
-	public void draw() {
+	public void reset() {
 		// reset the scene
 		mainApplet.background(backgroundColor);
 		// set the camera to the position of the kinect, facing towards the scene
 		mainApplet.camera(0,0,0,0,0,1,0,1,0);
+	}
+
+	public void draw() {
 		// rotate the scene: kinect data comes upside down!
 		mainApplet.pushMatrix();
 		mainApplet.rotateX(rotX);
