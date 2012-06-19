@@ -46,12 +46,19 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation implement
 	
 	protected AudioVisualisation av;
 	
-	
+
 	public GenerativeTreeVisualisation (PApplet _mainApplet, Skeleton _skeleton) {
 		super (_mainApplet,_skeleton);
 		minim = new Minim(mainApplet);
 		audioPlayer = minim.loadFile("../data/moan.mp3",1024);
 		audioPlayer.loop();
+		audioPlayer.addListener(this);
+	}
+	
+	public GenerativeTreeVisualisation (PApplet _mainApplet, Skeleton _skeleton, Minim _minim, AudioPlayer _audioPlayer) {
+		super (_mainApplet,_skeleton);
+		minim = _minim;
+		audioPlayer = _audioPlayer;
 		audioPlayer.addListener(this);
 	}
 

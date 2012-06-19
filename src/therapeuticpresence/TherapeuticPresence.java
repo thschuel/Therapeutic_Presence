@@ -62,8 +62,7 @@ public class TherapeuticPresence extends PApplet {
 	
 	// -----------------------------------------------------------------
 	public void setup() {		
-		size(screenWidth-2,screenHeight-100,OPENGL);
-		hint(PConstants.ENABLE_OPENGL_4X_SMOOTH);
+		size(screenWidth-16,screenHeight-128,OPENGL);
 		
 		// establish connection to kinect/openni
 		setupKinect();
@@ -168,7 +167,7 @@ public class TherapeuticPresence extends PApplet {
 				debugMessage("Skeleton of user "+skeleton.userId+" replaced with skeleton of user "+_userId+"!");
 			}
 			skeleton = new Skeleton(kinect,_userId);
-			setupVisualisation(TherapeuticPresence.DRAW_TREE);
+			setupVisualisation(TherapeuticPresence.DRAW_AUDIOSKELETON);
 		}
 	}
 	
@@ -179,6 +178,11 @@ public class TherapeuticPresence extends PApplet {
 		} else {
 			skeleton = null;
 			setupVisualisation(TherapeuticPresence.DRAW_DEPTHMAP);
+			int[] users = kinect.getUsers();
+			if (users.length!=0) {
+				if(TherapeuticPresence.autoCalibration) kinect.requestCalibrationSkeleton(users[0],true);
+				else kinect.startPoseDetection("Psi",users[0]);
+			}
 		}
 	}
 	

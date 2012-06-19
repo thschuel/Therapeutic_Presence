@@ -17,7 +17,21 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 
 	protected Minim minim;
 	protected AudioPlayer audioPlayer;
-	protected PImage backgroundImg;
+	
+	// animate the background: tunnel effect
+	protected PImage[] backgroundImg = new PImage[4];
+	protected float numberOfCirclesForTunnel = 10f;
+	protected float circlesOffset = 0f; // between 0 and 1
+	protected float circlesStrokeWeight = 4f;
+	protected int circlesColor;
+	// these values are used to control the background tinting
+	public static float backgroundTintHueMax = 255f;
+	public static float backgroundTintBrightnessMax = 20f; // should depend on expected max value of FFT DC
+	public static float backgroundTintSaturationMax = 30f; // should depend on expected max value of FFT DC
+	protected int backgroundTintHue = 120;
+	protected float backgroundDelay = 12f;
+	protected float fftDCValue=0f;
+	protected float fftDCValueDelayed=0f;
 	
 	protected boolean calcFFT = true; 
 	protected int bands = 8;
@@ -42,7 +56,8 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 	
 	protected ArrayList<BezierCurve> bezierCurves = new ArrayList<BezierCurve>();
 	
-	protected int delay = 8;
+	// these values are used for drawing the bezier curves
+	protected float delay = 8f;
 	protected int radiation = 40;
 	protected float scaleDC = 1f;
 	protected float scaleAC = 12f;
@@ -72,12 +87,15 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 	}
 	
 	public void setup() {
-		
-//		backgroundImg = new PImage(mainApplet.width,mainApplet.height);
-//		PImage temp = mainApplet.loadImage("../data/circles.png");
-//		backgroundImg.copy(temp, 0, 0, temp.width,temp.height, backgroundImg.width/2-temp.width/2, backgroundImg.height/2-temp.height/2, temp.width,temp.height);
-		
-		//backgroundColor = mainApplet.color(255,255,255);
+
+		// setting up the background images
+		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,backgroundTintSaturationMax,backgroundTintBrightnessMax,1);
+		backgroundColor = mainApplet.color(backgroundTintHue,0,0,1);
+		circlesColor = mainApplet.color(backgroundTintHue,8f*backgroundTintSaturationMax/10f,backgroundTintBrightnessMax,0.18f);
+		for (int i=0; i<4; i++) {
+			backgroundImg[i] = mainApplet.loadImage("../data/backgroundpic"+(i+1)+".jpg");
+			backgroundImg[i].resize(mainApplet.width,mainApplet.height);
+		}
 		
 		float gain = .125f;
 	    fft = new FFT(audioPlayer.bufferSize(), audioPlayer.sampleRate());
@@ -118,16 +136,43 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 		// reset the scene
 		mainApplet.background(backgroundColor);
 		mainApplet.camera(); // reset the camera for 2d drawing
-	}
-	
-	public void draw () {
-
+		// draw circles for tunnel effect
+		mainApplet.stroke(circlesColor);
+		mainApplet.strokeWeight(circlesStrokeWeight);
+		circlesOffset += 1.0f/mainApplet.frameRate;
+		if (circlesOffset > 1.0f) circlesOffset = 0.0f;
+		float ellipseHeight = (0.1f*(mainApplet.height+500)/numberOfCirclesForTunnel);
+		float ellipseWidth = (0.1f*(mainApplet.width+500)/numberOfCirclesForTunnel);
+		float firstEllipseB = ellipseHeight/2;
+		float firstEllipseA = ellipseWidth/2;
+		mainApplet.ellipse(mainApplet.width/2, mainApplet.height/2, ellipseWidth, ellipseHeight);
+		for (float i=0.2f; i<=numberOfCirclesForTunnel; i*=1.7f) {
+			ellipseHeight = (i*(mainApplet.height+500)/numberOfCirclesForTunnel);
+			ellipseHeight +=  (((i*1.7f)*(mainApplet.height+500)/numberOfCirclesForTunnel)-ellipseHeight)*circlesOffset;
+			ellipseWidth = (i*(mainApplet.width+500)/numberOfCirclesForTunnel);
+			ellipseWidth +=  (((i*1.7f)*(mainApplet.width+500)/numberOfCirclesForTunnel)-ellipseWidth)*circlesOffset;
+			mainApplet.ellipse(mainApplet.width/2, mainApplet.height/2, ellipseWidth, ellipseHeight);
+		}
+		float lastEllipseB = ellipseHeight/2;
+		float lastEllipseA = ellipseWidth/2;
+		for (float i=1; i<=numberOfCirclesForTunnel; i++) { 
+			float angle = i*PConstants.TWO_PI/numberOfCirclesForTunnel;
+			float lineX1 = mainApplet.width/2 + firstEllipseA*PApplet.cos(angle);
+			float lineY1 = mainApplet.height/2 + firstEllipseB*PApplet.sin(angle);
+			float lineX2 = mainApplet.width/2 + lastEllipseA*PApplet.cos(angle);
+			float lineY2 = mainApplet.height/2 + lastEllipseB*PApplet.sin(angle);
+			mainApplet.line(lineX1, lineY1, lineX2, lineY2);
+		}
+		
+//		PImage actBackgroundImg=backgroundImg[mainApplet.frameCount%4];
+//		mainApplet.tint(backgroundColor);
+//		mainApplet.image(actBackgroundImg, 0, actBackgroundImg.height/2-mainApplet.height/2,mainApplet.width,mainApplet.height);
 		//mainApplet.tint(255,0);
 		//backgroundImg.copy(backgroundImg, 5,5,backgroundImg.width-5,backgroundImg.height-5, 0,0,backgroundImg.width,backgroundImg.height);
 		//mainApplet.image(backgroundImg,0,0);
-		
-		mainApplet.colorMode(PApplet.HSB,bands,255,255,255);
-		mainApplet.noFill();
+	}
+	
+	public void draw () {
 		
 		if (skeleton.isUpdated && leftChannelSamples != null && rightChannelSamples != null) {
 			if (calcFFT) {
@@ -135,16 +180,23 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 			    for(int i = 0; i < bands; i++) leftFFT[i] = fft.getAvg(i);
 			    fft.forward(rightChannelSamples);
 			    for(int i = 0; i < bands; i++) rightFFT[i] = fft.getAvg(i);
+				fftDCValue = (leftFFT[0]+rightFFT[0])/2f;
 			}
 			
-			updateBezierCurves();
+			if (fftDCValueDelayed == 0) fftDCValueDelayed=fftDCValue;
+			else fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/backgroundDelay;
+			mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,backgroundTintSaturationMax,backgroundTintBrightnessMax,1);
+			backgroundColor = mainApplet.color(backgroundTintHue,backgroundTintSaturationMax,fftDCValueDelayed,1);
+//			circlesStrokeWeight = fftDCValueDelayed;
 			
+			mainApplet.colorMode(PApplet.HSB,bands,255,255,255);
+			mainApplet.noFill();
+			updateBezierCurves();
 			for (int i=0; i<bezierCurves.size(); i++) {
 				bezierCurves.get(i).draw(mainApplet);
 			}
+			mainApplet.colorMode(PApplet.RGB,255,255,255,255);
 		}
-		((TherapeuticPresence)mainApplet).debugMessage("BezierCurves count"+bezierCurves.size());
-		mainApplet.colorMode(PApplet.RGB,255,255,255,255);
 	}
 	
 	private void updateBezierCurves () {
