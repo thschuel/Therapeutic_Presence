@@ -58,7 +58,8 @@ public class TherapeuticPresence extends PApplet {
 	protected Skeleton skeleton = null;
 	// user interface
 	protected GuiHud guiHud;
-	
+	// audio interface
+	protected AudioManager audioManager = null;
 	
 	// -----------------------------------------------------------------
 	public void setup() {		
@@ -73,6 +74,10 @@ public class TherapeuticPresence extends PApplet {
 		// generate HUD
 		guiHud = new GuiHud(this);
 		  
+		// start the audio interface
+		audioManager = new AudioManager(this);
+		audioManager.setup();
+		audioManager.start();
 	}
 	
 	private void setupKinect () {
@@ -112,12 +117,12 @@ public class TherapeuticPresence extends PApplet {
 				break;
 				
 			case TherapeuticPresence.DRAW_TREE:
-				visualisation = new GenerativeTreeVisualisation(this,skeleton);
+				visualisation = new GenerativeTreeVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
 				break;
 				
 			case TherapeuticPresence.DRAW_AUDIOSKELETON:
-				visualisation = new AudioVisualisation(this,skeleton);
+				visualisation = new AudioVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
 				break;
 			
@@ -134,7 +139,9 @@ public class TherapeuticPresence extends PApplet {
 		if (kinect != null)
 			kinect.update();
 		if (skeleton != null && kinect.isTrackingSkeleton(skeleton.userId))
-			skeleton.updateSkeleton();
+			skeleton.update();
+		if (audioManager != null)
+			audioManager.update();
 		
 		// -------- drawing --------------------------------
 		if (visualisation != null) {

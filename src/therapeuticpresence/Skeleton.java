@@ -62,7 +62,7 @@ public class Skeleton {
 		}
 	}
 	
-	public void updateSkeleton () {
+	public void update () {
 		isUpdated = false;
 		
 		confidenceSkeletonPoints[Skeleton.HEAD] = kinect.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_HEAD,skeletonPoints[Skeleton.HEAD]);

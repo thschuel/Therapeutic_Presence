@@ -4,19 +4,16 @@ import java.util.ArrayList;
 
 
 import processing.core.*;
+import therapeuticpresence.AudioManager;
 import therapeuticpresence.BezierCurve;
 import therapeuticpresence.Skeleton;
 import therapeuticpresence.TherapeuticPresence;
 import ddf.minim.*;
 import ddf.minim.analysis.FFT;
 
-public class AudioVisualisation extends SkeletonVisualisation implements AudioListener {
+public class AudioVisualisation extends SkeletonVisualisation {
 
-	protected float[] leftChannelSamples = null;
-	protected float[] rightChannelSamples = null;
-
-	protected Minim minim;
-	protected AudioPlayer audioPlayer;
+	protected AudioManager audioManager;
 	
 	// animate the background: tunnel effect
 	protected PImage[] backgroundImg = new PImage[4];
@@ -32,13 +29,6 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 	protected float backgroundDelay = 12f;
 	protected float fftDCValue=0f;
 	protected float fftDCValueDelayed=0f;
-	
-	protected boolean calcFFT = true; 
-	protected int bands = 8;
-	protected FFT fft; 
-	protected float maxFFT;
-	protected float[] leftFFT = null;
-	protected float[] rightFFT = null;
 	
 	// coordinates for the visualization are defined through angles of limbs
 	// bezier curves used for drawing. anchor points and control points.
@@ -62,28 +52,16 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 	protected float scaleDC = 1f;
 	protected float scaleAC = 12f;
 	
+	protected GenerativeTreeVisualisation gtv = null;
+	
 	public AudioVisualisation (PApplet _mainApplet, Skeleton _skeleton) {
 		super(_mainApplet,_skeleton);
-		minim = new Minim(mainApplet);
-		audioPlayer = minim.loadFile("../data/moan.mp3",1024);
-		audioPlayer.loop();
-		audioPlayer.addListener(this);
+		audioManager = new AudioManager(mainApplet);
 	}
 	
-	public AudioVisualisation (PApplet _mainApplet, Skeleton _skeleton, Minim _minim, AudioPlayer _audioPlayer) {
+	public AudioVisualisation (PApplet _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton);
-		minim = _minim;
-		audioPlayer = _audioPlayer;
-		audioPlayer.addListener(this);
-	}
-	
-	public void samples(float[] samp) {
-		leftChannelSamples = samp;
-	}
-
-	public void samples(float[] sampL, float[] sampR) {
-		leftChannelSamples = sampL;
-		rightChannelSamples = sampR;
+		audioManager = _audioManager;
 	}
 	
 	public void setup() {
@@ -92,19 +70,10 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,backgroundTintSaturationMax,backgroundTintBrightnessMax,1);
 		backgroundColor = mainApplet.color(backgroundTintHue,0,0,1);
 		circlesColor = mainApplet.color(backgroundTintHue,8f*backgroundTintSaturationMax/10f,backgroundTintBrightnessMax,0.18f);
-		for (int i=0; i<4; i++) {
-			backgroundImg[i] = mainApplet.loadImage("../data/backgroundpic"+(i+1)+".jpg");
-			backgroundImg[i].resize(mainApplet.width,mainApplet.height);
-		}
-		
-		float gain = .125f;
-	    fft = new FFT(audioPlayer.bufferSize(), audioPlayer.sampleRate());
-	    maxFFT =  audioPlayer.sampleRate() / audioPlayer.bufferSize() * gain;
-	    fft.window(FFT.HAMMING);
-		leftFFT = new float[bands];
-		rightFFT = new float[bands];
-	    fft.linAverages(bands);
-	    
+//		for (int i=0; i<4; i++) {
+//			backgroundImg[i] = mainApplet.loadImage("../data/backgroundpic"+(i+1)+".jpg");
+//			backgroundImg[i].resize(mainApplet.width,mainApplet.height);
+//		}
 	    // fixed x values
 		left1X = 0;
 		left2X = mainApplet.width/4;
@@ -117,7 +86,6 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 		anchorR3X = 5*mainApplet.width/8;
 		anchorR2X = 7*mainApplet.width/8;
 		anchorR1X = 9*mainApplet.width/8;
-		
 		// y values change according to movement
 		left1Y = mainApplet.height/2;
 		left2Y = mainApplet.height/2;
@@ -130,12 +98,41 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 		anchorR3Y = centerY + ((right2Y-centerY)/2);
 		anchorR2Y = right1Y + ((right2Y-right1Y)/2);
 		anchorR1Y = right1Y + ((right2Y-right1Y)/2);
+
+		gtv = new GenerativeTreeVisualisation(mainApplet,skeleton,audioManager);
+		gtv.setup();
 	}
 
 	public void reset() {
 		// reset the scene
 		mainApplet.background(backgroundColor);
 		mainApplet.camera(); // reset the camera for 2d drawing
+		drawTunnel();
+	}
+	
+	public void draw () {
+		
+		if (gtv != null) gtv.draw();
+		
+		if (skeleton.isUpdated && audioManager.isUpdated) {
+			fftDCValue = audioManager.getMeanFFT(0);
+			if (fftDCValueDelayed == 0) fftDCValueDelayed=fftDCValue;
+			else fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/backgroundDelay;
+			mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,backgroundTintSaturationMax,backgroundTintBrightnessMax,1);
+			backgroundColor = mainApplet.color(backgroundTintHue,backgroundTintSaturationMax,fftDCValueDelayed,1);
+//			circlesStrokeWeight = fftDCValueDelayed;
+			
+			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,255);
+			mainApplet.noFill();
+			updateBezierCurves();
+			for (int i=0; i<bezierCurves.size(); i++) {
+				bezierCurves.get(i).draw(mainApplet);
+			}
+			mainApplet.colorMode(PApplet.RGB,255,255,255,255);
+		}
+	}
+	
+	private void drawTunnel () {
 		// draw circles for tunnel effect
 		mainApplet.stroke(circlesColor);
 		mainApplet.strokeWeight(circlesStrokeWeight);
@@ -170,33 +167,6 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 		//mainApplet.tint(255,0);
 		//backgroundImg.copy(backgroundImg, 5,5,backgroundImg.width-5,backgroundImg.height-5, 0,0,backgroundImg.width,backgroundImg.height);
 		//mainApplet.image(backgroundImg,0,0);
-	}
-	
-	public void draw () {
-		
-		if (skeleton.isUpdated && leftChannelSamples != null && rightChannelSamples != null) {
-			if (calcFFT) {
-			    fft.forward(leftChannelSamples);
-			    for(int i = 0; i < bands; i++) leftFFT[i] = fft.getAvg(i);
-			    fft.forward(rightChannelSamples);
-			    for(int i = 0; i < bands; i++) rightFFT[i] = fft.getAvg(i);
-				fftDCValue = (leftFFT[0]+rightFFT[0])/2f;
-			}
-			
-			if (fftDCValueDelayed == 0) fftDCValueDelayed=fftDCValue;
-			else fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/backgroundDelay;
-			mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,backgroundTintSaturationMax,backgroundTintBrightnessMax,1);
-			backgroundColor = mainApplet.color(backgroundTintHue,backgroundTintSaturationMax,fftDCValueDelayed,1);
-//			circlesStrokeWeight = fftDCValueDelayed;
-			
-			mainApplet.colorMode(PApplet.HSB,bands,255,255,255);
-			mainApplet.noFill();
-			updateBezierCurves();
-			for (int i=0; i<bezierCurves.size(); i++) {
-				bezierCurves.get(i).draw(mainApplet);
-			}
-			mainApplet.colorMode(PApplet.RGB,255,255,255,255);
-		}
 	}
 	
 	private void updateBezierCurves () {
@@ -245,11 +215,11 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 		anchorR1Y = right1Y + ((right2Y-right1Y)/2);
 		
 		// add BezierCurves to Array. based on the calculated coordinates and the FFT values
-		for (int i=0; i<bands; i++) {
+		for (int i=0; i<AudioManager.bands; i++) {
 			float strokeWeight;
 			int color;
 			if (i==0) {
-				strokeWeight = (leftFFT[i]+rightFFT[i])/2f*scaleDC;
+				strokeWeight = audioManager.getMeanFFT(0)*scaleDC;
 				color = mainApplet.color(i,255,255);
 				BezierCurve temp = new BezierCurve(strokeWeight,color);
 				temp.addAnchorPoint(anchorL1X, anchorL1Y);
@@ -267,8 +237,8 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 			} else {
 				color = mainApplet.color(i,255,255);
 				for (int j=-1; j<2; j+=2) {
-					if (j==1) strokeWeight = leftFFT[i]*scaleAC;
-					else strokeWeight = rightFFT[i]*scaleAC;
+					if (j==1) strokeWeight = audioManager.getLeftFFT(i)*scaleAC;
+					else strokeWeight = audioManager.getRightFFT(i)*scaleAC;
 					int offset = j*i*radiation;
 					BezierCurve temp = new BezierCurve(strokeWeight,color);
 					temp.addAnchorPoint(anchorL1X, anchorL1Y+offset);
@@ -292,12 +262,6 @@ public class AudioVisualisation extends SkeletonVisualisation implements AudioLi
 				bezierCurves.remove(i);
 			}
 		}
-	}
-	
-	
-	public void stop () {
-		audioPlayer.close();
-		minim.stop();
 	}
 
 }

@@ -1,13 +1,14 @@
 package Visuals;
 
 import processing.core.*;
+import therapeuticpresence.AudioManager;
 import therapeuticpresence.Skeleton;
 
 import ddf.minim.*;
 import ddf.minim.analysis.FFT;
 
 
-public class GenerativeTreeVisualisation extends SkeletonVisualisation implements AudioListener {
+public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 
 	private int strokeColor = 0;
 
@@ -27,69 +28,36 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation implement
 	private float colorsStepSize = 10.f;
 	
 	// audio responsive tree
-	protected float[] leftChannelSamples = null;
-	protected float[] rightChannelSamples = null;
-
-	protected Minim minim;
-	protected AudioPlayer audioPlayer;
-	
-	protected boolean calcFFT = true; 
-	protected int bands = 8;
-	protected FFT fft; 
-	protected float maxFFT;
-	protected float[] leftFFT = null;
-	protected float[] rightFFT = null;
+	protected AudioManager audioManager;
 	
 	protected float initialScale = 3f;
 	protected float downScale = 0.9f;
 	protected float transparency = 150;
 	
-	protected AudioVisualisation av;
+	protected AudioVisualisation av = null;
 	
 
 	public GenerativeTreeVisualisation (PApplet _mainApplet, Skeleton _skeleton) {
 		super (_mainApplet,_skeleton);
-		minim = new Minim(mainApplet);
-		audioPlayer = minim.loadFile("../data/moan.mp3",1024);
-		audioPlayer.loop();
-		audioPlayer.addListener(this);
+		audioManager = new AudioManager(mainApplet);
 	}
 	
-	public GenerativeTreeVisualisation (PApplet _mainApplet, Skeleton _skeleton, Minim _minim, AudioPlayer _audioPlayer) {
+	public GenerativeTreeVisualisation (PApplet _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super (_mainApplet,_skeleton);
-		minim = _minim;
-		audioPlayer = _audioPlayer;
-		audioPlayer.addListener(this);
-	}
+		audioManager = _audioManager;
 
-	public void samples(float[] samp) {
-		leftChannelSamples = samp;
-	}
-
-	public void samples(float[] sampL, float[] sampR) {
-		leftChannelSamples = sampL;
-		rightChannelSamples = sampR;
+//	    av = new AudioVisualisation(mainApplet,skeleton,audioManager);
+//	    av.setup();
 	}
 	
 	public void setup() {
 		mainApplet.colorMode(PConstants.HSB,360,100,100);
-		strokeColor = mainApplet.color(0,0,0);
+		strokeColor = mainApplet.color(0,100,100);
 		leafColors = new int[colorsSize];
 		for (int i=0; i<colorsSize; i++) {
 			leafColors[i] = mainApplet.color(i,100,100);
 		}
 		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
-		
-		float gain = .125f;
-	    fft = new FFT(audioPlayer.bufferSize(), audioPlayer.sampleRate());
-	    maxFFT =  audioPlayer.sampleRate() / audioPlayer.bufferSize() * gain;
-	    fft.window(FFT.HAMMING);
-		leftFFT = new float[bands];
-		rightFFT = new float[bands];
-	    fft.linAverages(bands);
-	    
-	    av = new AudioVisualisation(mainApplet,skeleton,minim,audioPlayer);
-	    av.setup();
 	    
 	}
 
@@ -101,21 +69,14 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation implement
 	public void draw() {
 		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 		
-		if (skeleton.isUpdated && leftChannelSamples != null && rightChannelSamples != null) {
-			if (calcFFT) {
-			    fft.forward(leftChannelSamples);
-			    for(int i = 0; i < bands; i++) leftFFT[i] = fft.getAvg(i);
-			    fft.forward(rightChannelSamples);
-			    for(int i = 0; i < bands; i++) rightFFT[i] = fft.getAvg(i);
-			}
-
-			av.draw();
+		if (skeleton.isUpdated && audioManager.isUpdated) {
+			if (av != null) av.draw();
 			
 			// draw trunk of the tree
 			mainApplet.pushMatrix();
 			mainApplet.translate(mainApplet.width/2,mainApplet.height);
 			mainApplet.stroke(strokeColor,transparency);
-			float strokeWeight = (leftFFT[0]+rightFFT[0])/2f * initialScale;
+			float strokeWeight = audioManager.getMeanFFT(0) * initialScale;
 			mainApplet.strokeWeight(strokeWeight);
 			mainApplet.line(0,0,0,-mainApplet.height/3);
 			mainApplet.translate(0,-mainApplet.height/3);
