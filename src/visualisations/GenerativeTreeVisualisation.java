@@ -1,12 +1,7 @@
-package Visuals;
+package visualisations;
 
 import processing.core.*;
-import therapeuticpresence.AudioManager;
-import therapeuticpresence.Skeleton;
-
-import ddf.minim.*;
-import ddf.minim.analysis.FFT;
-
+import therapeuticpresence.*;
 
 public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 
@@ -28,26 +23,15 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 	private float colorsStepSize = 10.f;
 	
 	// audio responsive tree
-	protected AudioManager audioManager;
+	protected AudioManager audioManager = null;
 	
 	protected float initialScale = 3f;
 	protected float downScale = 0.9f;
 	protected float transparency = 150;
 	
-	protected AudioVisualisation av = null;
-	
-
-	public GenerativeTreeVisualisation (PApplet _mainApplet, Skeleton _skeleton) {
-		super (_mainApplet,_skeleton);
-		audioManager = new AudioManager(mainApplet);
-	}
-	
 	public GenerativeTreeVisualisation (PApplet _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super (_mainApplet,_skeleton);
 		audioManager = _audioManager;
-
-//	    av = new AudioVisualisation(mainApplet,skeleton,audioManager);
-//	    av.setup();
 	}
 	
 	public void setup() {
@@ -58,19 +42,10 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 			leafColors[i] = mainApplet.color(i,100,100);
 		}
 		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
-	    
-	}
-
-	public void reset() {
-		mainApplet.background(250,250,250);
-		mainApplet.camera();
 	}
 
 	public void draw() {
-		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
-		
 		if (skeleton.isUpdated && audioManager.isUpdated) {
-			if (av != null) av.draw();
 			
 			// draw trunk of the tree
 			mainApplet.pushMatrix();
@@ -132,6 +107,7 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 			mainApplet.fill(leafColors[PApplet.round(actColor+=colorsStepSize)],transparency);
 			mainApplet.translate(0,-5);
 			mainApplet.ellipse(0,0,15,30);
+			mainApplet.noFill();
 		}
 		
 	}

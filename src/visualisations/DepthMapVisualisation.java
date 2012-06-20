@@ -1,9 +1,9 @@
-package Visuals;
+package visualisations;
 
 import SimpleOpenNI.SimpleOpenNI;
 import processing.core.*;
 
-public class DepthMapVisualisation extends Visualisation {
+public class DepthMapVisualisation extends AbstractVisualisation {
 
 	protected SimpleOpenNI kinect;
 	
@@ -15,20 +15,7 @@ public class DepthMapVisualisation extends Visualisation {
 	public void setup() {
 	}
 
-	public void reset() {
-		// reset the scene
-		mainApplet.background(backgroundColor);
-		// set the camera to the position of the kinect, facing towards the scene
-		mainApplet.camera(0,0,0,0,0,1,0,1,0);
-	}
-
 	public void draw() {
-		// rotate the scene: kinect data comes upside down!
-		mainApplet.pushMatrix();
-		mainApplet.rotateX(rotX);
-		mainApplet.rotateY(rotY);
-		mainApplet.rotateZ(rotZ);
-		mainApplet.translate(translateX,translateY,translateZ);
 		
 		int[] depthMap = kinect.depthMap();
 		PVector[] realWorldDepthMap = kinect.depthMapRealWorld();
@@ -47,8 +34,5 @@ public class DepthMapVisualisation extends Visualisation {
 				}
 			} 
 		}
-
-		mainApplet.popMatrix();
 	}
-
 }

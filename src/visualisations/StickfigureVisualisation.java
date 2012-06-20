@@ -1,4 +1,4 @@
-package Visuals;
+package visualisations;
 
 import processing.core.*;
 import therapeuticpresence.Skeleton;
@@ -24,28 +24,13 @@ public class StickfigureVisualisation extends SkeletonVisualisation {
 		radiusJoints = 20f;
 	}
 
-	public void reset() {
-		// reset the scene
-		mainApplet.background(backgroundColor);
-		mainApplet.camera(0,0,0,0,0,1,0,1,0); // set the camera to the position of the kinect, facing towards the scene
-	}
-
 	public void draw() {
-		// rotate the scene: kinect data comes upside down!
-		mainApplet.pushMatrix();
-		mainApplet.rotateX(rotX);
-		mainApplet.rotateY(rotY);
-		mainApplet.rotateZ(rotZ);
-		mainApplet.translate(translateX,translateY,translateZ);
-		
-		drawSkeleton();
+		drawStickfigure();
 		drawJoints(true);
 		drawMirrorPlane();
-		
-		mainApplet.popMatrix();
 	}
 	
-	private void drawSkeleton () {
+	private void drawStickfigure () {
 		
 		drawLineBetweenJoints(Skeleton.HEAD,Skeleton.NECK);
 		drawLineBetweenJoints(Skeleton.NECK,Skeleton.LEFT_SHOULDER);
@@ -113,7 +98,7 @@ public class StickfigureVisualisation extends SkeletonVisualisation {
 	private void drawMirrorPlane () {
 		// for debug: show mirror plane
 		// draw plane by finding 4 points in that plane
-		if (((TherapeuticPresence)mainApplet).mirrorTherapy != TherapeuticPresence.MIRROR_OFF) {
+		if (TherapeuticPresence.mirrorTherapy != TherapeuticPresence.MIRROR_OFF) {
 			PVector n0MP = skeleton.getN0VectorMirrorPlane();
 			PVector rMP = skeleton.getRVectorMirrorPlane();
 			PVector u = n0MP.cross(new PVector(0,0,1)); // cross product of n0 with arbitrary vector -> u lies on the plane

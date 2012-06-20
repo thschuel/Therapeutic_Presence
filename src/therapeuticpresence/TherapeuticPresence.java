@@ -4,26 +4,26 @@ import javax.media.opengl.GL;
 
 import processing.core.*;
 import SimpleOpenNI.*;
-import Visuals.AudioVisualisation;
-import Visuals.DepthMapVisualisation;
-import Visuals.GenerativeTreeVisualisation;
-import Visuals.StickfigureVisualisation;
-import Visuals.Visualisation;
 import processing.opengl.*;
+import scenes.*;
+import visualisations.*;
 
 /* The main application class. 
  * TherapeuticPresence maintains interfaces to 
  *   the kinect
+ *   the scene
  *   the skeleton in the scene
  *   the active visualisation
  *   the gui
  * It also contains the basic setup variables. It handles keyboard events.
  * Workflow is
  *   setting up the kinect and the gui according to setup variables
+ *   set up a basic 3d scene
  *   set up depth map visualisation
  *   wait for user to enter the scene
  *   calibrate user (automatic or pose)
  *   set up skeleton from kinect data (skeleton updates itself)
+ *   set up chosen scene type
  *   set up chosen visualisation and play
  *   wait for user input
  */
@@ -37,6 +37,9 @@ public class TherapeuticPresence extends PApplet {
 	public static final short DRAW_DEPTHMAP = 2;
 	public static final short DRAW_TREE = 3;
 	public static final short DRAW_AUDIOSKELETON = 4;
+	public static final short BASIC_SCENE2D = 0;
+	public static final short BASIC_SCENE3D = 1;
+	public static final short TUNNEL_SCENE2D = 2;
 	public static final short MIRROR_OFF = 0;
 	public static final short MIRROR_LEFT = 1;
 	public static final short MIRROR_RIGHT = 2;
@@ -45,21 +48,28 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean fullBodyTracking = false; // control for full body tracking
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = true;
-	public static short visualisationMethod = TherapeuticPresence.DRAW_DEPTHMAP;
+	public static short defaultVisualisationMethod = TherapeuticPresence.DRAW_DEPTHMAP;
+	public static short defaultSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short mirrorTherapy = TherapeuticPresence.MIRROR_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	
+	// --- private switches ---
+	private boolean sceneIs3D = true; // used in keyboardEvents, default is true because of default sceneType
+	
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
-	protected SimpleOpenNI kinect;
+	protected SimpleOpenNI kinect = null;
+	// interface to the Scene/Background
+	protected AbstractScene scene = null;
 	// interface to the chosen visualisation object
-	protected Visualisation visualisation = null;
+	protected AbstractVisualisation visualisation = null;
 	// the skeleton that control the scene, only one user for now
 	protected Skeleton skeleton = null;
 	// user interface
-	protected GuiHud guiHud;
+	protected GuiHud guiHud = null;
 	// audio interface
 	protected AudioManager audioManager = null;
+
 	
 	// -----------------------------------------------------------------
 	public void setup() {		
@@ -67,9 +77,12 @@ public class TherapeuticPresence extends PApplet {
 		
 		// establish connection to kinect/openni
 		setupKinect();
+		
+		// setup Scene
+		setupScene(TherapeuticPresence.defaultSceneType);
 
 		// start visualisation (default is depthMap)
-		setupVisualisation();
+		setupVisualisation(TherapeuticPresence.defaultVisualisationMethod);
 		
 		// generate HUD
 		guiHud = new GuiHud(this);
@@ -99,34 +112,63 @@ public class TherapeuticPresence extends PApplet {
 			if (kinect.openFileRecording("../data/test.oni") == false) {
 				println("fehler");
 			}
-			//skeleton = new Skeleton(kinect,1);
 		}
 	}
 	
-	public void setupVisualisation () {
-		this.setupVisualisation(TherapeuticPresence.visualisationMethod);
+	public void setupScene (short _sceneType) {
+		switch (_sceneType) {
+			case TherapeuticPresence.BASIC_SCENE2D:
+				scene = new BasicScene2D(this,color(0,0,0));
+				scene.reset();
+				sceneIs3D = false;
+				break;
+				
+			case TherapeuticPresence.TUNNEL_SCENE2D:
+				if (audioManager != null) {
+					scene = new TunnelScene2D(this,color(0,0,0),audioManager);
+					scene.reset();
+					sceneIs3D = false;
+				} else {
+					setupScene(TherapeuticPresence.BASIC_SCENE2D);
+					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
+				}
+				break;
+			
+			default:
+				scene = new BasicScene3D(this,color(0,0,0));
+				scene.reset();
+				sceneIs3D = true;
+				break;
+		}
 	}
 	
 	public void setupVisualisation (short _visualisationMethod) {
-		TherapeuticPresence.visualisationMethod = _visualisationMethod;
 		
-		switch (TherapeuticPresence.visualisationMethod) {
+		switch (_visualisationMethod) {
 			case TherapeuticPresence.DRAW_SKELETON:
+				scene = new BasicScene3D(this,color(0,0,0));
+				scene.reset();
 				visualisation = new StickfigureVisualisation(this,skeleton);
 				visualisation.setup();
 				break;
 				
 			case TherapeuticPresence.DRAW_TREE:
+				scene = new TunnelScene2D(this,color(0,0,0),audioManager);
+				scene.reset();
 				visualisation = new GenerativeTreeVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
 				break;
 				
 			case TherapeuticPresence.DRAW_AUDIOSKELETON:
+				scene = new TunnelScene2D(this,color(0,0,0),audioManager);
+				scene.reset();
 				visualisation = new AudioVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
 				break;
 			
 			default:
+				scene = new BasicScene3D(this,color(0,0,0));
+				scene.reset();
 				visualisation = new DepthMapVisualisation(this,kinect);
 				visualisation.setup();
 				break;
@@ -144,11 +186,10 @@ public class TherapeuticPresence extends PApplet {
 			audioManager.update();
 		
 		// -------- drawing --------------------------------
-		if (visualisation != null) {
-			visualisation.reset();
+		if (scene != null)
+			scene.reset();
+		if (visualisation != null) 
 			visualisation.draw();
-		}
-		
 		if (guiHud != null)
 			guiHud.draw();
 
@@ -238,8 +279,7 @@ public class TherapeuticPresence extends PApplet {
 	
 	// Keyboard events
 	public void keyPressed() {
-		switch(key)
-		{
+		switch(key) {
 		  	// save user calibration data
 			case 'o':
 		  		if(skeleton != null && kinect.isTrackingSkeleton(skeleton.userId)){
@@ -274,50 +314,54 @@ public class TherapeuticPresence extends PApplet {
 				kinect.setMirror(!kinect.mirror());
 				break;
 				
-			case 'w':
-				visualisation.translateZ -= 100.0f;
-				break;
-				
-			case 'W':
-				visualisation.translateY -= 100.0f;
-				break;
-				
-			case 'a':
-				visualisation.translateX += 100.0f;
-				break;
-				
-			case 's':
-				visualisation.translateZ += 100.0f;
-				break;
-				
-			case 'S':
-				visualisation.translateY += 100.0f;
-				break;
-				
-			case 'd':
-				visualisation.translateX -= 100.0f;
-				break;
 		}
-	    
-		switch(keyCode) {
-	    	case LEFT:
-	    		visualisation.rotY += 100.0f;
-	    		break;
-	    	case RIGHT:
-	    		visualisation.rotY -= 100.0f;
-	    		break;
-	    	case UP:
-    			if(keyEvent.isShiftDown())
-    				visualisation.rotZ += 100.0f;
-    			else
-    				visualisation.rotX += 100.0f;
-	    		break;
-	    	case DOWN:
-    			if(keyEvent.isShiftDown())
-    				visualisation.rotZ -= 100.0f;
-    			else
-    				visualisation.rotX -= 100.0f;
-    			break;
+		
+		if (sceneIs3D) {
+			switch (key) {
+				case 'w':
+					((BasicScene3D)scene).translateZ -= 100.0f;
+					break;
+					
+				case 'W':
+					((BasicScene3D)scene).translateY -= 100.0f;
+					break;
+					
+				case 'a':
+					((BasicScene3D)scene).translateX += 100.0f;
+					break;
+					
+				case 's':
+					((BasicScene3D)scene).translateZ += 100.0f;
+					break;
+					
+				case 'S':
+					((BasicScene3D)scene).translateY += 100.0f;
+					break;
+					
+				case 'd':
+					((BasicScene3D)scene).translateX -= 100.0f;
+					break;
+			}
+			switch(keyCode) {
+		    	case LEFT:
+		    		((BasicScene3D)scene).rotY += 100.0f;
+		    		break;
+		    	case RIGHT:
+		    		((BasicScene3D)scene).rotY -= 100.0f;
+		    		break;
+		    	case UP:
+	    			if(keyEvent.isShiftDown())
+	    				((BasicScene3D)scene).rotZ += 100.0f;
+	    			else
+	    				((BasicScene3D)scene).rotX += 100.0f;
+		    		break;
+		    	case DOWN:
+	    			if(keyEvent.isShiftDown())
+	    				((BasicScene3D)scene).rotZ -= 100.0f;
+	    			else
+	    				((BasicScene3D)scene).rotX -= 100.0f;
+	    			break;
+			}
 		}
 	}
 	

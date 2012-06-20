@@ -1,34 +1,14 @@
-package Visuals;
+package visualisations;
 
 import java.util.ArrayList;
 
 
 import processing.core.*;
-import therapeuticpresence.AudioManager;
-import therapeuticpresence.BezierCurve;
-import therapeuticpresence.Skeleton;
-import therapeuticpresence.TherapeuticPresence;
-import ddf.minim.*;
-import ddf.minim.analysis.FFT;
+import therapeuticpresence.*;
 
 public class AudioVisualisation extends SkeletonVisualisation {
 
 	protected AudioManager audioManager;
-	
-	// animate the background: tunnel effect
-	protected PImage[] backgroundImg = new PImage[4];
-	protected float numberOfCirclesForTunnel = 10f;
-	protected float circlesOffset = 0f; // between 0 and 1
-	protected float circlesStrokeWeight = 4f;
-	protected int circlesColor;
-	// these values are used to control the background tinting
-	public static float backgroundTintHueMax = 255f;
-	public static float backgroundTintBrightnessMax = 20f; // should depend on expected max value of FFT DC
-	public static float backgroundTintSaturationMax = 30f; // should depend on expected max value of FFT DC
-	protected int backgroundTintHue = 120;
-	protected float backgroundDelay = 12f;
-	protected float fftDCValue=0f;
-	protected float fftDCValueDelayed=0f;
 	
 	// coordinates for the visualization are defined through angles of limbs
 	// bezier curves used for drawing. anchor points and control points.
@@ -52,28 +32,12 @@ public class AudioVisualisation extends SkeletonVisualisation {
 	protected float scaleDC = 1f;
 	protected float scaleAC = 12f;
 	
-	protected GenerativeTreeVisualisation gtv = null;
-	
-	public AudioVisualisation (PApplet _mainApplet, Skeleton _skeleton) {
-		super(_mainApplet,_skeleton);
-		audioManager = new AudioManager(mainApplet);
-	}
-	
 	public AudioVisualisation (PApplet _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton);
 		audioManager = _audioManager;
 	}
 	
 	public void setup() {
-
-		// setting up the background images
-		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,backgroundTintSaturationMax,backgroundTintBrightnessMax,1);
-		backgroundColor = mainApplet.color(backgroundTintHue,0,0,1);
-		circlesColor = mainApplet.color(backgroundTintHue,8f*backgroundTintSaturationMax/10f,backgroundTintBrightnessMax,0.18f);
-//		for (int i=0; i<4; i++) {
-//			backgroundImg[i] = mainApplet.loadImage("../data/backgroundpic"+(i+1)+".jpg");
-//			backgroundImg[i].resize(mainApplet.width,mainApplet.height);
-//		}
 	    // fixed x values
 		left1X = 0;
 		left2X = mainApplet.width/4;
@@ -98,30 +62,10 @@ public class AudioVisualisation extends SkeletonVisualisation {
 		anchorR3Y = centerY + ((right2Y-centerY)/2);
 		anchorR2Y = right1Y + ((right2Y-right1Y)/2);
 		anchorR1Y = right1Y + ((right2Y-right1Y)/2);
-
-		gtv = new GenerativeTreeVisualisation(mainApplet,skeleton,audioManager);
-		gtv.setup();
-	}
-
-	public void reset() {
-		// reset the scene
-		mainApplet.background(backgroundColor);
-		mainApplet.camera(); // reset the camera for 2d drawing
-		drawTunnel();
 	}
 	
 	public void draw () {
-		
-		if (gtv != null) gtv.draw();
-		
 		if (skeleton.isUpdated && audioManager.isUpdated) {
-			fftDCValue = audioManager.getMeanFFT(0);
-			if (fftDCValueDelayed == 0) fftDCValueDelayed=fftDCValue;
-			else fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/backgroundDelay;
-			mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,backgroundTintSaturationMax,backgroundTintBrightnessMax,1);
-			backgroundColor = mainApplet.color(backgroundTintHue,backgroundTintSaturationMax,fftDCValueDelayed,1);
-//			circlesStrokeWeight = fftDCValueDelayed;
-			
 			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,255);
 			mainApplet.noFill();
 			updateBezierCurves();
@@ -130,43 +74,6 @@ public class AudioVisualisation extends SkeletonVisualisation {
 			}
 			mainApplet.colorMode(PApplet.RGB,255,255,255,255);
 		}
-	}
-	
-	private void drawTunnel () {
-		// draw circles for tunnel effect
-		mainApplet.stroke(circlesColor);
-		mainApplet.strokeWeight(circlesStrokeWeight);
-		circlesOffset += 1.0f/mainApplet.frameRate;
-		if (circlesOffset > 1.0f) circlesOffset = 0.0f;
-		float ellipseHeight = (0.1f*(mainApplet.height+500)/numberOfCirclesForTunnel);
-		float ellipseWidth = (0.1f*(mainApplet.width+500)/numberOfCirclesForTunnel);
-		float firstEllipseB = ellipseHeight/2;
-		float firstEllipseA = ellipseWidth/2;
-		mainApplet.ellipse(mainApplet.width/2, mainApplet.height/2, ellipseWidth, ellipseHeight);
-		for (float i=0.2f; i<=numberOfCirclesForTunnel; i*=1.7f) {
-			ellipseHeight = (i*(mainApplet.height+500)/numberOfCirclesForTunnel);
-			ellipseHeight +=  (((i*1.7f)*(mainApplet.height+500)/numberOfCirclesForTunnel)-ellipseHeight)*circlesOffset;
-			ellipseWidth = (i*(mainApplet.width+500)/numberOfCirclesForTunnel);
-			ellipseWidth +=  (((i*1.7f)*(mainApplet.width+500)/numberOfCirclesForTunnel)-ellipseWidth)*circlesOffset;
-			mainApplet.ellipse(mainApplet.width/2, mainApplet.height/2, ellipseWidth, ellipseHeight);
-		}
-		float lastEllipseB = ellipseHeight/2;
-		float lastEllipseA = ellipseWidth/2;
-		for (float i=1; i<=numberOfCirclesForTunnel; i++) { 
-			float angle = i*PConstants.TWO_PI/numberOfCirclesForTunnel;
-			float lineX1 = mainApplet.width/2 + firstEllipseA*PApplet.cos(angle);
-			float lineY1 = mainApplet.height/2 + firstEllipseB*PApplet.sin(angle);
-			float lineX2 = mainApplet.width/2 + lastEllipseA*PApplet.cos(angle);
-			float lineY2 = mainApplet.height/2 + lastEllipseB*PApplet.sin(angle);
-			mainApplet.line(lineX1, lineY1, lineX2, lineY2);
-		}
-		
-//		PImage actBackgroundImg=backgroundImg[mainApplet.frameCount%4];
-//		mainApplet.tint(backgroundColor);
-//		mainApplet.image(actBackgroundImg, 0, actBackgroundImg.height/2-mainApplet.height/2,mainApplet.width,mainApplet.height);
-		//mainApplet.tint(255,0);
-		//backgroundImg.copy(backgroundImg, 5,5,backgroundImg.width-5,backgroundImg.height-5, 0,0,backgroundImg.width,backgroundImg.height);
-		//mainApplet.image(backgroundImg,0,0);
 	}
 	
 	private void updateBezierCurves () {

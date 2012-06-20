@@ -24,32 +24,34 @@
       <operations public="false" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class id="4" corner="BOTTOM_RIGHT" language="java" name="Visuals.Visualisation" project="Therapeutic_Presence" 
-    file="/Therapeutic_Presence/src/Visuals/Visualisation.java" binary="false">    
+  <class id="4" corner="BOTTOM_RIGHT" language="java" name="visualisations.Visualisation" project="Therapeutic_Presence" 
+    file="/Therapeutic_Presence/src/visualisations/Visualisation.java" binary="false">    
     <position height="247" width="597" x="26" y="637"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="false"/>      
       <operations public="true" package="true" protected="true" private="false"/>    
     </display>  
   </class>  
-  <class id="5" corner="BOTTOM_RIGHT" language="java" name="Visuals.SkeletonVisualisation" 
-    project="Therapeutic_Presence" file="/Therapeutic_Presence/src/Visuals/SkeletonVisualisation.java" binary="false">    
+  <class id="5" corner="BOTTOM_RIGHT" language="java" name="visualisations.SkeletonVisualisation" 
+    project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/SkeletonVisualisation.java" 
+    binary="false">    
     <position height="-1" width="-1" x="323" y="991"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="false"/>      
       <operations public="true" package="true" protected="true" private="false"/>    
     </display>  
   </class>  
-  <class id="6" corner="BOTTOM_RIGHT" language="java" name="Visuals.StickfigureVisualisation" 
-    project="Therapeutic_Presence" file="/Therapeutic_Presence/src/Visuals/StickfigureVisualisation.java" binary="false">    
+  <class id="6" corner="BOTTOM_RIGHT" language="java" name="visualisations.StickfigureVisualisation" 
+    project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/StickfigureVisualisation.java" 
+    binary="false">    
     <position height="-1" width="-1" x="128" y="1248"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="false"/>      
       <operations public="true" package="true" protected="true" private="false"/>    
     </display>  
   </class>  
-  <class id="7" corner="BOTTOM_RIGHT" language="java" name="Visuals.GenerativeTreeVisualisation" 
-    project="Therapeutic_Presence" file="/Therapeutic_Presence/src/Visuals/GenerativeTreeVisualisation.java" 
+  <class id="7" corner="BOTTOM_RIGHT" language="java" name="visualisations.GenerativeTreeVisualisation" 
+    project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/GenerativeTreeVisualisation.java" 
     binary="false">    
     <position height="-1" width="-1" x="413" y="1257"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
@@ -65,8 +67,9 @@
       <operations public="true" package="true" protected="true" private="false"/>    
     </display>  
   </class>  
-  <class id="9" corner="BOTTOM_RIGHT" language="java" name="Visuals.DepthMapVisualisation" 
-    project="Therapeutic_Presence" file="/Therapeutic_Presence/src/Visuals/DepthMapVisualisation.java" binary="false">    
+  <class id="9" corner="BOTTOM_RIGHT" language="java" name="visualisations.DepthMapVisualisation" 
+    project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/DepthMapVisualisation.java" 
+    binary="false">    
     <position height="-1" width="-1" x="639" y="758"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="false"/>      
