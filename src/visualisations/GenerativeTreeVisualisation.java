@@ -29,19 +29,18 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 	protected float downScale = 0.9f;
 	protected float transparency = 150;
 	
-	public GenerativeTreeVisualisation (PApplet _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
+	public GenerativeTreeVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super (_mainApplet,_skeleton);
 		audioManager = _audioManager;
 	}
 	
 	public void setup() {
 		mainApplet.colorMode(PConstants.HSB,360,100,100);
-		strokeColor = mainApplet.color(0,100,100);
+		strokeColor = mainApplet.color(0,0,100);
 		leafColors = new int[colorsSize];
 		for (int i=0; i<colorsSize; i++) {
 			leafColors[i] = mainApplet.color(i,100,100);
 		}
-		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 	}
 
 	public void draw() {
@@ -110,6 +109,10 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 			mainApplet.noFill();
 		}
 		
+	}
+
+	public short getVisualisationType() {
+		return TherapeuticPresence.GENERATIVE_TREE_VISUALISATION;
 	}
 
 }

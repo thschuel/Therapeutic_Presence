@@ -1,13 +1,14 @@
 package visualisations;
 
-import processing.core.PApplet;
+import therapeuticpresence.TherapeuticPresence;
 
 public abstract class AbstractVisualisation {
-	protected PApplet mainApplet = null;
+	protected TherapeuticPresence mainApplet = null;
 	
-	public AbstractVisualisation (PApplet _mainApplet) {
+	public AbstractVisualisation (TherapeuticPresence _mainApplet) {
 		mainApplet = _mainApplet;
 	}
 	public abstract void setup ();
 	public abstract void draw ();
+	public abstract short getVisualisationType ();
 }

@@ -1,12 +1,12 @@
 package visualisations;
 
-import processing.core.PApplet;
 import therapeuticpresence.Skeleton;
+import therapeuticpresence.TherapeuticPresence;
 
 public abstract class SkeletonVisualisation extends AbstractVisualisation {
 	protected Skeleton skeleton = null;
 	
-	public SkeletonVisualisation (PApplet _mainApplet, Skeleton _skeleton) {
+	public SkeletonVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton) {
 		super(_mainApplet);
 		skeleton = _skeleton;
 	}

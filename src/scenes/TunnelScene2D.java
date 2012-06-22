@@ -4,6 +4,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
 import therapeuticpresence.AudioManager;
+import therapeuticpresence.TherapeuticPresence;
 
 public class TunnelScene2D extends BasicScene2D {
 
@@ -11,33 +12,23 @@ public class TunnelScene2D extends BasicScene2D {
 	protected AudioManager audioManager = null;
 	
 	// animate the background: tunnel effect
-	protected PImage[] backgroundImg = new PImage[4];
 	protected float numberOfCirclesForTunnel = 10f;
 	protected float circlesOffset = 0f; // between 0 and 1
 	protected float circlesStrokeWeight = 4f;
-	protected int circlesColor;
-	// these values are used to control the background tinting
-	public static final float backgroundTintHueMax = 255f;
-	public static final float backgroundTintBrightnessMax = 20f; // should depend on expected max value of FFT DC
-	public static final float backgroundTintSaturationMax = 30f; // should depend on expected max value of FFT DC
+	protected int circlesColor = 0;
+	protected float transitionSpeedSec = 1.0f;
+	protected int backgroundTintHueMax = 255;
 	protected int backgroundTintHue = 120;
-	protected float backgroundDelay = 12f;
+	// background colors are controlled by audio stream
+	protected float audioReactionDelay = 12f;
 	protected float fftDCValue=0f;
 	protected float fftDCValueDelayed=0f;
 	
-	public TunnelScene2D (PApplet _mainApplet, int _backgroundColor, AudioManager _audioManager) {
+	public TunnelScene2D (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
 		super(_mainApplet,_backgroundColor);
 		audioManager = _audioManager;
-
-		// setting up the background images
-		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,backgroundTintSaturationMax,backgroundTintBrightnessMax,1);
-		backgroundColor = mainApplet.color(backgroundTintHue,0,0,1);
-		circlesColor = mainApplet.color(backgroundTintHue,8f*backgroundTintSaturationMax/10f,backgroundTintBrightnessMax,0.18f);
-//		for (int i=0; i<4; i++) {
-//			backgroundImg[i] = mainApplet.loadImage("../data/backgroundpic"+(i+1)+".jpg");
-//			backgroundImg[i].resize(mainApplet.width,mainApplet.height);
-//		}
-		mainApplet.colorMode(PApplet.RGB,255,255,255,255);
+		mainApplet.colorMode(PConstants.HSB,backgroundTintHueMax,10,10,100);
+		circlesColor = mainApplet.color(backgroundTintHue,7,1,30); // transparent slightly less saturated and dark background Color
 	}
 
 	public void reset() {
@@ -45,30 +36,31 @@ public class TunnelScene2D extends BasicScene2D {
 		mainApplet.background(backgroundColor);
 		mainApplet.camera(); // reset the camera for 2d drawing
 		drawTunnel();
+		// change colors based on audio stream
 		fftDCValue = audioManager.getMeanFFT(0);
-		if (fftDCValueDelayed == 0) fftDCValueDelayed=fftDCValue;
-		else fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/backgroundDelay;
-		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,backgroundTintSaturationMax,backgroundTintBrightnessMax,1);
-		backgroundColor = mainApplet.color(backgroundTintHue,backgroundTintSaturationMax,fftDCValueDelayed,1);
-		mainApplet.colorMode(PApplet.RGB,255,255,255,255);
+		fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/audioReactionDelay;
+		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,1,audioManager.maxFFT,1);
+		backgroundColor = mainApplet.color(backgroundTintHue,1,fftDCValueDelayed,1);
+		// transition effect
+		circlesOffset += 1.0f/mainApplet.frameRate;
+		if (circlesOffset > 1.0f) circlesOffset = 0.0f;
 	}
 	
 	private void drawTunnel () {
 		// draw circles for tunnel effect
 		mainApplet.stroke(circlesColor);
 		mainApplet.strokeWeight(circlesStrokeWeight);
-		circlesOffset += 1.0f/mainApplet.frameRate;
-		if (circlesOffset > 1.0f) circlesOffset = 0.0f;
-		float ellipseHeight = (0.1f*(mainApplet.height+500)/numberOfCirclesForTunnel);
-		float ellipseWidth = (0.1f*(mainApplet.width+500)/numberOfCirclesForTunnel);
+		mainApplet.noFill();
+		float ellipseHeight = 0.3f*mainApplet.height*2/numberOfCirclesForTunnel;
+		float ellipseWidth = 0.3f*mainApplet.width*2/numberOfCirclesForTunnel;
 		float firstEllipseB = ellipseHeight/2;
 		float firstEllipseA = ellipseWidth/2;
 		mainApplet.ellipse(mainApplet.width/2, mainApplet.height/2, ellipseWidth, ellipseHeight);
-		for (float i=0.2f; i<=numberOfCirclesForTunnel; i*=1.7f) {
-			ellipseHeight = (i*(mainApplet.height+500)/numberOfCirclesForTunnel);
-			ellipseHeight +=  (((i*1.7f)*(mainApplet.height+500)/numberOfCirclesForTunnel)-ellipseHeight)*circlesOffset;
-			ellipseWidth = (i*(mainApplet.width+500)/numberOfCirclesForTunnel);
-			ellipseWidth +=  (((i*1.7f)*(mainApplet.width+500)/numberOfCirclesForTunnel)-ellipseWidth)*circlesOffset;
+		for (float i=0.33f; i<=numberOfCirclesForTunnel; i*=1.7f) {
+			ellipseHeight = (i*(mainApplet.height*2)/numberOfCirclesForTunnel);
+			ellipseHeight +=  (((i*1.7f)*(mainApplet.height*2)/numberOfCirclesForTunnel)-ellipseHeight)*circlesOffset;
+			ellipseWidth = (i*(mainApplet.width*2)/numberOfCirclesForTunnel);
+			ellipseWidth +=  (((i*1.7f)*(mainApplet.width*2)/numberOfCirclesForTunnel)-ellipseWidth)*circlesOffset;
 			mainApplet.ellipse(mainApplet.width/2, mainApplet.height/2, ellipseWidth, ellipseHeight);
 		}
 		float lastEllipseB = ellipseHeight/2;
@@ -81,13 +73,22 @@ public class TunnelScene2D extends BasicScene2D {
 			float lineY2 = mainApplet.height/2 + lastEllipseB*PApplet.sin(angle);
 			mainApplet.line(lineX1, lineY1, lineX2, lineY2);
 		}
-		
+
+//		protected PImage backgroundImg[] = new PImage[4];
+//		for (int i=0; i<4; i++) {
+//			backgroundImg[i] = mainApplet.loadImage("../data/backgroundpic"+(i+1)+".jpg");
+//			backgroundImg[i].resize(mainApplet.width,mainApplet.height);
+//		}
 //		PImage actBackgroundImg=backgroundImg[mainApplet.frameCount%4];
 //		mainApplet.tint(backgroundColor);
 //		mainApplet.image(actBackgroundImg, 0, actBackgroundImg.height/2-mainApplet.height/2,mainApplet.width,mainApplet.height);
-		//mainApplet.tint(255,0);
-		//backgroundImg.copy(backgroundImg, 5,5,backgroundImg.width-5,backgroundImg.height-5, 0,0,backgroundImg.width,backgroundImg.height);
-		//mainApplet.image(backgroundImg,0,0);
+//		mainApplet.tint(255,0);
+//		backgroundImg.copy(backgroundImg, 5,5,backgroundImg.width-5,backgroundImg.height-5, 0,0,backgroundImg.width,backgroundImg.height);
+//		mainApplet.image(backgroundImg,0,0);
+	}
+
+	public short getSceneType() {
+		return TherapeuticPresence.TUNNEL_SCENE2D;
 	}
 
 }

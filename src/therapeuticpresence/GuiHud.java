@@ -100,22 +100,22 @@ public class GuiHud {
 		mirrorTherapyRight.setCaptionLabel("MT RIGHT");
 		mirrorTherapyRight.plugTo(this);
 		
-		controlP5.Button drawDepthMap = control.addButton("switchVisualisationDepthMap",TherapeuticPresence.DRAW_DEPTHMAP,0,60,150,20);
+		controlP5.Button drawDepthMap = control.addButton("switchVisualisationDepthMap",TherapeuticPresence.DEPTHMAP_VISUALISATION,0,60,150,20);
 		drawDepthMap.moveTo(menu);
 		drawDepthMap.setCaptionLabel("Draw DepthMap");
 		drawDepthMap.plugTo(this);
 		
-		controlP5.Button drawSkeletons = control.addButton("switchVisualisationSkeletons",TherapeuticPresence.DRAW_SKELETON,0,80,150,20);
+		controlP5.Button drawSkeletons = control.addButton("switchVisualisationSkeletons",TherapeuticPresence.STICKFIGURE_VISUALISATION,0,80,150,20);
 		drawSkeletons.moveTo(menu);
 		drawSkeletons.setCaptionLabel("Draw Skeletons");
 		drawSkeletons.plugTo(this);
 
-		controlP5.Button drawTree = control.addButton("switchVisualisationTree",TherapeuticPresence.DRAW_TREE,0,100,150,20);
+		controlP5.Button drawTree = control.addButton("switchVisualisationTree",TherapeuticPresence.GENERATIVE_TREE_VISUALISATION,0,100,150,20);
 		drawTree.moveTo(menu);
 		drawTree.setCaptionLabel("Draw Tree");
 		drawTree.plugTo(this);
 
-		controlP5.Button drawAudioSkeletons = control.addButton("switchVisualisationAudioSkeletons",TherapeuticPresence.DRAW_AUDIOSKELETON,0,120,150,20);
+		controlP5.Button drawAudioSkeletons = control.addButton("switchVisualisationAudioSkeletons",TherapeuticPresence.GEOMETRIC_AUDIO_VISUALISATION,0,120,150,20);
 		drawAudioSkeletons.moveTo(menu);
 		drawAudioSkeletons.setCaptionLabel("Draw AudioSkeletons");
 		drawAudioSkeletons.plugTo(this);
@@ -128,6 +128,10 @@ public class GuiHud {
 		autoCalibration.setLabelVisible(false);
 		autoCalibration.plugTo(this);
 		
+		controlP5.Slider fftGain = control.addSlider("changeFFTGain",0.0f,1.0f,AudioManager.gain,0,160,108,20);
+		fftGain.moveTo(menu);
+		fftGain.setCaptionLabel("FFT Gain");
+		fftGain.plugTo(this);
 	}
 	
 	
@@ -154,23 +158,27 @@ public class GuiHud {
 	}
 	
 	private void switchVisualisationDepthMap (int theValue) {
-		mainApplet.setupVisualisation(TherapeuticPresence.DRAW_DEPTHMAP);
+		mainApplet.setupVisualisation(TherapeuticPresence.DEPTHMAP_VISUALISATION);
 	}
 	
 	private void switchVisualisationSkeletons (int theValue) {
-		mainApplet.setupVisualisation(TherapeuticPresence.DRAW_SKELETON);
+		mainApplet.setupVisualisation(TherapeuticPresence.STICKFIGURE_VISUALISATION);
 	}
 	
 	private void switchVisualisationTree (int theValue) {
-		mainApplet.setupVisualisation(TherapeuticPresence.DRAW_TREE);
+		mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_VISUALISATION);
 	}
 	
 	private void switchVisualisationAudioSkeletons (int theValue) {
-		mainApplet.setupVisualisation(TherapeuticPresence.DRAW_AUDIOSKELETON);
+		mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRIC_AUDIO_VISUALISATION);
 	}
 	
 	private void switchAutoCalibration (int theValue) {
 		TherapeuticPresence.autoCalibration = !mainApplet.autoCalibration;
+	}
+	
+	private void changeFFTGain (float theValue) {
+		AudioManager.gain = theValue;
 	}
 	
 

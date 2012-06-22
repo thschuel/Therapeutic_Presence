@@ -1,6 +1,7 @@
 package scenes;
 
 import processing.core.*;
+import therapeuticpresence.TherapeuticPresence;
 
 public class BasicScene3D extends AbstractScene {
 	// variables to move through the scene. used only by some visualisations
@@ -11,7 +12,7 @@ public class BasicScene3D extends AbstractScene {
 	public float rotY = PApplet.radians(0);
 	public float rotZ = PApplet.radians(180);  // by default rotate the hole scene 180deg around the z-axis, the data from openni comes upside down
 
-	public BasicScene3D (PApplet _mainApplet, int _backgroundColor) {
+	public BasicScene3D (TherapeuticPresence _mainApplet, int _backgroundColor) {
 		super(_mainApplet,_backgroundColor);
 	}
 	
@@ -29,6 +30,10 @@ public class BasicScene3D extends AbstractScene {
 		mainApplet.rotateY(rotY);
 		mainApplet.rotateZ(rotZ);
 		mainApplet.translate(translateX,translateY,translateZ);
+	}
+
+	public short getSceneType() {
+		return TherapeuticPresence.BASIC_SCENE3D;
 	}
 
 }

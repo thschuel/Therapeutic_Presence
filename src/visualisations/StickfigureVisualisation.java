@@ -12,11 +12,12 @@ public class StickfigureVisualisation extends SkeletonVisualisation {
 	private float lengthJointOrientations = 0f;
 	private float radiusJoints = 0f;
 	
-	public StickfigureVisualisation (PApplet _mainApplet, Skeleton _skeleton) {
+	public StickfigureVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton) {
 		super(_mainApplet, _skeleton);
 	}
 	
 	public void setup() {
+		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 		strokeColor = mainApplet.color(0,255,255);
 		jointColor = mainApplet.color(0,0,255);
 		mirrorPlaneColor = mainApplet.color(100,100,100);
@@ -58,6 +59,7 @@ public class StickfigureVisualisation extends SkeletonVisualisation {
 		PVector joint1 = skeleton.getJoint(jointType1);
 		PVector joint2 = skeleton.getJoint(jointType2);
 		float meanConfidence = (skeleton.getConfidenceJoint(jointType1)+skeleton.getConfidenceJoint(jointType2)) / 2.0f;
+		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 		mainApplet.stroke(strokeColor,55+meanConfidence*200);
 		mainApplet.line(joint1.x,joint1.y,joint1.z,joint2.x,joint2.y,joint2.z);
 	}
@@ -73,6 +75,7 @@ public class StickfigureVisualisation extends SkeletonVisualisation {
 			mainApplet.pushMatrix();
 			mainApplet.translate(joint.x,joint.y,joint.z);
 			mainApplet.noStroke();
+			mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 			mainApplet.fill(jointColor,55+confidence*200);
 			mainApplet.sphere(radiusJoints);
 			
@@ -80,6 +83,7 @@ public class StickfigureVisualisation extends SkeletonVisualisation {
 				PMatrix3D orientation = skeleton.getJointOrientation(i);
 				// set the local coordsys
 				mainApplet.applyMatrix(orientation);
+				mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 			    // x - r
 				mainApplet.stroke(255,0,0,55+confidence*200);
 				mainApplet.line(0,0,0,lengthJointOrientations,0,0);
@@ -118,6 +122,7 @@ public class StickfigureVisualisation extends SkeletonVisualisation {
 			// draw your vertices
 			mainApplet.pushMatrix();
 			mainApplet.noStroke();
+			mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 			mainApplet.fill(mirrorPlaneColor,40);
 			mainApplet.beginShape(PApplet.QUADS);
 				mainApplet.vertex(P1.x,P1.y,P1.z);
@@ -128,6 +133,10 @@ public class StickfigureVisualisation extends SkeletonVisualisation {
 			mainApplet.popMatrix();
 		}
 				
+	}
+
+	public short getVisualisationType() {
+		return TherapeuticPresence.STICKFIGURE_VISUALISATION;
 	}
 
 }

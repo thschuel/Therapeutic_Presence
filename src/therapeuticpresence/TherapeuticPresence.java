@@ -33,10 +33,10 @@ public class TherapeuticPresence extends PApplet {
 	
 	// --- setup constants ---
 	public static final short MAX_USERS = 4;
-	public static final short DRAW_SKELETON = 1;
-	public static final short DRAW_DEPTHMAP = 2;
-	public static final short DRAW_TREE = 3;
-	public static final short DRAW_AUDIOSKELETON = 4;
+	public static final short STICKFIGURE_VISUALISATION = 1;
+	public static final short DEPTHMAP_VISUALISATION = 2;
+	public static final short GENERATIVE_TREE_VISUALISATION = 3;
+	public static final short GEOMETRIC_AUDIO_VISUALISATION = 4;
 	public static final short BASIC_SCENE2D = 0;
 	public static final short BASIC_SCENE3D = 1;
 	public static final short TUNNEL_SCENE2D = 2;
@@ -48,7 +48,7 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean fullBodyTracking = false; // control for full body tracking
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = true;
-	public static short defaultVisualisationMethod = TherapeuticPresence.DRAW_DEPTHMAP;
+	public static short defaultVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 	public static short defaultSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short mirrorTherapy = TherapeuticPresence.MIRROR_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
@@ -77,6 +77,11 @@ public class TherapeuticPresence extends PApplet {
 		
 		// establish connection to kinect/openni
 		setupKinect();
+		  
+		// start the audio interface
+		audioManager = new AudioManager(this);
+		audioManager.setup();
+		audioManager.start();
 		
 		// setup Scene
 		setupScene(TherapeuticPresence.defaultSceneType);
@@ -86,11 +91,6 @@ public class TherapeuticPresence extends PApplet {
 		
 		// generate HUD
 		guiHud = new GuiHud(this);
-		  
-		// start the audio interface
-		audioManager = new AudioManager(this);
-		audioManager.setup();
-		audioManager.start();
 	}
 	
 	private void setupKinect () {
@@ -145,21 +145,21 @@ public class TherapeuticPresence extends PApplet {
 	public void setupVisualisation (short _visualisationMethod) {
 		
 		switch (_visualisationMethod) {
-			case TherapeuticPresence.DRAW_SKELETON:
+			case TherapeuticPresence.STICKFIGURE_VISUALISATION:
 				scene = new BasicScene3D(this,color(0,0,0));
 				scene.reset();
 				visualisation = new StickfigureVisualisation(this,skeleton);
 				visualisation.setup();
 				break;
 				
-			case TherapeuticPresence.DRAW_TREE:
+			case TherapeuticPresence.GENERATIVE_TREE_VISUALISATION:
 				scene = new TunnelScene2D(this,color(0,0,0),audioManager);
 				scene.reset();
 				visualisation = new GenerativeTreeVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
 				break;
 				
-			case TherapeuticPresence.DRAW_AUDIOSKELETON:
+			case TherapeuticPresence.GEOMETRIC_AUDIO_VISUALISATION:
 				scene = new TunnelScene2D(this,color(0,0,0),audioManager);
 				scene.reset();
 				visualisation = new AudioVisualisation(this,skeleton,audioManager);
@@ -215,7 +215,7 @@ public class TherapeuticPresence extends PApplet {
 				debugMessage("Skeleton of user "+skeleton.userId+" replaced with skeleton of user "+_userId+"!");
 			}
 			skeleton = new Skeleton(kinect,_userId);
-			setupVisualisation(TherapeuticPresence.DRAW_AUDIOSKELETON);
+			setupVisualisation(TherapeuticPresence.GEOMETRIC_AUDIO_VISUALISATION);
 		}
 	}
 	
@@ -225,7 +225,7 @@ public class TherapeuticPresence extends PApplet {
 			debugMessage("skeletonLost: User id "+_userId+" outside range. Maximum users: "+TherapeuticPresence.MAX_USERS);
 		} else {
 			skeleton = null;
-			setupVisualisation(TherapeuticPresence.DRAW_DEPTHMAP);
+			setupVisualisation(TherapeuticPresence.DEPTHMAP_VISUALISATION);
 			int[] users = kinect.getUsers();
 			if (users.length!=0) {
 				if(TherapeuticPresence.autoCalibration) kinect.requestCalibrationSkeleton(users[0],true);

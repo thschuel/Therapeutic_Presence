@@ -1,6 +1,5 @@
 package therapeuticpresence;
 
-import processing.core.PApplet;
 import ddf.minim.*;
 import ddf.minim.analysis.FFT;
 
@@ -8,20 +7,21 @@ public class AudioManager implements AudioListener{
 	public static boolean calcFFT = true; 
 	public static int bands = 8;
 	
-	protected PApplet mainApplet;
+	protected TherapeuticPresence mainApplet;
 	protected Minim minim;
 	protected AudioPlayer audioPlayer;
 
 	protected float[] leftChannelSamples = null;
 	protected float[] rightChannelSamples = null;
 	protected FFT fft; 
-	protected float maxFFT;
+	public static float gain = 0.25f;
+	public float maxFFT;
 	protected float[] leftFFT = null;
 	protected float[] rightFFT = null;
 	
 	public boolean isUpdated = false;
 
-	public AudioManager (PApplet _mainApplet) {
+	public AudioManager (TherapeuticPresence _mainApplet) {
 		mainApplet = _mainApplet;
 		minim = new Minim(mainApplet);
 	}
@@ -30,7 +30,6 @@ public class AudioManager implements AudioListener{
 		audioPlayer = minim.loadFile("../data/moan.mp3",1024);
 		audioPlayer.addListener(this);
 		
-		float gain = .125f;
 	    fft = new FFT(audioPlayer.bufferSize(), audioPlayer.sampleRate());
 	    maxFFT =  audioPlayer.sampleRate() / audioPlayer.bufferSize() * gain;
 	    fft.window(FFT.HAMMING);
@@ -52,6 +51,7 @@ public class AudioManager implements AudioListener{
 		    fft.forward(rightChannelSamples);
 		    for(int i = 0; i < bands; i++) rightFFT[i] = fft.getAvg(i);
 		}
+	    maxFFT =  audioPlayer.sampleRate() / audioPlayer.bufferSize() * gain;
 		isUpdated = true;
 	}
 	
@@ -77,6 +77,29 @@ public class AudioManager implements AudioListener{
 	public float getMeanFFT (int _index) {
 		if (isUpdated) return (rightFFT[_index]+leftFFT[_index])/2f;
 		else return 0f;
+	}
+	
+	public float getLeftSampleAt (int _index) {
+		if (isUpdated) return leftChannelSamples[_index];
+		else return 0f;
+	}
+	
+	public float getRightSampleAt (int _index) {
+		if (isUpdated) return rightChannelSamples[_index];
+		else return 0f;
+	}
+	
+	public float getMeanSampleAt (int _index) {
+		if (isUpdated) return (leftChannelSamples[_index]+rightChannelSamples[_index])/2;
+		else return 0f;
+	}
+
+	public float getSampleRate () {
+		return audioPlayer.sampleRate();
+	}
+	
+	public float getBufferSize () {
+		return audioPlayer.bufferSize();
 	}
 	
 	public void samples(float[] samp) {

@@ -1,15 +1,16 @@
 package scenes;
 
-import processing.core.PApplet;
+import therapeuticpresence.TherapeuticPresence;
 
 public abstract class AbstractScene {
-	protected PApplet mainApplet = null;
+	protected TherapeuticPresence mainApplet = null;
 	protected int backgroundColor = 0;
 	
-	public AbstractScene (PApplet _mainApplet, int _backgroundColor) {
+	public AbstractScene (TherapeuticPresence _mainApplet, int _backgroundColor) {
 		mainApplet = _mainApplet;
 		backgroundColor = _backgroundColor;
 	}
 	
 	public abstract void reset ();
+	public abstract short getSceneType ();
 }
