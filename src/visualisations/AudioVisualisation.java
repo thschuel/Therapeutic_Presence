@@ -23,10 +23,12 @@ public class AudioVisualisation extends SkeletonVisualisation {
 	protected int anchorR2X, anchorR2Y;
 	protected int right1X, right1Y;
 	protected int anchorR1X, anchorR1Y;
-	
-	protected int width, height;
-	
 	protected ArrayList<BezierCurve> bezierCurves = new ArrayList<BezierCurve>();
+	
+	// size of drawing canvas for bezier curves. is controlled by distance of user.
+	protected int width, height;
+	protected float scale = 1f;
+	protected final float maxDistanceToKinect = 3000f; // in mm
 	
 	// these values are used for drawing the bezier curves
 	protected float delay = 8f;
@@ -43,16 +45,25 @@ public class AudioVisualisation extends SkeletonVisualisation {
 		// fix center point
 	    centerX = mainApplet.width/2;
 		centerY = mainApplet.height/2;
-		width = mainApplet.width;
-		height = mainApplet.height;
+		// coordinates based on canvas size
+		updateCanvasCoordinates();
+		// variable coordinates, will be controlled by user movement
 		left1Y = height/2;
 		left2Y = height/2;
 		right2Y = height/2;
 		right1Y = height/2;
-		updateFixCoordinates();
+		anchorL1Y = left1Y + ((left2Y-left1Y)/2);
+		anchorL2Y = left1Y + ((left2Y-left1Y)/2);
+		anchorL3Y = centerY + ((left2Y-centerY)/2);
+		anchorR3Y = centerY + ((right2Y-centerY)/2);
+		anchorR2Y = right1Y + ((right2Y-right1Y)/2);
+		anchorR1Y = right1Y + ((right2Y-right1Y)/2);
 	}
 	
-	private void updateFixCoordinates () {
+	private void updateCanvasCoordinates () {
+		scale = skeleton.distanceToKinect()/maxDistanceToKinect;
+		width = PApplet.round(mainApplet.width*scale);
+		height = PApplet.round(mainApplet.height*scale);
 		left1X = centerX-width/2;
 		left2X = centerX-width/4;
 		right2X = centerX+width/4;
@@ -63,14 +74,6 @@ public class AudioVisualisation extends SkeletonVisualisation {
 		anchorR3X = centerX+width/8;
 		anchorR2X = centerX+3*width/8;
 		anchorR1X = centerX+5*width/8;
-		// y values change according to movement
-		anchorL1Y = left1Y + ((left2Y-left1Y)/2);
-		anchorL2Y = left1Y + ((left2Y-left1Y)/2);
-		anchorL3Y = centerY + ((left2Y-centerY)/2);
-		anchorR3Y = centerY + ((right2Y-centerY)/2);
-		anchorR2Y = right1Y + ((right2Y-right1Y)/2);
-		anchorR1Y = right1Y + ((right2Y-right1Y)/2);
-		
 	}
 	
 	public void draw () {
@@ -104,10 +107,7 @@ public class AudioVisualisation extends SkeletonVisualisation {
 		angleRightLowerArm = (angleRightLowerArm+angleRightUpperArm)%PConstants.PI;
 		
 		// scale canvas for drawing according to distance to kinect
-		float scale = skeleton.distanceToKinect()/3000f;
-		width = PApplet.round(mainApplet.width*scale);
-		height = PApplet.round(mainApplet.height*scale);
-		updateFixCoordinates();
+		updateCanvasCoordinates();
 		
 		// actual coordinates
 		int left2YNew = centerY+(int)((left2X-centerX)*PApplet.sin(angleLeftUpperArm)/PApplet.cos(angleLeftUpperArm));
@@ -133,39 +133,31 @@ public class AudioVisualisation extends SkeletonVisualisation {
 		anchorR2Y = right1Y + ((right2Y-right1Y)/2);
 		anchorR1Y = right1Y + ((right2Y-right1Y)/2);
 		
-		// Curves react to the waveform
-		int bezierCurvePointCount = 11;
-		int waveformOffsets[] = new int[bezierCurvePointCount];
-		for (int i=0; i<bezierCurvePointCount; i++) {
-			int index = PApplet.round(i*audioManager.getBufferSize()/bezierCurvePointCount);
-			waveformOffsets[i] = 0;//PApplet.round(audioManager.getMeanSampleAt(index)*radiation);
-		}
-		
 		// add BezierCurves to Array. based on the calculated coordinates and the FFT values
 		for (int i=0; i<AudioManager.bands; i++) {
-			float strokeWeight;
+			int strokeWeight;
 			int color;
 			for (int j=-1; j<2; j+=2) {
-				if (i==0) strokeWeight = audioManager.getMeanFFT(0)*scaleDC;
-				else if (j==1) strokeWeight = audioManager.getLeftFFT(i)*scaleAC;
-				else strokeWeight = audioManager.getRightFFT(i)*scaleAC;
+				if (i==0) strokeWeight = PApplet.round(audioManager.getMeanFFT(0)*scaleDC);
+				else if (j==1) strokeWeight = PApplet.round(audioManager.getLeftFFT(i)*scaleAC);
+				else strokeWeight = PApplet.round(audioManager.getRightFFT(i)*scaleAC);
 				mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,100);
 				color = mainApplet.color(i,255,255);
 				int offset = PApplet.round(j*i*radiation*scale);
 				BezierCurve temp = new BezierCurve(strokeWeight,color);
-				temp.addAnchorPoint(anchorL1X, anchorL1Y+offset+waveformOffsets[0]);
-				temp.addControlPoint(left1X,left1Y+offset+waveformOffsets[1]);
-				temp.addAnchorPoint(anchorL2X, anchorL2Y+offset+waveformOffsets[2]);
-				temp.addControlPoint(left2X,left2Y+offset+waveformOffsets[3]);
-				temp.addAnchorPoint(anchorL3X, anchorL3Y+offset+waveformOffsets[4]);
-				temp.addControlPoint(centerX,centerY+offset+waveformOffsets[5]);
-				temp.addAnchorPoint(anchorR3X, anchorR3Y+offset+waveformOffsets[6]);
-				temp.addControlPoint(right2X,right2Y+offset+waveformOffsets[7]);
-				temp.addAnchorPoint(anchorR2X, anchorR2Y+offset+waveformOffsets[8]);
-				temp.addControlPoint(right1X,right1Y+offset+waveformOffsets[9]);
-				temp.addAnchorPoint(anchorR1X, anchorR1Y+offset+waveformOffsets[10]);
+				temp.addAnchorPoint(anchorL1X, anchorL1Y+offset);
+				temp.addControlPoint(left1X,left1Y+offset);
+				temp.addAnchorPoint(anchorL2X, anchorL2Y+offset);
+				temp.addControlPoint(left2X,left2Y+offset);
+				temp.addAnchorPoint(anchorL3X, anchorL3Y+offset);
+				temp.addControlPoint(centerX,centerY+offset);
+				temp.addAnchorPoint(anchorR3X, anchorR3Y+offset);
+				temp.addControlPoint(right2X,right2Y+offset);
+				temp.addAnchorPoint(anchorR2X, anchorR2Y+offset);
+				temp.addControlPoint(right1X,right1Y+offset);
+				temp.addAnchorPoint(anchorR1X, anchorR1Y+offset);
 				bezierCurves.add(temp);
-				if (i==0) j=2;
+				if (i==0) j=2; // draw dc curve only once
 			}
 		}
 		

@@ -51,5 +51,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Therapeutic_Presence/lib/base/opengl/library"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/user/shapes3d/shapes3d.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

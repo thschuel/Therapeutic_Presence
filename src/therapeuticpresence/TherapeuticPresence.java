@@ -146,7 +146,7 @@ public class TherapeuticPresence extends PApplet {
 		
 		switch (_visualisationMethod) {
 			case TherapeuticPresence.STICKFIGURE_VISUALISATION:
-				scene = new BasicScene3D(this,color(0,0,0));
+				scene = new TunnelScene3D(this,color(0,0,0),audioManager);
 				scene.reset();
 				visualisation = new StickfigureVisualisation(this,skeleton);
 				visualisation.setup();
@@ -167,7 +167,7 @@ public class TherapeuticPresence extends PApplet {
 				break;
 			
 			default:
-				scene = new BasicScene3D(this,color(0,0,0));
+				scene = new TunnelScene3D(this,color(0,0,0),audioManager);
 				scene.reset();
 				visualisation = new DepthMapVisualisation(this,kinect);
 				visualisation.setup();
