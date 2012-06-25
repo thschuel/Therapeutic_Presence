@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import processing.core.*;
 import therapeuticpresence.*;
 
-public class AudioVisualisation extends SkeletonVisualisation {
+public class Geometry2DVisualisation extends SkeletonVisualisation {
 
 	protected AudioManager audioManager;
 	
@@ -23,7 +23,7 @@ public class AudioVisualisation extends SkeletonVisualisation {
 	protected int anchorR2X, anchorR2Y;
 	protected int right1X, right1Y;
 	protected int anchorR1X, anchorR1Y;
-	protected ArrayList<BezierCurve> bezierCurves = new ArrayList<BezierCurve>();
+	protected ArrayList<BezierCurve2D> bezierCurves = new ArrayList<BezierCurve2D>();
 	
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected int width, height;
@@ -36,7 +36,7 @@ public class AudioVisualisation extends SkeletonVisualisation {
 	protected float scaleDC = 1f;
 	protected float scaleAC = 12f;
 	
-	public AudioVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
+	public Geometry2DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton);
 		audioManager = _audioManager;
 	}
@@ -144,7 +144,7 @@ public class AudioVisualisation extends SkeletonVisualisation {
 				mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,100);
 				color = mainApplet.color(i,255,255);
 				int offset = PApplet.round(j*i*radiation*scale);
-				BezierCurve temp = new BezierCurve(strokeWeight,color);
+				BezierCurve2D temp = new BezierCurve2D(strokeWeight,color);
 				temp.addAnchorPoint(anchorL1X, anchorL1Y+offset);
 				temp.addControlPoint(left1X,left1Y+offset);
 				temp.addAnchorPoint(anchorL2X, anchorL2Y+offset);
@@ -170,7 +170,7 @@ public class AudioVisualisation extends SkeletonVisualisation {
 	}
 
 	public short getVisualisationType() {
-		return TherapeuticPresence.GEOMETRIC_AUDIO_VISUALISATION;
+		return TherapeuticPresence.GEOMETRY_2D_VISUALISATION;
 	}
 
 }

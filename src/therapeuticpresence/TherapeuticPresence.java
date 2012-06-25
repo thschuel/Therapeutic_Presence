@@ -36,13 +36,18 @@ public class TherapeuticPresence extends PApplet {
 	public static final short STICKFIGURE_VISUALISATION = 1;
 	public static final short DEPTHMAP_VISUALISATION = 2;
 	public static final short GENERATIVE_TREE_VISUALISATION = 3;
-	public static final short GEOMETRIC_AUDIO_VISUALISATION = 4;
+	public static final short GEOMETRY_2D_VISUALISATION = 4;
+	public static final short GEOMETRY_3D_VISUALISATION = 5;
+	public static final short AUDIO_STICKFIGURE_VISUALISATION = 6;
 	public static final short BASIC_SCENE2D = 0;
 	public static final short BASIC_SCENE3D = 1;
 	public static final short TUNNEL_SCENE2D = 2;
+	public static final short TUNNEL_SCENE3D = 3;
 	public static final short MIRROR_OFF = 0;
 	public static final short MIRROR_LEFT = 1;
 	public static final short MIRROR_RIGHT = 2;
+
+
 	
 	// --- static setup variables ---
 	public static boolean fullBodyTracking = false; // control for full body tracking
@@ -133,6 +138,17 @@ public class TherapeuticPresence extends PApplet {
 					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
 				}
 				break;
+				
+			case TherapeuticPresence.TUNNEL_SCENE3D:
+				if (audioManager != null) {
+					scene = new TunnelScene3D(this,color(0,0,0),audioManager);
+					scene.reset();
+					sceneIs3D = true;
+				} else {
+					setupScene(TherapeuticPresence.BASIC_SCENE3D);
+					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
+				}
+				break;
 			
 			default:
 				scene = new BasicScene3D(this,color(0,0,0));
@@ -159,15 +175,22 @@ public class TherapeuticPresence extends PApplet {
 				visualisation.setup();
 				break;
 				
-			case TherapeuticPresence.GEOMETRIC_AUDIO_VISUALISATION:
+			case TherapeuticPresence.GEOMETRY_2D_VISUALISATION:
 				scene = new TunnelScene2D(this,color(0,0,0),audioManager);
 				scene.reset();
-				visualisation = new AudioVisualisation(this,skeleton,audioManager);
+				visualisation = new Geometry2DVisualisation(this,skeleton,audioManager);
+				visualisation.setup();
+				break;
+				
+			case TherapeuticPresence.AUDIO_STICKFIGURE_VISUALISATION:
+				scene = new TunnelScene3D(this,color(0,0,0),audioManager);
+				scene.reset();
+				visualisation = new AudioStickfigureVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
 				break;
 			
 			default:
-				scene = new TunnelScene3D(this,color(0,0,0),audioManager);
+				scene = new BasicScene3D(this,color(0,0,0));
 				scene.reset();
 				visualisation = new DepthMapVisualisation(this,kinect);
 				visualisation.setup();
@@ -215,7 +238,7 @@ public class TherapeuticPresence extends PApplet {
 				debugMessage("Skeleton of user "+skeleton.userId+" replaced with skeleton of user "+_userId+"!");
 			}
 			skeleton = new Skeleton(kinect,_userId);
-			setupVisualisation(TherapeuticPresence.GEOMETRIC_AUDIO_VISUALISATION);
+			setupVisualisation(TherapeuticPresence.AUDIO_STICKFIGURE_VISUALISATION);
 		}
 	}
 	
