@@ -25,12 +25,12 @@ public class BezierCurve3D {
 	}
 	public void addAnchorPoint (PVector _anchorPoint) {
 		if (anchorPointsCounter < MAX_POINTS) {
-			anchorPoints[anchorPointsCounter++] = _anchorPoint;
+			anchorPoints[anchorPointsCounter++] = new PVector(_anchorPoint.x,_anchorPoint.y,_anchorPoint.z);
 		}
 	}
 	public void addControlPoint (PVector _controlPoint) {
 		if (controlPointsCounter < MAX_POINTS) {
-			controlPoints[controlPointsCounter++] = _controlPoint;
+			controlPoints[controlPointsCounter++] = new PVector(_controlPoint.x,_controlPoint.y,_controlPoint.z);
 		}
 	}
 	

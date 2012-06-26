@@ -182,6 +182,13 @@ public class TherapeuticPresence extends PApplet {
 				visualisation.setup();
 				break;
 				
+			case TherapeuticPresence.GEOMETRY_3D_VISUALISATION:
+				scene = new TunnelScene3D(this,color(0,0,0),audioManager);
+				scene.reset();
+				visualisation = new Geometry3DVisualisation(this,skeleton,audioManager);
+				visualisation.setup();
+				break;
+				
 			case TherapeuticPresence.AUDIO_STICKFIGURE_VISUALISATION:
 				scene = new TunnelScene3D(this,color(0,0,0),audioManager);
 				scene.reset();
@@ -238,7 +245,7 @@ public class TherapeuticPresence extends PApplet {
 				debugMessage("Skeleton of user "+skeleton.userId+" replaced with skeleton of user "+_userId+"!");
 			}
 			skeleton = new Skeleton(kinect,_userId);
-			setupVisualisation(TherapeuticPresence.AUDIO_STICKFIGURE_VISUALISATION);
+			setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
 		}
 	}
 	

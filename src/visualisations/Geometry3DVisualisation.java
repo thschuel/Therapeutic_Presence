@@ -12,23 +12,21 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 	
 	// coordinates for the visualization are defined through angles of limbs
 	// bezier curves used for drawing. anchor points and control points.
-	protected int anchorL1X, anchorL1Y;
-	protected int left1X, left1Y;
-	protected int anchorL2X, anchorL2Y;
-	protected int left2X, left2Y;
-	protected int anchorL3X, anchorL3Y;
-	protected int centerX, centerY;
-	protected int anchorR3X, anchorR3Y;
-	protected int right2X, right2Y;
-	protected int anchorR2X, anchorR2Y;
-	protected int right1X, right1Y;
-	protected int anchorR1X, anchorR1Y;
-	protected ArrayList<BezierCurve2D> bezierCurves = new ArrayList<BezierCurve2D>();
+	protected PVector anchorL1 = new PVector();
+	protected PVector left1 = new PVector();
+	protected PVector anchorL2 = new PVector();
+	protected PVector left2 = new PVector();
+	protected PVector anchorL3 = new PVector();
+	protected PVector center = new PVector();
+	protected PVector anchorR3 = new PVector();
+	protected PVector right2 = new PVector();
+	protected PVector anchorR2 = new PVector();
+	protected PVector right1 = new PVector();
+	protected PVector anchorR1 = new PVector();
+	protected ArrayList<BezierCurve3D> bezierCurves = new ArrayList<BezierCurve3D>();
 	
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
-	protected int width, height;
-	protected float scale = 1f;
-	protected final float maxDistanceToKinect = 3000f; // in mm
+	protected float width, height;
 	
 	// these values are used for drawing the bezier curves
 	protected float delay = 8f;
@@ -42,46 +40,48 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 	}
 	
 	public void setup() {
-		// fix center point
-	    centerX = mainApplet.width/2;
-		centerY = mainApplet.height/2;
 		// coordinates based on canvas size
-		updateCanvasCoordinates();
-		// variable coordinates, will be controlled by user movement
-		left1Y = height/2;
-		left2Y = height/2;
-		right2Y = height/2;
-		right1Y = height/2;
-		anchorL1Y = left1Y + ((left2Y-left1Y)/2);
-		anchorL2Y = left1Y + ((left2Y-left1Y)/2);
-		anchorL3Y = centerY + ((left2Y-centerY)/2);
-		anchorR3Y = centerY + ((right2Y-centerY)/2);
-		anchorR2Y = right1Y + ((right2Y-right1Y)/2);
-		anchorR1Y = right1Y + ((right2Y-right1Y)/2);
+		updateCanvasCoordinates(1000f,1000f);
 	}
 	
-	private void updateCanvasCoordinates () {
-		scale = skeleton.distanceToKinect()/maxDistanceToKinect;
-		width = PApplet.round(mainApplet.width*scale);
-		height = PApplet.round(mainApplet.height*scale);
-		left1X = centerX-width/2;
-		left2X = centerX-width/4;
-		right2X = centerX+width/4;
-		right1X = centerX+width/2;	
-		anchorL1X = centerX-5*width/8;
-		anchorL2X = centerX-3*width/8;
-		anchorL3X = centerX-width/8;
-		anchorR3X = centerX+width/8;
-		anchorR2X = centerX+3*width/8;
-		anchorR1X = centerX+5*width/8;
+	public void updateCanvasCoordinates (float _width, float _height) {
+	    center = skeleton.getJoint(Skeleton.LEFT_SHOULDER);
+		width = 200f+(5000f-center.z)*1800f/5000f;
+		height = 200f+(5000f-center.z)*1800f/5000f;
+		left1.x = center.x-width/2;
+		left2.x = center.x-width/4;
+		right2.x = center.x+width/4;
+		right1.x = center.x+width/2;	
+		anchorL1.x = center.x-5*width/8;
+		anchorL2.x = center.x-3*width/8;
+		anchorL3.x = center.x-width/8;
+		anchorR3.x = center.x+width/8;
+		anchorR2.x = center.x+3*width/8;
+		anchorR1.x = center.x+5*width/8;
+
+		left1.z = center.z;
+		left2.z = center.z;
+		right2.z = center.z;
+		right1.z = center.z;	
+		anchorL1.z = center.z;
+		anchorL2.z = center.z;
+		anchorL3.z = center.z;
+		anchorR3.z = center.z;
+		anchorR2.z = center.z;
+		anchorR1.z = center.z;
 	}
 	
 	public void draw () {
 		if (skeleton.isUpdated && audioManager.isUpdated) {
+			mainApplet.pushMatrix();
+			mainApplet.rotateZ(PConstants.PI);
+//			mainApplet.rotateX(PConstants.PI);
+			updateCanvasCoordinates(1000f,1000f);
 			updateBezierCurves();
 			for (int i=0; i<bezierCurves.size(); i++) {
 				bezierCurves.get(i).draw(mainApplet);
 			}
+			mainApplet.popMatrix();
 		}
 	}
 	
@@ -106,32 +106,32 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 		angleLeftLowerArm = (angleLeftLowerArm+angleLeftUpperArm)%PConstants.PI;
 		angleRightLowerArm = (angleRightLowerArm+angleRightUpperArm)%PConstants.PI;
 		
-		// scale canvas for drawing according to distance to kinect
-		updateCanvasCoordinates();
-		
 		// actual coordinates
-		int left2YNew = centerY+(int)((left2X-centerX)*PApplet.sin(angleLeftUpperArm)/PApplet.cos(angleLeftUpperArm));
-		int right2YNew = centerY-(int)((right2X-centerX)*PApplet.sin(angleRightUpperArm)/PApplet.cos(angleRightUpperArm));
-		int left1YNew = left2YNew+(int)((left1X-left2X)*PApplet.sin(angleLeftLowerArm)/PApplet.cos(angleLeftLowerArm));
-		int right1YNew = right2YNew-(int)((right1X-right2X)*PApplet.sin(angleRightLowerArm)/PApplet.cos(angleRightLowerArm));
+		float left2YNew = center.y+(left2.x-center.x)*PApplet.sin(angleLeftUpperArm)/PApplet.cos(angleLeftUpperArm);
+		float right2YNew = center.y-(right2.x-center.x)*PApplet.sin(angleRightUpperArm)/PApplet.cos(angleRightUpperArm);
+		float left1YNew = left2YNew+(left1.x-left2.x)*PApplet.sin(angleLeftLowerArm)/PApplet.cos(angleLeftLowerArm);
+		float right1YNew = right2YNew-(right1.x-right2.x)*PApplet.sin(angleRightLowerArm)/PApplet.cos(angleRightLowerArm);
 		// constrain coordinates
-		left2YNew = PApplet.constrain(left2YNew,centerY-height/2+50,centerY+height/2-50);
-		right2YNew = PApplet.constrain(right2YNew,centerY-height/2+50,centerY+height/2-50);
-		left1YNew = PApplet.constrain(left1YNew,centerY-height/2,centerY+height/2);
-		right1YNew = PApplet.constrain(right1YNew,centerY-height/2,centerY+height/2);
+		left2YNew = PApplet.constrain(left2YNew,center.y-height/2+50,center.y+height/2-50);
+		right2YNew = PApplet.constrain(right2YNew,center.y-height/2+50,center.y+height/2-50);
+		left1YNew = PApplet.constrain(left1YNew,center.y-height/2,center.y+height/2);
+		right1YNew = PApplet.constrain(right1YNew,center.y-height/2,center.y+height/2);
 
 		// update coordinates with delay
-		left2Y += (left2YNew-left2Y)/delay;
-		right2Y += (right2YNew-right2Y)/delay;
-		left1Y += (left1YNew-left1Y)/delay;
-		right1Y += (right1YNew-right1Y)/delay;
+		left2.y += (left2YNew-left2.y)/delay;
+		right2.y += (right2YNew-right2.y)/delay;
+		left1.y += (left1YNew-left1.y)/delay;
+		right1.y += (right1YNew-right1.y)/delay;
 		// update anchorpoints based on controlpoints
-		anchorL1Y = left1Y + ((left2Y-left1Y)/2);
-		anchorL2Y = left1Y + ((left2Y-left1Y)/2);
-		anchorL3Y = centerY + ((left2Y-centerY)/2);
-		anchorR3Y = centerY + ((right2Y-centerY)/2);
-		anchorR2Y = right1Y + ((right2Y-right1Y)/2);
-		anchorR1Y = right1Y + ((right2Y-right1Y)/2);
+		anchorL1.y = left1.y + ((left2.y-left1.y)/2);
+		anchorL2.y = left1.y + ((left2.y-left1.y)/2);
+		anchorL3.y = center.y + ((left2.y-center.y)/2);
+		anchorR3.y = center.y + ((right2.y-center.y)/2);
+		anchorR2.y = right1.y + ((right2.y-right1.y)/2);
+		anchorR1.y = right1.y + ((right2.y-right1.y)/2);
+		// update z values
+		
+		
 		
 		// add BezierCurves to Array. based on the calculated coordinates and the FFT values
 		for (int i=0; i<AudioManager.bands; i++) {
@@ -143,19 +143,31 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 				else strokeWeight = PApplet.round(audioManager.getRightFFT(i)*scaleAC);
 				mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,100);
 				color = mainApplet.color(i,255,255);
-				int offset = PApplet.round(j*i*radiation*scale);
-				BezierCurve2D temp = new BezierCurve2D(strokeWeight,color);
-				temp.addAnchorPoint(anchorL1X, anchorL1Y+offset);
-				temp.addControlPoint(left1X,left1Y+offset);
-				temp.addAnchorPoint(anchorL2X, anchorL2Y+offset);
-				temp.addControlPoint(left2X,left2Y+offset);
-				temp.addAnchorPoint(anchorL3X, anchorL3Y+offset);
-				temp.addControlPoint(centerX,centerY+offset);
-				temp.addAnchorPoint(anchorR3X, anchorR3Y+offset);
-				temp.addControlPoint(right2X,right2Y+offset);
-				temp.addAnchorPoint(anchorR2X, anchorR2Y+offset);
-				temp.addControlPoint(right1X,right1Y+offset);
-				temp.addAnchorPoint(anchorR1X, anchorR1Y+offset);
+				int offset = PApplet.round(j*i*radiation);
+				BezierCurve3D temp = new BezierCurve3D(strokeWeight,color);
+				PVector tempVector = new PVector();
+				tempVector.set(anchorL1.x,anchorL1.y + offset,anchorL1.z);
+				temp.addAnchorPoint(tempVector);
+				tempVector.set(left1.x,left1.y + offset,left1.z);
+				temp.addControlPoint(tempVector);
+				tempVector.set(anchorL2.x,anchorL2.y + offset,anchorL2.z);
+				temp.addAnchorPoint(tempVector);
+				tempVector.set(left2.x,left2.y + offset,left2.z);
+				temp.addControlPoint(tempVector);
+				tempVector.set(anchorL3.x,anchorL3.y + offset,anchorL3.z);
+				temp.addAnchorPoint(tempVector);
+				tempVector.set(center.x,center.y + offset,center.z);
+				temp.addControlPoint(tempVector);
+				tempVector.set(anchorR3.x,anchorR3.y + offset,anchorR3.z);
+				temp.addAnchorPoint(tempVector);
+				tempVector.set(right2.x,right2.y + offset,right2.z);
+				temp.addControlPoint(tempVector);
+				tempVector.set(anchorR2.x,anchorR2.y + offset,anchorR2.z);
+				temp.addAnchorPoint(tempVector);
+				tempVector.set(right1.x,right1.y + offset,right1.z);
+				temp.addControlPoint(tempVector);
+				tempVector.set(anchorR1.x,anchorR1.y + offset,anchorR1.z);
+				temp.addAnchorPoint(tempVector);
 				bezierCurves.add(temp);
 				if (i==0) j=2; // draw dc curve only once
 			}
