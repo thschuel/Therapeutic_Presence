@@ -9,15 +9,22 @@ import shapes3d.*;
 
 public class TunnelScene3D extends BasicScene3D {
 	protected AudioManager audioManager = null;
+	
 	protected Tube tunnelTube = null;
 	protected PGraphics textureWalls = null;
 	protected PImage textureWallsImg = null;
 	protected PImage textureWallsVer = null;
 	protected PImage textureWallsHor = null;
+	public float tunnelWidth = 4000f;
+	public float tunnelHeight = 3000f;
+	public float tunnelLength = 5000f;
+	public float tunnelShrink = 10f;
+	public float tunnelEntryZ;
+	
+	// animation of texture, background colors are controlled by audio stream
 	protected int offsetTunnelEffect = 0;
 	protected int offsetTunnelEffectMax = 0;
 	protected final int horizontalLines = 3;
-	// background colors are controlled by audio stream
 	protected int backgroundTintColor = 0;
 	protected int backgroundTintHueMax = 255;
 	protected int backgroundTintHue = 120;
@@ -28,31 +35,55 @@ public class TunnelScene3D extends BasicScene3D {
 	public TunnelScene3D (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
 		super (_mainApplet,_backgroundColor);
 		audioManager = _audioManager;
+		
+		// rotate and set up for third person view
+		rotY = PApplet.radians(180);
+		translateZ = -tunnelLength; // negative translation, because translation will be applied after rotation around Y
+		tunnelTube = new Tube(mainApplet,8,60);
+		// set radii of tube
+		tunnelTube.setSize(tunnelWidth/2f,tunnelHeight/2f,(tunnelWidth/2f)/tunnelShrink,(tunnelWidth/2f)/tunnelShrink,tunnelLength);
+		tunnelTube.rotateBy(-PConstants.PI/2,0,0);
+		tunnelTube.z(tunnelLength/2f-1f);
+		tunnelEntryZ = tunnelLength;
+		tunnelTube.visible(false,Tube.BOTH_CAP);
+		
+		// basic components for texture animation
 		textureWallsVer = mainApplet.loadImage("../data/textureTunnel.png");
 		textureWallsHor = mainApplet.loadImage("../data/textureTunnelCrossline.png");
 		textureWallsImg = new PImage(textureWallsVer.width,textureWallsVer.height);
 		textureWalls = mainApplet.createGraphics(textureWallsVer.width,textureWallsVer.height,PConstants.P2D);
 		offsetTunnelEffectMax = (textureWalls.height+textureWallsHor.height)/horizontalLines;
-		tunnelTube = new Tube(mainApplet,8,60);
-		tunnelTube.setSize(2000f,2000f,200f,200f,5000f);
-		tunnelTube.rotateBy(PConstants.PI/2,0,0);
-		tunnelTube.z(2499f);
-		tunnelTube.visible(false,Tube.BOTH_CAP);
 	}
 	
 	public void reset () {
+		super.reset();
 		// change colors based on audio stream
 		fftDCValue = audioManager.getMeanFFT(0);
 		fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/audioReactionDelay;
 		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,1,audioManager.maxFFT,1);
 		backgroundTintColor = mainApplet.color(backgroundTintHue,1,fftDCValueDelayed,1);
-		backgroundColor = backgroundTintColor+0x00111111;
+		backgroundColor = backgroundTintColor+0x00060606;
 		// update texture and draw background
-		super.reset();
 		updateTexture();
 		tunnelTube.setTexture(textureWalls.get(),10,1);
 		tunnelTube.drawMode(Shape3D.TEXTURE);
 		tunnelTube.draw();
+	}
+	
+	public float getTunnelWidthAt (float _z) {
+		if (tunnelEntryZ-_z < 0 || tunnelEntryZ-_z > tunnelLength) {
+			mainApplet.debugMessage("TunnelScene3D::getTunnelWidthAt: requesting tunnel width outside tube");
+			return 0;
+		} 
+		return tunnelWidth/tunnelShrink + _z/tunnelLength * (tunnelWidth-tunnelWidth/tunnelShrink);
+	}
+	
+	public float getTunnelHeightAt (float _z) {
+		if (tunnelEntryZ-_z < 0 || tunnelEntryZ-_z > tunnelLength) {
+			mainApplet.debugMessage("TunnelScene3D::getTunnelHeightAt: requesting tunnel height outside tube");
+			return 0;
+		} 
+		return tunnelHeight/tunnelShrink + _z/tunnelLength * (tunnelHeight-tunnelHeight/tunnelShrink);
 	}
 	
 	private void updateTexture () {

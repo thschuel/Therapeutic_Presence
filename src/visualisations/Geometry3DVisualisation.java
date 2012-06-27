@@ -2,6 +2,7 @@ package visualisations;
 
 import java.util.ArrayList;
 import processing.core.*;
+import scenes.TunnelScene3D;
 import therapeuticpresence.*;
 
 // TODO: Implement 3d version of geometry class
@@ -9,6 +10,7 @@ import therapeuticpresence.*;
 public class Geometry3DVisualisation extends SkeletonVisualisation {
 
 	protected AudioManager audioManager;
+	protected TunnelScene3D scene;
 	
 	// coordinates for the visualization are defined through angles of limbs
 	// bezier curves used for drawing. anchor points and control points.
@@ -27,27 +29,37 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 	
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width, height;
+	protected float centerz;
+	protected float skeletonOffset = 2000f;
 	
 	// these values are used for drawing the bezier curves
 	protected float delay = 8f;
-	protected int radiation = 40;
-	protected float scaleDC = 1f;
-	protected float scaleAC = 12f;
+	protected int radiation = 30;
+	protected float scaleDC = 1.5f;
+	protected float scaleAC = 8f;
+	protected float strokeWeight = 1.7f;
 	
-	public Geometry3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
+	public Geometry3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager, TunnelScene3D _scene) {
 		super(_mainApplet,_skeleton);
 		audioManager = _audioManager;
+		scene = _scene;
+		width = scene.tunnelWidth;
+		height = scene.tunnelHeight;
+		centerz = PApplet.constrain(skeleton.distanceToKinect()+skeletonOffset,0,scene.tunnelLength);
 	}
 	
 	public void setup() {
 		// coordinates based on canvas size
-		updateCanvasCoordinates(1000f,1000f);
+		updateCanvasCoordinates();
 	}
 	
-	public void updateCanvasCoordinates (float _width, float _height) {
-	    center = skeleton.getJoint(Skeleton.LEFT_SHOULDER);
-		width = 200f+(5000f-center.z)*1800f/5000f;
-		height = 200f+(5000f-center.z)*1800f/5000f;
+	public void updateCanvasCoordinates () {
+		// center.z reacts to position of user with delay
+		centerz += (skeleton.distanceToKinect()+skeletonOffset-centerz)/delay;
+		centerz = PApplet.constrain(centerz,0,scene.tunnelLength);
+	    center.set(0,0,centerz);
+		width = scene.getTunnelWidthAt(center.z);
+		height = scene.getTunnelHeightAt(center.z);
 		left1.x = center.x-width/2;
 		left2.x = center.x-width/4;
 		right2.x = center.x+width/4;
@@ -59,29 +71,27 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 		anchorR2.x = center.x+3*width/8;
 		anchorR1.x = center.x+5*width/8;
 
-		left1.z = center.z;
-		left2.z = center.z;
-		right2.z = center.z;
-		right1.z = center.z;	
-		anchorL1.z = center.z;
-		anchorL2.z = center.z;
-		anchorL3.z = center.z;
-		anchorR3.z = center.z;
-		anchorR2.z = center.z;
-		anchorR1.z = center.z;
+		left1.z = center.z + skeleton.getJoint(Skeleton.LEFT_HAND).z-skeleton.distanceToKinect();
+		left2.z = center.z + skeleton.getJoint(Skeleton.LEFT_ELBOW).z-skeleton.distanceToKinect();
+		right2.z = center.z + skeleton.getJoint(Skeleton.RIGHT_ELBOW).z-skeleton.distanceToKinect();
+		right1.z = center.z + skeleton.getJoint(Skeleton.RIGHT_HAND).z-skeleton.distanceToKinect();	
+		anchorL1.z = left1.z - (left2.z-left1.z)/2f;
+		anchorL2.z = left1.z + (left2.z-left1.z)/2f;
+		anchorL3.z = left2.z + (center.z-left2.z)/2f;
+		anchorR3.z = right2.z + (center.z-right2.z)/2f;
+		anchorR2.z = right1.z + (right2.z-right1.z)/2f;
+		anchorR1.z = right1.z - (right2.z-right1.z)/2f;
 	}
 	
 	public void draw () {
 		if (skeleton.isUpdated && audioManager.isUpdated) {
-			mainApplet.pushMatrix();
-			mainApplet.rotateZ(PConstants.PI);
-//			mainApplet.rotateX(PConstants.PI);
-			updateCanvasCoordinates(1000f,1000f);
+			updateCanvasCoordinates();
 			updateBezierCurves();
+			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
+			mainApplet.strokeWeight(strokeWeight);
 			for (int i=0; i<bezierCurves.size(); i++) {
 				bezierCurves.get(i).draw(mainApplet);
 			}
-			mainApplet.popMatrix();
 		}
 	}
 	
@@ -106,6 +116,12 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 		angleLeftLowerArm = (angleLeftLowerArm+angleLeftUpperArm)%PConstants.PI;
 		angleRightLowerArm = (angleRightLowerArm+angleRightUpperArm)%PConstants.PI;
 		
+		// use negative angles because kinect data comes upside down
+		angleLeftUpperArm = -angleLeftUpperArm;
+		angleRightUpperArm = -angleRightUpperArm;
+		angleLeftLowerArm = -angleLeftLowerArm;
+		angleRightLowerArm = -angleRightLowerArm;
+		
 		// actual coordinates
 		float left2YNew = center.y+(left2.x-center.x)*PApplet.sin(angleLeftUpperArm)/PApplet.cos(angleLeftUpperArm);
 		float right2YNew = center.y-(right2.x-center.x)*PApplet.sin(angleRightUpperArm)/PApplet.cos(angleRightUpperArm);
@@ -129,45 +145,35 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 		anchorR3.y = center.y + ((right2.y-center.y)/2);
 		anchorR2.y = right1.y + ((right2.y-right1.y)/2);
 		anchorR1.y = right1.y + ((right2.y-right1.y)/2);
-		// update z values
-		
-		
+		// use sample data to shift offset
+		float sampleValues[] = new float[11];
+		for (int i=0; i<11; i++) {
+			sampleValues[i] = audioManager.getMeanSampleAt((int)(i*audioManager.getBufferSize()/11));
+		}
 		
 		// add BezierCurves to Array. based on the calculated coordinates and the FFT values
 		for (int i=0; i<AudioManager.bands; i++) {
-			int strokeWeight;
+			float strokeOffsetGrowth;
 			int color;
 			for (int j=-1; j<2; j+=2) {
-				if (i==0) strokeWeight = PApplet.round(audioManager.getMeanFFT(0)*scaleDC);
-				else if (j==1) strokeWeight = PApplet.round(audioManager.getLeftFFT(i)*scaleAC);
-				else strokeWeight = PApplet.round(audioManager.getRightFFT(i)*scaleAC);
-				mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,100);
-				color = mainApplet.color(i,255,255);
+				if (i==0) strokeOffsetGrowth = audioManager.getMeanFFT(0)*scaleDC;
+				else if (j==1) strokeOffsetGrowth = audioManager.getLeftFFT(i)*scaleAC;
+				else strokeOffsetGrowth = audioManager.getRightFFT(i)*scaleAC;
+				mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
+				color = mainApplet.color(i,255,255,255);
 				int offset = PApplet.round(j*i*radiation);
-				BezierCurve3D temp = new BezierCurve3D(strokeWeight,color);
-				PVector tempVector = new PVector();
-				tempVector.set(anchorL1.x,anchorL1.y + offset,anchorL1.z);
-				temp.addAnchorPoint(tempVector);
-				tempVector.set(left1.x,left1.y + offset,left1.z);
-				temp.addControlPoint(tempVector);
-				tempVector.set(anchorL2.x,anchorL2.y + offset,anchorL2.z);
-				temp.addAnchorPoint(tempVector);
-				tempVector.set(left2.x,left2.y + offset,left2.z);
-				temp.addControlPoint(tempVector);
-				tempVector.set(anchorL3.x,anchorL3.y + offset,anchorL3.z);
-				temp.addAnchorPoint(tempVector);
-				tempVector.set(center.x,center.y + offset,center.z);
-				temp.addControlPoint(tempVector);
-				tempVector.set(anchorR3.x,anchorR3.y + offset,anchorR3.z);
-				temp.addAnchorPoint(tempVector);
-				tempVector.set(right2.x,right2.y + offset,right2.z);
-				temp.addControlPoint(tempVector);
-				tempVector.set(anchorR2.x,anchorR2.y + offset,anchorR2.z);
-				temp.addAnchorPoint(tempVector);
-				tempVector.set(right1.x,right1.y + offset,right1.z);
-				temp.addControlPoint(tempVector);
-				tempVector.set(anchorR1.x,anchorR1.y + offset,anchorR1.z);
-				temp.addAnchorPoint(tempVector);
+				BezierCurve3D temp = new BezierCurve3D(strokeOffsetGrowth,color);
+				temp.addAnchorPoint(new PVector(anchorL1.x,anchorL1.y + (offset*sampleValues[0]),anchorL1.z));
+				temp.addControlPoint(new PVector(left1.x,left1.y + (offset*sampleValues[1]),left1.z));
+				temp.addAnchorPoint(new PVector(anchorL2.x,anchorL2.y + (offset*sampleValues[2]),anchorL2.z));
+				temp.addControlPoint(new PVector(left2.x,left2.y + (offset*sampleValues[3]),left2.z));
+				temp.addAnchorPoint(new PVector(anchorL3.x,anchorL3.y + (offset*sampleValues[4]),anchorL3.z));
+				temp.addControlPoint(new PVector(center.x,center.y + (offset*sampleValues[5]),center.z));
+				temp.addAnchorPoint(new PVector(anchorR3.x,anchorR3.y + (offset*sampleValues[6]),anchorR3.z));
+				temp.addControlPoint(new PVector(right2.x,right2.y + (offset*sampleValues[7]),right2.z));
+				temp.addAnchorPoint(new PVector(anchorR2.x,anchorR2.y + (offset*sampleValues[8]),anchorR2.z));
+				temp.addControlPoint(new PVector(right1.x,right1.y + (offset*sampleValues[9]),right1.z));
+				temp.addAnchorPoint(new PVector(anchorR1.x,anchorR1.y + (offset*sampleValues[10]),anchorR1.z));
 				bezierCurves.add(temp);
 				if (i==0) j=2; // draw dc curve only once
 			}

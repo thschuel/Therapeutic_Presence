@@ -15,10 +15,6 @@ public class BasicScene3D extends AbstractScene {
 	public BasicScene3D (TherapeuticPresence _mainApplet, int _backgroundColor) {
 		super(_mainApplet,_backgroundColor);
 	}
-	
-	public void setBackgroundColor (int _backgroundColor) {
-		backgroundColor = _backgroundColor;
-	}
 
 	public void reset () {
 		// reset the scene
