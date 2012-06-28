@@ -14,6 +14,7 @@ public class StickfigureVisualisation extends SkeletonVisualisation {
 	
 	public StickfigureVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton) {
 		super(_mainApplet, _skeleton);
+		mainApplet.setMirrorKinect(true);
 	}
 	
 	public void setup() {

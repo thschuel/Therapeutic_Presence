@@ -23,13 +23,26 @@ public class Skeleton {
 	public static final short RIGHT_KNEE = 13;
 	public static final short RIGHT_FOOT = 14;
 	
+	// shape of upper body joints, see doc/articulated_posture.txt
+	public static final short NO_SHAPE = 0;
+	public static final short V_SHAPE = 1;
+	public static final short A_SHAPE = 2;
+	public static final short U_SHAPE = 3;
+	public static final short N_SHAPE = 4;
+	public static final short M_SHAPE = 5;
+	public static final short W_SHAPE = 6;
+	public static final short O_SHAPE = 7;
+	public static final short I_SHAPE = 8;
+	public short activePostureShape = NO_SHAPE;
+	
 	// The interface to talk to kinect
 	protected SimpleOpenNI kinect;
 	
-	// stores skeleton Points in 3d Space
+	// stores skeleton Points in 3d Space, global coordsys
 	protected PVector[] skeletonPoints = new PVector[15]; 
 	protected float[] confidenceSkeletonPoints = new float[15];
-	
+	// stores skeleton Points in 3d Space, local coordsys (neck is origin)
+	protected PVector[] skeletonPointsLocal = new PVector[15]; 
 	// stores joint orientation
 	protected PMatrix3D[] jointOrientations = new PMatrix3D[15];
 	protected float[] confidenceJointOrientations = new float[15];
@@ -55,6 +68,7 @@ public class Skeleton {
 		userId = _userId;
 		for (int i=0; i<15; i++){
 			skeletonPoints[i] = new PVector();
+			skeletonPointsLocal[i] = new PVector();
 			jointOrientations[i] = new PMatrix3D();
 		}
 		for (int i=0; i<7; i++){
@@ -172,6 +186,24 @@ public class Skeleton {
 				break;
 		}	
 		
+		skeletonPointsLocal[Skeleton.HEAD] = getLocalVector(skeletonPoints[Skeleton.HEAD]);
+		skeletonPointsLocal[Skeleton.NECK] = getLocalVector(skeletonPoints[Skeleton.NECK]);
+		skeletonPointsLocal[Skeleton.TORSO] = getLocalVector(skeletonPoints[Skeleton.TORSO]);
+		skeletonPointsLocal[Skeleton.LEFT_SHOULDER] = getLocalVector(skeletonPoints[Skeleton.LEFT_SHOULDER]);
+		skeletonPointsLocal[Skeleton.RIGHT_SHOULDER] = getLocalVector(skeletonPoints[Skeleton.RIGHT_SHOULDER]);
+		skeletonPointsLocal[Skeleton.LEFT_ELBOW] = getLocalVector(skeletonPoints[Skeleton.LEFT_ELBOW]);
+		skeletonPointsLocal[Skeleton.RIGHT_ELBOW] = getLocalVector(skeletonPoints[Skeleton.RIGHT_ELBOW]);
+		skeletonPointsLocal[Skeleton.LEFT_HAND] = getLocalVector(skeletonPoints[Skeleton.LEFT_HAND]);
+		skeletonPointsLocal[Skeleton.RIGHT_HAND] = getLocalVector(skeletonPoints[Skeleton.RIGHT_HAND]);
+		if (TherapeuticPresence.fullBodyTracking) {
+			skeletonPointsLocal[Skeleton.LEFT_HIP] = getLocalVector(skeletonPoints[Skeleton.LEFT_HIP]);
+			skeletonPointsLocal[Skeleton.LEFT_KNEE] = getLocalVector(skeletonPoints[Skeleton.LEFT_KNEE]);
+			skeletonPointsLocal[Skeleton.LEFT_FOOT] = getLocalVector(skeletonPoints[Skeleton.LEFT_FOOT]);
+			skeletonPointsLocal[Skeleton.RIGHT_HIP] = getLocalVector(skeletonPoints[Skeleton.RIGHT_HIP]);
+			skeletonPointsLocal[Skeleton.RIGHT_KNEE] = getLocalVector(skeletonPoints[Skeleton.RIGHT_KNEE]);
+			skeletonPointsLocal[Skeleton.RIGHT_FOOT] = getLocalVector(skeletonPoints[Skeleton.RIGHT_FOOT]);
+		}
+		
 		isUpdated = true;
 	}
 	
@@ -229,6 +261,59 @@ public class Skeleton {
 	
 	// -----------------------------------------------------------------
 	// methods to calculate body posture
+	// evaluate upper body joints according to articulated postures defined in doc/articulated_posture.txt
+	public short evaluateUpperJointPositions () {
+		if (evaluateVShape()) activePostureShape = V_SHAPE;
+		else if (evaluateAShape()) activePostureShape = A_SHAPE;
+		else if (evaluateUShape()) activePostureShape = U_SHAPE;
+		else if (evaluateNShape()) activePostureShape = N_SHAPE;
+		else if (evaluateMShape()) activePostureShape = M_SHAPE;
+		else if (evaluateWShape()) activePostureShape = W_SHAPE;
+		else if (evaluateOShape()) activePostureShape = O_SHAPE;
+		else if (evaluateIShape()) activePostureShape = I_SHAPE;
+		else activePostureShape = NO_SHAPE;
+		return activePostureShape;
+	}
+
+	private boolean evaluateIShape() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean evaluateOShape() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean evaluateWShape() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean evaluateMShape() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean evaluateNShape() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean evaluateUShape() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean evaluateAShape() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean evaluateVShape() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 	// return angle between left arm and body axis in radians
 	public float angleBetween (short joint11, short joint12, short joint21, short joint22) {
@@ -267,7 +352,47 @@ public class Skeleton {
 	}
 
 	// -----------------------------------------------------------------
-	// maths for mirroring
+	// maths
+	// transform joint coordinates to lokal coordsys. 
+	// origin: neck, orientation: +x==right_shoulder-left_shoulder
+	// TODO implement this function
+	private PVector getLocalVector (PVector globalVector) {
+		PVector origin = skeletonPoints[Skeleton.NECK];
+		float alpha = 0f; // rotation around x
+		float beta = 0f; // rotation around y
+		float gamma = 0f; // rotation around z
+		float cosAlpha = 0f; // rotation around x
+		float cosBeta = 0f; // rotation around y
+		float cosGamma = 0f; // rotation around z
+		float sinAlpha = 0f; // rotation around x
+		float sinBeta = 0f; // rotation around y
+		float sinGamma = 0f; // rotation around z
+		PMatrix3D translationMatrix = new PMatrix3D(1f,0f,0f,origin.x,
+																		   0f,1f,0f,origin.y,
+																		   0f,0f,1f,origin.z,
+																		   0f,0f,0f,1f);
+		PMatrix3D rotationXMatrix = new PMatrix3D(1f,0f,0f,0f,
+																	     0f,cosAlpha,-sinAlpha,0f,
+																	     0f,sinAlpha,cosAlpha,0f,
+																	     0f,0f,0f,1f);
+		PMatrix3D rotationYMatrix = new PMatrix3D(cosBeta,0f,sinBeta,0f,
+																		 0f,1f,0f,0f,
+																		 -sinBeta,0f,cosBeta,0f,
+																		 0f,0f,0f,1f);
+		PMatrix3D rotationZMatrix = new PMatrix3D(cosGamma,-sinGamma,0f,0f,
+																	     sinGamma,cosGamma,0f,0f,
+																	     0f,0f,1f,0f,
+																	     0f,0f,0f,1f);
+		PMatrix3D transformation = new PMatrix3D();
+		transformation.apply(translationMatrix);
+		transformation.apply(rotationXMatrix);
+		transformation.apply(rotationYMatrix);
+		transformation.apply(rotationZMatrix);
+		
+		return globalVector;
+	}
+	
+	// mirror joints
 	private void mirrorOrientationMatrix (PMatrix3D matrix) {
 		
 //		PApplet.println("x1:"+matrix.m00+" y1:"+matrix.m01+" z1:"+matrix.m02+" t1:"+matrix.m03);

@@ -28,7 +28,6 @@ public class Geometry2DVisualisation extends SkeletonVisualisation {
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected int width, height;
 	protected float scale = 1f;
-	protected final float maxDistanceToKinect = 3000f; // in mm
 	
 	// these values are used for drawing the bezier curves
 	protected float delay = 8f;
@@ -39,12 +38,15 @@ public class Geometry2DVisualisation extends SkeletonVisualisation {
 	public Geometry2DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton);
 		audioManager = _audioManager;
+		mainApplet.setMirrorKinect(true);
 	}
 	
 	public void setup() {
+		width = mainApplet.width;
+		height = mainApplet.height;
 		// fix center point
-	    centerX = mainApplet.width/2;
-		centerY = mainApplet.height/2;
+	    centerX = width/2;
+		centerY = height/2;
 		// coordinates based on canvas size
 		updateCanvasCoordinates();
 		// variable coordinates, will be controlled by user movement
@@ -61,9 +63,7 @@ public class Geometry2DVisualisation extends SkeletonVisualisation {
 	}
 	
 	private void updateCanvasCoordinates () {
-		scale = skeleton.distanceToKinect()/maxDistanceToKinect;
-		width = PApplet.round(mainApplet.width*scale);
-		height = PApplet.round(mainApplet.height*scale);
+		scale = skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect;
 		left1X = centerX-width/2;
 		left2X = centerX-width/4;
 		right2X = centerX+width/4;

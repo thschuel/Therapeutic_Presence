@@ -18,4 +18,8 @@ public class BasicScene2D extends AbstractScene {
 		return TherapeuticPresence.BASIC_SCENE2D;
 	}
 
+	public boolean sceneIs3D() {
+		return false;
+	}
+
 }

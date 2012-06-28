@@ -13,8 +13,9 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 	// variables to calculate and draw the tree
 	private float curlx = 0;
 	private float curly = 0;
-	private float f = PApplet.sqrt(2)/2.f;
+	private float downscaleStrokeLength = PApplet.sqrt(2)/2.f;
 	private float delay = 20;
+	private int minBranches = 5;
 //	private float growth = 0;
 //	private float growthTarget = 0;
 //	private int branches = 17;
@@ -38,6 +39,7 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 	public GenerativeTreeVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super (_mainApplet,_skeleton);
 		audioManager = _audioManager;
+		mainApplet.setMirrorKinect(true);
 		canvasWidth = mainApplet.width;
 		canvasHeight = mainApplet.height;
 	}
@@ -54,23 +56,24 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 
 	public void draw() {
 		if (skeleton.isUpdated && audioManager.isUpdated) {
-			float scale = skeleton.distanceToKinect()/3000f;
-			int branchCount = 5+PApplet.round(5*scale);
+			float scale = skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect;
+			int branchCount = minBranches+PApplet.round(minBranches*scale);
+			float initialStrokeLength = scale*canvasHeight/3;
 			// draw trunk of the tree
 			mainApplet.pushMatrix();
-			mainApplet.translate(canvasWidth/2,canvasHeight-50);
+			mainApplet.translate(canvasWidth/2,(scale+2.5f)*canvasHeight/5+initialStrokeLength);
 			mainApplet.stroke(strokeColor,transparency);
 			float strokeWeight = audioManager.getMeanFFT(0) * initialScale;
 			mainApplet.strokeWeight(strokeWeight);
-			mainApplet.line(0,0,0,-canvasHeight/3);
-			mainApplet.translate(0,-canvasHeight/3);
+			mainApplet.line(0,0,0,-initialStrokeLength);
+			mainApplet.translate(0,-initialStrokeLength);
 			
 			float anglelArmToBodyAxis = skeleton.angleBetween(Skeleton.LEFT_SHOULDER,Skeleton.LEFT_HAND,Skeleton.TORSO,Skeleton.NECK); 
 			float anglerArmToBodyAxis = skeleton.angleBetween(Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_HAND,Skeleton.TORSO,Skeleton.NECK);
 			 
 			// trees react to body posture with a delay
-			curlx += (anglelArmToBodyAxis*0.75-curlx)/delay;
-			curly += (anglerArmToBodyAxis*0.75-curly)/delay;				
+			curlx += (anglelArmToBodyAxis*0.5-curlx)/delay;
+			curly += (anglerArmToBodyAxis*0.5-curly)/delay;				
 			// colors of leafs differ in HSB-space
 			colorsStepSize = colorsSize/PApplet.pow(2,branchCount); 
 			actColorIndex = 0.f;
@@ -78,7 +81,7 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 			sampleStepSize = audioManager.getBufferSize()/PApplet.pow(2,branchCount);
 			actSampleIndex = 0f;
 			// start branching
-			branch(canvasHeight/4.f,branchCount,strokeWeight*downScale);
+			branch(initialStrokeLength*downscaleStrokeLength,branchCount,strokeWeight*downScale);
 			
 			mainApplet.popMatrix();
 		}
@@ -87,7 +90,7 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 	
 	private void branch(float length, int count, float strokeWeight)
 	{
-		length *= f;
+		length *= downscaleStrokeLength;
 		count -= 1;
 		if ((length > 1) && (count > 0)) {
 		    // draw branch and go ahead

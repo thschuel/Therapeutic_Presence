@@ -24,6 +24,7 @@ public class AudioStickfigureVisualisation extends SkeletonVisualisation {
 	
 	public AudioStickfigureVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet, _skeleton);
+		mainApplet.setMirrorKinect(true);
 		audioManager = _audioManager;
 	}
 	

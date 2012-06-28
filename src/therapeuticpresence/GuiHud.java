@@ -81,7 +81,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,150);
-		menu.setBackgroundHeight(180);
+		menu.setBackgroundHeight(200);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -115,20 +115,25 @@ public class GuiHud {
 		drawTree.setCaptionLabel("Draw Tree");
 		drawTree.plugTo(this);
 
-		controlP5.Button drawAudioSkeletons = control.addButton("switchVisualisationAudioSkeletons",TherapeuticPresence.GEOMETRY_2D_VISUALISATION,0,120,150,20);
+		controlP5.Button drawAudioSkeletons = control.addButton("switchVisualisationGeometry2D",TherapeuticPresence.GEOMETRY_2D_VISUALISATION,0,120,150,20);
 		drawAudioSkeletons.moveTo(menu);
-		drawAudioSkeletons.setCaptionLabel("Draw AudioSkeletons");
+		drawAudioSkeletons.setCaptionLabel("Draw Geometry2D");
 		drawAudioSkeletons.plugTo(this);
 
-		controlP5.Textarea autoCalibrationLabel = control.addTextarea("autoCalibrationLabel","Toggle AutoCalibration",2,144,128,16);
+		controlP5.Button drawGeometry3D = control.addButton("switchVisualisationGeometry3D",TherapeuticPresence.GEOMETRY_3D_VISUALISATION,0,140,150,20);
+		drawGeometry3D.moveTo(menu);
+		drawGeometry3D.setCaptionLabel("Draw Geometry3D");
+		drawGeometry3D.plugTo(this);
+
+		controlP5.Textarea autoCalibrationLabel = control.addTextarea("autoCalibrationLabel","Toggle AutoCalibration",2,164,128,16);
 		autoCalibrationLabel.moveTo(menu);
 		
-		controlP5.Toggle autoCalibration = control.addToggle("switchAutoCalibration",TherapeuticPresence.autoCalibration,130,140,20,20);
+		controlP5.Toggle autoCalibration = control.addToggle("switchAutoCalibration",TherapeuticPresence.autoCalibration,130,160,20,20);
 		autoCalibration.moveTo(menu);
 		autoCalibration.setLabelVisible(false);
 		autoCalibration.plugTo(this);
 		
-		controlP5.Slider fftGain = control.addSlider("changeFFTGain",0.0f,1.0f,AudioManager.gain,0,160,108,20);
+		controlP5.Slider fftGain = control.addSlider("changeFFTGain",0.0f,1.0f,AudioManager.gain,0,180,108,20);
 		fftGain.moveTo(menu);
 		fftGain.setCaptionLabel("FFT Gain");
 		fftGain.plugTo(this);
@@ -158,19 +163,28 @@ public class GuiHud {
 	}
 	
 	private void switchVisualisationDepthMap (int theValue) {
+		mainApplet.setupScene(TherapeuticPresence.BASIC_SCENE3D);
 		mainApplet.setupVisualisation(TherapeuticPresence.DEPTHMAP_VISUALISATION);
 	}
 	
 	private void switchVisualisationSkeletons (int theValue) {
+		mainApplet.setupScene(TherapeuticPresence.BASIC_SCENE3D);
 		mainApplet.setupVisualisation(TherapeuticPresence.STICKFIGURE_VISUALISATION);
 	}
 	
 	private void switchVisualisationTree (int theValue) {
+		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
 		mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_VISUALISATION);
 	}
 	
-	private void switchVisualisationAudioSkeletons (int theValue) {
+	private void switchVisualisationGeometry2D (int theValue) {
+		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
 		mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_2D_VISUALISATION);
+	}
+	
+	private void switchVisualisationGeometry3D (int theValue) {
+		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+		mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
 	}
 	
 	private void switchAutoCalibration (int theValue) {

@@ -15,11 +15,11 @@ public class TunnelScene3D extends BasicScene3D {
 	protected PImage textureWallsImg = null;
 	protected PImage textureWallsVer = null;
 	protected PImage textureWallsHor = null;
-	public float tunnelWidth = 4000f;
-	public float tunnelHeight = 3000f;
-	public float tunnelLength = 5000f;
-	public float tunnelShrink = 10f;
-	public float tunnelEntryZ;
+	public static float tunnelWidth = 4000f;
+	public static float tunnelHeight = 3000f;
+	public static float tunnelLength = 5000f;
+	public static float tunnelShrink = 10f;
+	public static float tunnelEntryZ = tunnelLength;
 	
 	// animation of texture, background colors are controlled by audio stream
 	protected int offsetTunnelEffect = 0;
@@ -35,7 +35,6 @@ public class TunnelScene3D extends BasicScene3D {
 	public TunnelScene3D (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
 		super (_mainApplet,_backgroundColor);
 		audioManager = _audioManager;
-		
 		// rotate and set up for third person view
 		rotY = PApplet.radians(180);
 		translateZ = -tunnelLength; // negative translation, because translation will be applied after rotation around Y
@@ -44,7 +43,6 @@ public class TunnelScene3D extends BasicScene3D {
 		tunnelTube.setSize(tunnelWidth/2f,tunnelHeight/2f,(tunnelWidth/2f)/tunnelShrink,(tunnelWidth/2f)/tunnelShrink,tunnelLength);
 		tunnelTube.rotateBy(-PConstants.PI/2,0,0);
 		tunnelTube.z(tunnelLength/2f-1f);
-		tunnelEntryZ = tunnelLength;
 		tunnelTube.visible(false,Tube.BOTH_CAP);
 		
 		// basic components for texture animation
@@ -70,17 +68,15 @@ public class TunnelScene3D extends BasicScene3D {
 		tunnelTube.draw();
 	}
 	
-	public float getTunnelWidthAt (float _z) {
+	public static float getTunnelWidthAt (float _z) {
 		if (tunnelEntryZ-_z < 0 || tunnelEntryZ-_z > tunnelLength) {
-			mainApplet.debugMessage("TunnelScene3D::getTunnelWidthAt: requesting tunnel width outside tube");
 			return 0;
 		} 
 		return tunnelWidth/tunnelShrink + _z/tunnelLength * (tunnelWidth-tunnelWidth/tunnelShrink);
 	}
 	
-	public float getTunnelHeightAt (float _z) {
+	public static float getTunnelHeightAt (float _z) {
 		if (tunnelEntryZ-_z < 0 || tunnelEntryZ-_z > tunnelLength) {
-			mainApplet.debugMessage("TunnelScene3D::getTunnelHeightAt: requesting tunnel height outside tube");
 			return 0;
 		} 
 		return tunnelHeight/tunnelShrink + _z/tunnelLength * (tunnelHeight-tunnelHeight/tunnelShrink);

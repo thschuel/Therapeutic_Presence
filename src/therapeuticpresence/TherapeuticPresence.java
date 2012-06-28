@@ -53,13 +53,12 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean debugOutput = true;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 	public static short defaultVisualisationMethod = TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
-	public static short defaultSceneType = TherapeuticPresence.BASIC_SCENE3D;
+	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
+	public static short defaultSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
 	public static short mirrorTherapy = TherapeuticPresence.MIRROR_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
-	public static boolean mirrorKinect = true;
-	
-	// --- private switches ---
-	private boolean sceneIs3D = true; // used in keyboardEvents, default is true because of default sceneType
+	public static boolean mirrorKinect = false;
+	public static float maxDistanceToKinect = 2000f; // in mm
 	
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
@@ -89,7 +88,7 @@ public class TherapeuticPresence extends PApplet {
 		audioManager.start();
 		
 		// setup Scene
-		//setupScene(TherapeuticPresence.defaultSceneType);
+		setupScene(TherapeuticPresence.initialSceneType);
 
 		// start visualisation (default is depthMap)
 		setupVisualisation(TherapeuticPresence.initialVisualisationMethod);
@@ -121,10 +120,15 @@ public class TherapeuticPresence extends PApplet {
 	}
 	
 	public void setMirrorKinect (boolean _mirror) {
-		mirrorKinect = _mirror;
-		kinect.stopTrackingSkeleton(skeleton.userId);
-		kinect.setMirror(mirrorKinect);
-		kinect.startTrackingSkeleton(skeleton.userId);
+		// TODO: fix switch mirroring on the fly
+//		mirrorKinect = _mirror;
+//		if (skeleton!=null && skeleton.isUpdated) {
+//			kinect.stopTrackingSkeleton(skeleton.userId);
+//			kinect.setMirror(mirrorKinect); 
+//			kinect.startTrackingSkeleton(skeleton.userId);
+//		} else if (skeleton == null) {
+//			kinect.setMirror(mirrorKinect); 
+//		}
 	}
 	
 	public void setupScene (short _sceneType) {
@@ -132,17 +136,14 @@ public class TherapeuticPresence extends PApplet {
 			case TherapeuticPresence.BASIC_SCENE2D:
 				scene = new BasicScene2D(this,color(0,0,0));
 				scene.reset();
-				sceneIs3D = false;
 				break;
 				
 			case TherapeuticPresence.TUNNEL_SCENE2D:
 				if (audioManager != null) {
 					scene = new TunnelScene2D(this,color(0,0,0),audioManager);
 					scene.reset();
-					sceneIs3D = false;
 				} else {
 					setupScene(TherapeuticPresence.BASIC_SCENE2D);
-					sceneIs3D = false;
 					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
 				}
 				break;
@@ -151,10 +152,8 @@ public class TherapeuticPresence extends PApplet {
 				if (audioManager != null) {
 					scene = new TunnelScene3D(this,color(0,0,0),audioManager);
 					scene.reset();
-					sceneIs3D = true;
 				} else {
 					setupScene(TherapeuticPresence.BASIC_SCENE3D);
-					sceneIs3D = true;
 					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
 				}
 				break;
@@ -162,7 +161,6 @@ public class TherapeuticPresence extends PApplet {
 			default:
 				scene = new BasicScene3D(this,color(0,0,0));
 				scene.reset();
-				sceneIs3D = true;
 				break;
 		}
 	}
@@ -171,37 +169,31 @@ public class TherapeuticPresence extends PApplet {
 		
 		switch (_visualisationMethod) {
 			case TherapeuticPresence.STICKFIGURE_VISUALISATION:
-				setupScene(TherapeuticPresence.BASIC_SCENE3D);
 				visualisation = new StickfigureVisualisation(this,skeleton);
 				visualisation.setup();
 				break;
 				
 			case TherapeuticPresence.AUDIO_STICKFIGURE_VISUALISATION:
-				setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
 				visualisation = new AudioStickfigureVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
 				break;
 				
 			case TherapeuticPresence.GENERATIVE_TREE_VISUALISATION:
-				setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
 				visualisation = new GenerativeTreeVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
 				break;
 				
 			case TherapeuticPresence.GEOMETRY_2D_VISUALISATION:
-				setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
 				visualisation = new Geometry2DVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
 				break;
 				
 			case TherapeuticPresence.GEOMETRY_3D_VISUALISATION:
-				setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
-				visualisation = new Geometry3DVisualisation(this,skeleton,audioManager,(TunnelScene3D)scene);
+				visualisation = new Geometry3DVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
 				break;
 			
 			default:
-				setupScene(TherapeuticPresence.BASIC_SCENE3D);
 				visualisation = new DepthMapVisualisation(this,kinect);
 				visualisation.setup();
 				break;
@@ -249,6 +241,8 @@ public class TherapeuticPresence extends PApplet {
 				debugMessage("Skeleton of user "+skeleton.userId+" replaced with skeleton of user "+_userId+"!");
 			}
 			skeleton = new Skeleton(kinect,_userId);
+			// start default scene and visualisation
+			setupScene(defaultSceneType);
 			setupVisualisation(defaultVisualisationMethod);
 		}
 	}
@@ -259,7 +253,8 @@ public class TherapeuticPresence extends PApplet {
 			debugMessage("skeletonLost: User id "+_userId+" outside range. Maximum users: "+TherapeuticPresence.MAX_USERS);
 		} else {
 			skeleton = null;
-			setupVisualisation(TherapeuticPresence.DEPTHMAP_VISUALISATION);
+			setupScene(initialSceneType);
+			setupVisualisation(initialVisualisationMethod);
 			int[] users = kinect.getUsers();
 			if (users.length!=0) {
 				if(TherapeuticPresence.autoCalibration) kinect.requestCalibrationSkeleton(users[0],true);
@@ -278,11 +273,14 @@ public class TherapeuticPresence extends PApplet {
 			else kinect.startPoseDetection("Psi",userId);
 		} else {
 			debugMessage("  no pose detection, skeleton is already tracked");
+			kinect.startTrackingSkeleton(skeleton.userId);
 		}
 	}
 	public void onLostUser(int userId) {
 		debugMessage("onLostUser - userId: " + userId);
-		this.skeletonLost(userId);
+		if (userId == skeleton.userId) {
+			this.skeletonLost(userId);
+		}
 	}
 	public void onStartCalibration(int userId) {
 		debugMessage("onStartCalibration - userId: " + userId);
@@ -343,12 +341,13 @@ public class TherapeuticPresence extends PApplet {
 			    break;
 			    
 			case 'm':
-				setMirrorKinect(!mirrorKinect);
+				mirrorKinect = !mirrorKinect;
+				kinect.setMirror(mirrorKinect);
 				break;
 				
 		}
 		
-		if (sceneIs3D) {
+		if (scene.sceneIs3D()) {
 			switch (key) {
 				case 'w':
 					((BasicScene3D)scene).translateZ -= 100.0f;

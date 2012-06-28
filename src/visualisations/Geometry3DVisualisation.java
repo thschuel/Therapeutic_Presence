@@ -5,12 +5,9 @@ import processing.core.*;
 import scenes.TunnelScene3D;
 import therapeuticpresence.*;
 
-// TODO: Implement 3d version of geometry class
-
 public class Geometry3DVisualisation extends SkeletonVisualisation {
 
 	protected AudioManager audioManager;
-	protected TunnelScene3D scene;
 	
 	// coordinates for the visualization are defined through angles of limbs
 	// bezier curves used for drawing. anchor points and control points.
@@ -33,19 +30,19 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 	protected float skeletonOffset = 2000f;
 	
 	// these values are used for drawing the bezier curves
-	protected float delay = 8f;
-	protected int radiation = 30;
-	protected float scaleDC = 1.5f;
-	protected float scaleAC = 8f;
-	protected float strokeWeight = 1.7f;
+	protected final float delay = 8f;
+	protected final int radiation = 30;
+	protected final float scaleDC = 1f;
+	protected final float scaleAC = 5f;
+	protected final float strokeWeight = 1.7f;
 	
-	public Geometry3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager, TunnelScene3D _scene) {
+	public Geometry3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton);
 		audioManager = _audioManager;
-		scene = _scene;
-		width = scene.tunnelWidth;
-		height = scene.tunnelHeight;
-		centerz = PApplet.constrain(skeleton.distanceToKinect()+skeletonOffset,0,scene.tunnelLength);
+		mainApplet.setMirrorKinect(false);
+		width = TunnelScene3D.tunnelWidth;
+		height = TunnelScene3D.tunnelHeight;
+		centerz = PApplet.constrain(skeleton.distanceToKinect()+skeletonOffset,0,TunnelScene3D.tunnelLength);
 	}
 	
 	public void setup() {
@@ -56,10 +53,11 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 	public void updateCanvasCoordinates () {
 		// center.z reacts to position of user with delay
 		centerz += (skeleton.distanceToKinect()+skeletonOffset-centerz)/delay;
-		centerz = PApplet.constrain(centerz,0,scene.tunnelLength);
+		centerz = PApplet.constrain(centerz,0,TunnelScene3D.tunnelLength);
 	    center.set(0,0,centerz);
-		width = scene.getTunnelWidthAt(center.z);
-		height = scene.getTunnelHeightAt(center.z);
+		width = TunnelScene3D.getTunnelWidthAt(center.z);
+		height = TunnelScene3D.getTunnelHeightAt(center.z);
+
 		left1.x = center.x-width/2;
 		left2.x = center.x-width/4;
 		right2.x = center.x+width/4;
@@ -71,16 +69,16 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 		anchorR2.x = center.x+3*width/8;
 		anchorR1.x = center.x+5*width/8;
 
-		left1.z = center.z + skeleton.getJoint(Skeleton.LEFT_HAND).z-skeleton.distanceToKinect();
-		left2.z = center.z + skeleton.getJoint(Skeleton.LEFT_ELBOW).z-skeleton.distanceToKinect();
-		right2.z = center.z + skeleton.getJoint(Skeleton.RIGHT_ELBOW).z-skeleton.distanceToKinect();
-		right1.z = center.z + skeleton.getJoint(Skeleton.RIGHT_HAND).z-skeleton.distanceToKinect();	
-		anchorL1.z = left1.z - (left2.z-left1.z)/2f;
-		anchorL2.z = left1.z + (left2.z-left1.z)/2f;
-		anchorL3.z = left2.z + (center.z-left2.z)/2f;
-		anchorR3.z = right2.z + (center.z-right2.z)/2f;
-		anchorR2.z = right1.z + (right2.z-right1.z)/2f;
-		anchorR1.z = right1.z - (right2.z-right1.z)/2f;
+		left1.z += (center.z + skeleton.getJoint(Skeleton.LEFT_HAND).z-skeleton.getJoint(Skeleton.LEFT_SHOULDER).z - left1.z)/delay;
+		left2.z += (center.z + skeleton.getJoint(Skeleton.LEFT_ELBOW).z-skeleton.getJoint(Skeleton.LEFT_SHOULDER).z - left2.z)/delay;
+		right2.z += (center.z + skeleton.getJoint(Skeleton.RIGHT_ELBOW).z-skeleton.getJoint(Skeleton.RIGHT_SHOULDER).z - right2.z)/delay;
+		right1.z += (center.z + skeleton.getJoint(Skeleton.RIGHT_HAND).z-skeleton.getJoint(Skeleton.RIGHT_SHOULDER).z - right1.z)/delay;
+		anchorL1.z += (left1.z - (left2.z-left1.z)/2f - anchorL1.z)/delay;
+		anchorL2.z += (left1.z + (left2.z-left1.z)/2f - anchorL2.z)/delay;
+		anchorL3.z += (left2.z + (center.z-left2.z)/2f - anchorL3.z)/delay;
+		anchorR3.z += (right2.z + (center.z-right2.z)/2f - anchorR3.z)/delay;
+		anchorR2.z += (right1.z + (right2.z-right1.z)/2f - anchorR2.z)/delay;
+		anchorR1.z += (right1.z - (right2.z-right1.z)/2f - anchorR1.z)/delay;
 	}
 	
 	public void draw () {
@@ -100,6 +98,9 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 		float angleRightUpperArm = skeleton.angleToYAxis(Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_ELBOW);
 		float angleLeftLowerArm = skeleton.angleBetween(Skeleton.LEFT_HAND,Skeleton.LEFT_ELBOW,Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER);
 		float angleRightLowerArm = skeleton.angleBetween(Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
+		float angleLeftLowerArmToY = skeleton.angleToYAxis(Skeleton.LEFT_ELBOW,Skeleton.LEFT_HAND);
+		float angleRightLowerArmToY = skeleton.angleToYAxis(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_HAND);
+
 		
 		// check for angles not to reach out of quadrants.
 		if(angleLeftUpperArm+angleLeftLowerArm > PConstants.PI) {
@@ -110,8 +111,8 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 		}
 		
 		// shift angles of upper arms by 90 degree to use calculations in polar coordinates
-		angleLeftUpperArm = (angleLeftUpperArm+PConstants.PI/2)%PConstants.PI;
-		angleRightUpperArm = (angleRightUpperArm+PConstants.PI/2)%PConstants.PI;
+		angleLeftUpperArm = (angleLeftUpperArm+PConstants.HALF_PI)%PConstants.PI;
+		angleRightUpperArm = (angleRightUpperArm+PConstants.HALF_PI)%PConstants.PI;
 		// shift angles of lower arms by angles of upper arms to use calculations in polar coordinates
 		angleLeftLowerArm = (angleLeftLowerArm+angleLeftUpperArm)%PConstants.PI;
 		angleRightLowerArm = (angleRightLowerArm+angleRightUpperArm)%PConstants.PI;
@@ -148,7 +149,7 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 		// use sample data to shift offset
 		float sampleValues[] = new float[11];
 		for (int i=0; i<11; i++) {
-			sampleValues[i] = audioManager.getMeanSampleAt((int)(i*audioManager.getBufferSize()/11));
+			sampleValues[i] = audioManager.getMeanSampleAt((int)(i*audioManager.getBufferSize()/11))*1.5f;
 		}
 		
 		// add BezierCurves to Array. based on the calculated coordinates and the FFT values
@@ -182,7 +183,7 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 		// clean up bezierCurves ArrayList
 		for (int i=0;i<bezierCurves.size();i++) {
 			if (bezierCurves.get(i).transparency <= 0) {
-				bezierCurves.remove(i);
+				bezierCurves.remove(i--);
 			}
 		}
 	}

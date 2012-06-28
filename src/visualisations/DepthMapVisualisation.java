@@ -10,6 +10,7 @@ public class DepthMapVisualisation extends AbstractVisualisation {
 	
 	public DepthMapVisualisation (TherapeuticPresence _mainApplet, SimpleOpenNI _kinect) {
 		super(_mainApplet);
+		mainApplet.setMirrorKinect(true);
 		kinect = _kinect;
 	}
 

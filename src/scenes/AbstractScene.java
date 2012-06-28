@@ -13,4 +13,5 @@ public abstract class AbstractScene {
 	
 	public abstract void reset ();
 	public abstract short getSceneType ();
+	public abstract boolean sceneIs3D ();
 }
