@@ -70,10 +70,24 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 			
 			float anglelArmToBodyAxis = skeleton.angleBetween(Skeleton.LEFT_SHOULDER,Skeleton.LEFT_HAND,Skeleton.TORSO,Skeleton.NECK); 
 			float anglerArmToBodyAxis = skeleton.angleBetween(Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_HAND,Skeleton.TORSO,Skeleton.NECK);
-			 
-			// trees react to body posture with a delay
-			curlx += (anglelArmToBodyAxis*0.5-curlx)/delay;
-			curly += (anglerArmToBodyAxis*0.5-curly)/delay;				
+			 		
+			
+			// TODO this is a hack. find solution to switch on/off mirroring of kinect
+			if (!TherapeuticPresence.mirrorKinect) {
+//				float temp = curlx;
+//				curlx = curly;
+//				curly = temp;
+				
+				// trees react to body posture with a delay
+				curlx += (anglerArmToBodyAxis*0.5-curlx)/delay;
+				curly += (anglelArmToBodyAxis*0.5-curly)/delay;		
+			} else {
+
+				// trees react to body posture with a delay
+				curlx += (anglelArmToBodyAxis*0.5-curlx)/delay;
+				curly += (anglerArmToBodyAxis*0.5-curly)/delay;		
+			}
+			
 			// colors of leafs differ in HSB-space
 			colorsStepSize = colorsSize/PApplet.pow(2,branchCount); 
 			actColorIndex = 0.f;

@@ -42,7 +42,15 @@ public class Skeleton {
 	protected PVector[] skeletonPoints = new PVector[15]; 
 	protected float[] confidenceSkeletonPoints = new float[15];
 	// stores skeleton Points in 3d Space, local coordsys (neck is origin)
+	protected static final boolean calculateAndTransfromToLocalCoordSys = true;
 	protected PVector[] skeletonPointsLocal = new PVector[15]; 
+	protected PVector origin;
+	protected PVector orientationX, orientationY, orientationZ;
+	protected PMatrix3D transformCoordSys;
+	protected PMatrix3D transformCoordSysInv;
+	// fast access to local hand, elbow and shoulder vectors for posture evaluation
+	protected PVector localLHand, localRHand, localLElbow, localRElbow, localLShoulder, localRShoulder;
+	
 	// stores joint orientation
 	protected PMatrix3D[] jointOrientations = new PMatrix3D[15];
 	protected float[] confidenceJointOrientations = new float[15];
@@ -59,6 +67,7 @@ public class Skeleton {
 	// controls state of skeleton
 	public boolean isUpdated = false;
 	public boolean mirrorPlaneCalculated = false;
+	public boolean localCoordSysCalculated = false;
 	
 	// skeleton of user
 	public int userId;
@@ -78,6 +87,7 @@ public class Skeleton {
 	
 	public void update () {
 		isUpdated = false;
+		localCoordSysCalculated = false;
 		
 		confidenceSkeletonPoints[Skeleton.HEAD] = kinect.getJointPositionSkeleton(userId,SimpleOpenNI.SKEL_HEAD,skeletonPoints[Skeleton.HEAD]);
 		confidenceJointOrientations[Skeleton.HEAD] = kinect.getJointOrientationSkeleton(userId,SimpleOpenNI.SKEL_HEAD,jointOrientations[Skeleton.HEAD]);
@@ -186,22 +196,25 @@ public class Skeleton {
 				break;
 		}	
 		
-		skeletonPointsLocal[Skeleton.HEAD] = getLocalVector(skeletonPoints[Skeleton.HEAD]);
-		skeletonPointsLocal[Skeleton.NECK] = getLocalVector(skeletonPoints[Skeleton.NECK]);
-		skeletonPointsLocal[Skeleton.TORSO] = getLocalVector(skeletonPoints[Skeleton.TORSO]);
-		skeletonPointsLocal[Skeleton.LEFT_SHOULDER] = getLocalVector(skeletonPoints[Skeleton.LEFT_SHOULDER]);
-		skeletonPointsLocal[Skeleton.RIGHT_SHOULDER] = getLocalVector(skeletonPoints[Skeleton.RIGHT_SHOULDER]);
-		skeletonPointsLocal[Skeleton.LEFT_ELBOW] = getLocalVector(skeletonPoints[Skeleton.LEFT_ELBOW]);
-		skeletonPointsLocal[Skeleton.RIGHT_ELBOW] = getLocalVector(skeletonPoints[Skeleton.RIGHT_ELBOW]);
-		skeletonPointsLocal[Skeleton.LEFT_HAND] = getLocalVector(skeletonPoints[Skeleton.LEFT_HAND]);
-		skeletonPointsLocal[Skeleton.RIGHT_HAND] = getLocalVector(skeletonPoints[Skeleton.RIGHT_HAND]);
-		if (TherapeuticPresence.fullBodyTracking) {
-			skeletonPointsLocal[Skeleton.LEFT_HIP] = getLocalVector(skeletonPoints[Skeleton.LEFT_HIP]);
-			skeletonPointsLocal[Skeleton.LEFT_KNEE] = getLocalVector(skeletonPoints[Skeleton.LEFT_KNEE]);
-			skeletonPointsLocal[Skeleton.LEFT_FOOT] = getLocalVector(skeletonPoints[Skeleton.LEFT_FOOT]);
-			skeletonPointsLocal[Skeleton.RIGHT_HIP] = getLocalVector(skeletonPoints[Skeleton.RIGHT_HIP]);
-			skeletonPointsLocal[Skeleton.RIGHT_KNEE] = getLocalVector(skeletonPoints[Skeleton.RIGHT_KNEE]);
-			skeletonPointsLocal[Skeleton.RIGHT_FOOT] = getLocalVector(skeletonPoints[Skeleton.RIGHT_FOOT]);
+		if (calculateAndTransfromToLocalCoordSys) {
+			calculateLocalCoordSys();
+			skeletonPointsLocal[Skeleton.HEAD] = getLocalVector(skeletonPoints[Skeleton.HEAD]);
+			skeletonPointsLocal[Skeleton.NECK] = getLocalVector(skeletonPoints[Skeleton.NECK]);
+			skeletonPointsLocal[Skeleton.TORSO] = getLocalVector(skeletonPoints[Skeleton.TORSO]);
+			skeletonPointsLocal[Skeleton.LEFT_SHOULDER] = getLocalVector(skeletonPoints[Skeleton.LEFT_SHOULDER]);
+			skeletonPointsLocal[Skeleton.RIGHT_SHOULDER] = getLocalVector(skeletonPoints[Skeleton.RIGHT_SHOULDER]);
+			skeletonPointsLocal[Skeleton.LEFT_ELBOW] = getLocalVector(skeletonPoints[Skeleton.LEFT_ELBOW]);
+			skeletonPointsLocal[Skeleton.RIGHT_ELBOW] = getLocalVector(skeletonPoints[Skeleton.RIGHT_ELBOW]);
+			skeletonPointsLocal[Skeleton.LEFT_HAND] = getLocalVector(skeletonPoints[Skeleton.LEFT_HAND]);
+			skeletonPointsLocal[Skeleton.RIGHT_HAND] = getLocalVector(skeletonPoints[Skeleton.RIGHT_HAND]);
+			if (TherapeuticPresence.fullBodyTracking) {
+				skeletonPointsLocal[Skeleton.LEFT_HIP] = getLocalVector(skeletonPoints[Skeleton.LEFT_HIP]);
+				skeletonPointsLocal[Skeleton.LEFT_KNEE] = getLocalVector(skeletonPoints[Skeleton.LEFT_KNEE]);
+				skeletonPointsLocal[Skeleton.LEFT_FOOT] = getLocalVector(skeletonPoints[Skeleton.LEFT_FOOT]);
+				skeletonPointsLocal[Skeleton.RIGHT_HIP] = getLocalVector(skeletonPoints[Skeleton.RIGHT_HIP]);
+				skeletonPointsLocal[Skeleton.RIGHT_KNEE] = getLocalVector(skeletonPoints[Skeleton.RIGHT_KNEE]);
+				skeletonPointsLocal[Skeleton.RIGHT_FOOT] = getLocalVector(skeletonPoints[Skeleton.RIGHT_FOOT]);
+			}
 		}
 		
 		isUpdated = true;
@@ -213,6 +226,13 @@ public class Skeleton {
 	public PVector getJoint (short jointType) {
 		if (jointType >= 0 && jointType <= 14) 
 			return skeletonPoints[jointType];
+		else
+			return new PVector();
+	}
+	
+	public PVector getJointLocalCoordSys (short jointType) {
+		if (jointType >= 0 && jointType <= 14 && localCoordSysCalculated) 
+			return skeletonPointsLocal[jointType];
 		else
 			return new PVector();
 	}
@@ -259,20 +279,38 @@ public class Skeleton {
 			return 0f;
 	}
 	
+	public PVector getOrigin () {
+		if (localCoordSysCalculated)
+			return origin;
+		else
+			return new PVector();
+	}
+	
 	// -----------------------------------------------------------------
 	// methods to calculate body posture
 	// evaluate upper body joints according to articulated postures defined in doc/articulated_posture.txt
-	public short evaluateUpperJointPositions () {
-		if (evaluateVShape()) activePostureShape = V_SHAPE;
-		else if (evaluateAShape()) activePostureShape = A_SHAPE;
-		else if (evaluateUShape()) activePostureShape = U_SHAPE;
-		else if (evaluateNShape()) activePostureShape = N_SHAPE;
-		else if (evaluateMShape()) activePostureShape = M_SHAPE;
-		else if (evaluateWShape()) activePostureShape = W_SHAPE;
-		else if (evaluateOShape()) activePostureShape = O_SHAPE;
-		else if (evaluateIShape()) activePostureShape = I_SHAPE;
-		else activePostureShape = NO_SHAPE;
-		return activePostureShape;
+	public short getUpperJointPosture () {
+		if (isUpdated && localCoordSysCalculated) {
+			localLHand = skeletonPoints[Skeleton.LEFT_HAND];
+			localRHand = skeletonPoints[Skeleton.RIGHT_HAND];
+			localLElbow = skeletonPoints[Skeleton.LEFT_ELBOW];
+			localRElbow = skeletonPoints[Skeleton.RIGHT_ELBOW];
+			localLShoulder = skeletonPoints[Skeleton.LEFT_SHOULDER];
+			localRShoulder = skeletonPoints[Skeleton.RIGHT_SHOULDER];
+			if (evaluateVShape()) activePostureShape = V_SHAPE;
+			else if (evaluateAShape()) activePostureShape = A_SHAPE;
+			else if (evaluateUShape()) activePostureShape = U_SHAPE;
+			else if (evaluateNShape()) activePostureShape = N_SHAPE;
+			else if (evaluateMShape()) activePostureShape = M_SHAPE;
+			else if (evaluateWShape()) activePostureShape = W_SHAPE;
+			else if (evaluateOShape()) activePostureShape = O_SHAPE;
+			else if (evaluateIShape()) activePostureShape = I_SHAPE;
+			else activePostureShape = NO_SHAPE;
+			return activePostureShape;
+		} else {
+			activePostureShape = NO_SHAPE;
+			return activePostureShape;
+		}
 	}
 
 	private boolean evaluateIShape() {
@@ -281,7 +319,18 @@ public class Skeleton {
 	}
 
 	private boolean evaluateOShape() {
-		// TODO Auto-generated method stub
+		PVector lElbowShoulder = PVector.sub(localLElbow,localLShoulder);
+		PVector rElbowShoulder = PVector.sub(localRElbow,localRShoulder);
+		PVector lHandElbow = PVector.sub(localLHand,localLElbow);
+		PVector rHandElbow = PVector.sub(localRHand,localRElbow);
+		PVector rHandlHand = PVector.sub(localRHand,localLHand);
+		float angleL = PVector.angleBetween(lElbowShoulder,lHandElbow);
+		float angleR = PVector.angleBetween(rElbowShoulder,rHandElbow);
+		if (valueBetween(angleL,PConstants.PI/5,2*PConstants.PI/3) && valueBetween(angleR,PConstants.PI/4,PConstants.PI/2)) { // arms form an angle between 45 and 90 degree
+			if (valueBetween(rHandlHand.mag(),0,100)) {
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -311,8 +360,23 @@ public class Skeleton {
 	}
 
 	private boolean evaluateVShape() {
-		// TODO Auto-generated method stub
+		PVector lElbowShoulder = PVector.sub(localLElbow,localLShoulder);
+		PVector rElbowShoulder = PVector.sub(localRElbow,localRShoulder);
+		PVector lHandElbow = PVector.sub(localLHand,localLElbow);
+		PVector rHandElbow = PVector.sub(localRHand,localRElbow);
+		float angleL = PVector.angleBetween(lElbowShoulder,lHandElbow);
+		float angleR = PVector.angleBetween(rElbowShoulder,rHandElbow);
+		float angleVShape = PVector.angleBetween(lElbowShoulder, rElbowShoulder);
+		if (valueBetween(angleL,0,PConstants.PI/8) && valueBetween(angleR,0,PConstants.PI/8)) { // arms form a straight line
+			if (valueBetween(angleVShape,PConstants.PI/4,PConstants.PI/2)) { // arms angle between 45 and 90 degree
+				return true;
+			}
+		}
 		return false;
+	}
+	
+	private boolean valueBetween (float val, float lowerBound, float upperBound) {
+			return (val >= lowerBound && val <= upperBound);
 	}
 
 	// return angle between left arm and body axis in radians
@@ -353,43 +417,59 @@ public class Skeleton {
 
 	// -----------------------------------------------------------------
 	// maths
-	// transform joint coordinates to lokal coordsys. 
-	// origin: neck, orientation: +x==right_shoulder-left_shoulder
-	// TODO implement this function
-	private PVector getLocalVector (PVector globalVector) {
-		PVector origin = skeletonPoints[Skeleton.NECK];
-		float alpha = 0f; // rotation around x
-		float beta = 0f; // rotation around y
-		float gamma = 0f; // rotation around z
-		float cosAlpha = 0f; // rotation around x
-		float cosBeta = 0f; // rotation around y
-		float cosGamma = 0f; // rotation around z
-		float sinAlpha = 0f; // rotation around x
-		float sinBeta = 0f; // rotation around y
-		float sinGamma = 0f; // rotation around z
-		PMatrix3D translationMatrix = new PMatrix3D(1f,0f,0f,origin.x,
-																		   0f,1f,0f,origin.y,
-																		   0f,0f,1f,origin.z,
-																		   0f,0f,0f,1f);
-		PMatrix3D rotationXMatrix = new PMatrix3D(1f,0f,0f,0f,
-																	     0f,cosAlpha,-sinAlpha,0f,
-																	     0f,sinAlpha,cosAlpha,0f,
-																	     0f,0f,0f,1f);
-		PMatrix3D rotationYMatrix = new PMatrix3D(cosBeta,0f,sinBeta,0f,
-																		 0f,1f,0f,0f,
-																		 -sinBeta,0f,cosBeta,0f,
-																		 0f,0f,0f,1f);
-		PMatrix3D rotationZMatrix = new PMatrix3D(cosGamma,-sinGamma,0f,0f,
-																	     sinGamma,cosGamma,0f,0f,
-																	     0f,0f,1f,0f,
-																	     0f,0f,0f,1f);
-		PMatrix3D transformation = new PMatrix3D();
-		transformation.apply(translationMatrix);
-		transformation.apply(rotationXMatrix);
-		transformation.apply(rotationYMatrix);
-		transformation.apply(rotationZMatrix);
+	// evaluate local coord sys
+	// origin: neck
+	// orientation: 
+	// +x==right_shoulder-left_shoulder, 
+	// -y==orthogonal on +x and pointing to torso
+	// +z==cross product of x and y
+	private void calculateLocalCoordSys () {
+		localCoordSysCalculated = false;
+		origin = skeletonPoints[Skeleton.NECK];
 		
-		return globalVector;
+		// *** calculating local coordSys
+		// +x-axis==right_shoulder-left_shoulder, 
+		orientationX = PVector.sub(skeletonPoints[Skeleton.RIGHT_SHOULDER],skeletonPoints[Skeleton.LEFT_SHOULDER]);
+		// +y==orthogonal to +x-axis, pointing from torso to x-axis. 
+		// task: find point on orientationX
+		// - the plane that contains torso and has orientationX as normal vector is defined as: 
+		// - x1*orientationX.x+x2*orientationX.y+x3*orientationX.z=torso(dot)orientationX
+		// - straight line defined by orientationX: [x] = left_shoulder+lambda*orientationX
+		// - find lambda of crosspoint of that line with the plane: insert straight line as X into plane
+		// - use lambda in straight line equation to get crosspoint
+		// - +y is crosspoint-torso
+		float lambda = skeletonPoints[Skeleton.TORSO].dot(orientationX);
+		lambda -= orientationX.dot(skeletonPoints[Skeleton.LEFT_SHOULDER]); 
+		lambda /= orientationX.dot(orientationX);
+		PVector crossPoint = PVector.add(skeletonPoints[Skeleton.LEFT_SHOULDER],PVector.mult(orientationX,lambda));
+		orientationY = PVector.sub(crossPoint,skeletonPoints[Skeleton.TORSO]);
+		// =z-axis is cross product of y and x axis
+		orientationZ = orientationY.cross(orientationX);
+		
+		orientationX.normalize();
+		orientationY.normalize();
+		orientationZ.normalize();
+		
+		transformCoordSys = new PMatrix3D (orientationX.x,orientationY.x,orientationZ.x,origin.x,
+																 orientationX.y,orientationY.y,orientationZ.y,origin.y,
+																 orientationX.z,orientationY.z,orientationZ.z,origin.z,
+																 0f,0f,0f,1f);
+		transformCoordSysInv = new PMatrix3D(transformCoordSys);
+		transformCoordSysInv.invert();
+		
+		localCoordSysCalculated = true;
+	}
+	
+	// transform joint coordinates to lokal coordsys. 
+	private PVector getLocalVector (PVector globalVector) {
+		if (localCoordSysCalculated) {
+			PVector localVector = new PVector();
+			transformCoordSysInv.mult(globalVector,localVector);
+			return localVector;
+		} else {
+			PApplet.println("getLocalVector(): local coordsys not calculated yet!");
+			return new PVector();
+		}
 	}
 	
 	// mirror joints

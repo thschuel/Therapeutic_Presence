@@ -37,9 +37,6 @@ public class GuiHud {
 		createInfoAndFPS();
 		
 		guiMessages = control.addTextarea("guiMessagesArea","",mainApplet.width-200,10,200,mainApplet.height-20);
-		if (!TherapeuticPresence.debugOutput) {
-			guiMessages.hide();
-		}
 	}
 	
 	public void draw () {
@@ -48,7 +45,13 @@ public class GuiHud {
 		// reset camera to draw HUD
 		g3.camera();
 	    // update fps Text
-	    fps.setText("fps: "+PApplet.round(mainApplet.frameRate));
+	    fps.setText("fps: "+PApplet.round(mainApplet.frameRate)+" oShape: "+mainApplet.oShapeCounter);
+	    // toggle debug output
+	    if (!TherapeuticPresence.debugOutput) {
+			guiMessages.hide();
+		} else {
+			guiMessages.show();
+		}
 	    // draw the HUD
 		control.draw();   
 		// set camera back to old position
@@ -81,7 +84,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,150);
-		menu.setBackgroundHeight(200);
+		menu.setBackgroundHeight(220);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -132,8 +135,16 @@ public class GuiHud {
 		autoCalibration.moveTo(menu);
 		autoCalibration.setLabelVisible(false);
 		autoCalibration.plugTo(this);
+
+		controlP5.Textarea debugOutputLabel = control.addTextarea("debugOutputLabel","Toggle debugOutput",2,184,128,16);
+		debugOutputLabel.moveTo(menu);
 		
-		controlP5.Slider fftGain = control.addSlider("changeFFTGain",0.0f,1.0f,AudioManager.gain,0,180,108,20);
+		controlP5.Toggle debugOuput = control.addToggle("switchDebugOuput",TherapeuticPresence.debugOutput,130,180,20,20);
+		debugOuput.moveTo(menu);
+		debugOuput.setLabelVisible(false);
+		debugOuput.plugTo(this);
+		
+		controlP5.Slider fftGain = control.addSlider("changeFFTGain",0.0f,1.0f,AudioManager.gain,0,200,108,20);
 		fftGain.moveTo(menu);
 		fftGain.setCaptionLabel("FFT Gain");
 		fftGain.plugTo(this);
@@ -188,7 +199,11 @@ public class GuiHud {
 	}
 	
 	private void switchAutoCalibration (int theValue) {
-		TherapeuticPresence.autoCalibration = !mainApplet.autoCalibration;
+		TherapeuticPresence.autoCalibration = !TherapeuticPresence.autoCalibration;
+	}
+	
+	private void switchDebugOutput (int theValue) {
+		TherapeuticPresence.debugOutput = !TherapeuticPresence.debugOutput;
 	}
 	
 	private void changeFFTGain (float theValue) {

@@ -98,9 +98,7 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 		float angleRightUpperArm = skeleton.angleToYAxis(Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_ELBOW);
 		float angleLeftLowerArm = skeleton.angleBetween(Skeleton.LEFT_HAND,Skeleton.LEFT_ELBOW,Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER);
 		float angleRightLowerArm = skeleton.angleBetween(Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
-		float angleLeftLowerArmToY = skeleton.angleToYAxis(Skeleton.LEFT_ELBOW,Skeleton.LEFT_HAND);
-		float angleRightLowerArmToY = skeleton.angleToYAxis(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_HAND);
-
+		
 		
 		// check for angles not to reach out of quadrants.
 		if(angleLeftUpperArm+angleLeftLowerArm > PConstants.PI) {

@@ -53,8 +53,10 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean debugOutput = true;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 	public static short defaultVisualisationMethod = TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
+	public static short currentVisualisationMethod;
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short defaultSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
+	public static short currentSceneType;
 	public static short mirrorTherapy = TherapeuticPresence.MIRROR_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
@@ -73,6 +75,14 @@ public class TherapeuticPresence extends PApplet {
 	protected GuiHud guiHud = null;
 	// audio interface
 	protected AudioManager audioManager = null;
+	
+	// TODO: implement sophisticated version of shape recognition
+	// using counter for now
+	protected int vShapeCounter = 0;
+	public int oShapeCounter = 0;
+	protected int vShapeStarted = -9999;
+	protected int oShapeStarted = -9999;
+	protected int lastSwitch = -9999;
 
 	
 	// -----------------------------------------------------------------
@@ -136,12 +146,14 @@ public class TherapeuticPresence extends PApplet {
 			case TherapeuticPresence.BASIC_SCENE2D:
 				scene = new BasicScene2D(this,color(0,0,0));
 				scene.reset();
+				currentSceneType = TherapeuticPresence.BASIC_SCENE2D;
 				break;
 				
 			case TherapeuticPresence.TUNNEL_SCENE2D:
 				if (audioManager != null) {
 					scene = new TunnelScene2D(this,color(0,0,0),audioManager);
 					scene.reset();
+					currentSceneType = TherapeuticPresence.TUNNEL_SCENE2D;
 				} else {
 					setupScene(TherapeuticPresence.BASIC_SCENE2D);
 					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
@@ -152,6 +164,7 @@ public class TherapeuticPresence extends PApplet {
 				if (audioManager != null) {
 					scene = new TunnelScene3D(this,color(0,0,0),audioManager);
 					scene.reset();
+					currentSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
 				} else {
 					setupScene(TherapeuticPresence.BASIC_SCENE3D);
 					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
@@ -161,6 +174,7 @@ public class TherapeuticPresence extends PApplet {
 			default:
 				scene = new BasicScene3D(this,color(0,0,0));
 				scene.reset();
+				currentSceneType = TherapeuticPresence.BASIC_SCENE3D;
 				break;
 		}
 	}
@@ -171,31 +185,37 @@ public class TherapeuticPresence extends PApplet {
 			case TherapeuticPresence.STICKFIGURE_VISUALISATION:
 				visualisation = new StickfigureVisualisation(this,skeleton);
 				visualisation.setup();
+				currentVisualisationMethod = TherapeuticPresence.STICKFIGURE_VISUALISATION;
 				break;
 				
 			case TherapeuticPresence.AUDIO_STICKFIGURE_VISUALISATION:
 				visualisation = new AudioStickfigureVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
+				currentVisualisationMethod = TherapeuticPresence.AUDIO_STICKFIGURE_VISUALISATION;
 				break;
 				
 			case TherapeuticPresence.GENERATIVE_TREE_VISUALISATION:
 				visualisation = new GenerativeTreeVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
+				currentVisualisationMethod = TherapeuticPresence.GENERATIVE_TREE_VISUALISATION;
 				break;
 				
 			case TherapeuticPresence.GEOMETRY_2D_VISUALISATION:
 				visualisation = new Geometry2DVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
+				currentVisualisationMethod = TherapeuticPresence.GEOMETRY_2D_VISUALISATION;
 				break;
 				
 			case TherapeuticPresence.GEOMETRY_3D_VISUALISATION:
 				visualisation = new Geometry3DVisualisation(this,skeleton,audioManager);
 				visualisation.setup();
+				currentVisualisationMethod = TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
 				break;
 			
 			default:
 				visualisation = new DepthMapVisualisation(this,kinect);
 				visualisation.setup();
+				currentVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 				break;
 		}
 	}
@@ -207,6 +227,51 @@ public class TherapeuticPresence extends PApplet {
 			kinect.update();
 		if (skeleton != null && kinect.isTrackingSkeleton(skeleton.userId))
 			skeleton.update();
+
+		if (false && skeleton != null && skeleton.getUpperJointPosture() == Skeleton.V_SHAPE) {
+			if (vShapeCounter == 0) {
+				vShapeStarted = frameCount;
+			}
+			vShapeCounter++;
+			oShapeCounter=0;
+			oShapeStarted=-9999;
+		} else if (skeleton != null && skeleton.getUpperJointPosture() == Skeleton.O_SHAPE) {
+			if (oShapeCounter == 0) {
+				oShapeStarted = frameCount;
+			}
+			oShapeCounter++;
+			vShapeCounter=0;
+			vShapeStarted=-9999;
+		} else {
+			if (frameCount-vShapeStarted > 30) {
+				vShapeCounter=0;
+				vShapeStarted=-9999;
+			}
+			if (frameCount-oShapeStarted > 30) {
+				oShapeCounter=0;
+				oShapeStarted=-9999;
+			}
+		}
+		
+//		if (vShapeCounter > 20 && currentVisualisationMethod != TherapeuticPresence.GEOMETRY_3D_VISUALISATION) {
+//			setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+//			setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
+//			vShapeCounter=0;
+//			vShapeStarted=-9999;
+//		}
+		if (oShapeCounter > 20 && frameCount-lastSwitch > 50) {
+			if (currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_VISUALISATION) {
+				setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+				setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
+			} else if (currentVisualisationMethod == TherapeuticPresence.GEOMETRY_3D_VISUALISATION) {
+				setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
+				setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_VISUALISATION);
+			}
+			oShapeCounter=0;
+			oShapeStarted=-9999;
+			lastSwitch = frameCount;
+		}
+		
 		if (audioManager != null)
 			audioManager.update();
 		
@@ -221,12 +286,8 @@ public class TherapeuticPresence extends PApplet {
 	}
 	
 	public void debugMessage (String _message) {
-		if (TherapeuticPresence.debugOutput) {
-			guiHud.sendGuiMessage(_message);
-			println(_message);
-		} else {
-			// TODO: write text-file output
-		}
+		guiHud.sendGuiMessage(_message);
+		println(_message);
 	}
 
 	
