@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import processing.core.*;
 import therapeuticpresence.*;
 
-public class Geometry2DVisualisation extends SkeletonVisualisation {
-
-	protected AudioManager audioManager;
+public class Geometry2DVisualisation extends SkeletonAudioVisualisation {
 	
 	// coordinates for the visualization are defined through angles of limbs
 	// bezier curves used for drawing. anchor points and control points.
@@ -36,8 +34,7 @@ public class Geometry2DVisualisation extends SkeletonVisualisation {
 	protected float scaleAC = 12f;
 	
 	public Geometry2DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
-		super(_mainApplet,_skeleton);
-		audioManager = _audioManager;
+		super(_mainApplet,_skeleton,_audioManager);
 		mainApplet.setMirrorKinect(true);
 	}
 	

@@ -3,7 +3,7 @@ package visualisations;
 import processing.core.*;
 import therapeuticpresence.*;
 
-public class GenerativeTreeVisualisation extends SkeletonVisualisation {
+public class GenerativeTreeVisualisation extends SkeletonAudioVisualisation {
 
 	private int strokeColor = 0;
 	
@@ -29,7 +29,6 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 	private int leafHeight = 30;
 	
 	// audio responsive tree
-	protected AudioManager audioManager = null;
 	protected float initialScale = 2f;
 	protected float downScale = 0.9f;
 	protected float transparency = 200;
@@ -37,8 +36,7 @@ public class GenerativeTreeVisualisation extends SkeletonVisualisation {
 	protected float actSampleIndex = 0f;
 	
 	public GenerativeTreeVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
-		super (_mainApplet,_skeleton);
-		audioManager = _audioManager;
+		super (_mainApplet,_skeleton,_audioManager);
 		mainApplet.setMirrorKinect(true);
 		canvasWidth = mainApplet.width;
 		canvasHeight = mainApplet.height;

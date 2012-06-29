@@ -10,9 +10,7 @@ import therapeuticpresence.BezierCurve3D;
 import therapeuticpresence.Skeleton;
 import therapeuticpresence.TherapeuticPresence;
 
-public class AudioStickfigureVisualisation extends SkeletonVisualisation {
-
-	protected AudioManager audioManager;
+public class AudioStickfigureVisualisation extends SkeletonAudioVisualisation {
 	
 	// these values are used for drawing the bezier curves
 	protected float delay = 8f;
@@ -23,9 +21,8 @@ public class AudioStickfigureVisualisation extends SkeletonVisualisation {
 	protected ArrayList<BezierCurve3D> bezierCurves = new ArrayList<BezierCurve3D>();
 	
 	public AudioStickfigureVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
-		super(_mainApplet, _skeleton);
+		super(_mainApplet, _skeleton,_audioManager);
 		mainApplet.setMirrorKinect(true);
-		audioManager = _audioManager;
 	}
 	
 	public void setup() {

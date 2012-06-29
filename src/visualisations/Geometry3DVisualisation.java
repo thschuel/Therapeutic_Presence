@@ -5,9 +5,7 @@ import processing.core.*;
 import scenes.TunnelScene3D;
 import therapeuticpresence.*;
 
-public class Geometry3DVisualisation extends SkeletonVisualisation {
-
-	protected AudioManager audioManager;
+public class Geometry3DVisualisation extends SkeletonAudioVisualisation {
 	
 	// coordinates for the visualization are defined through angles of limbs
 	// bezier curves used for drawing. anchor points and control points.
@@ -37,8 +35,7 @@ public class Geometry3DVisualisation extends SkeletonVisualisation {
 	protected final float strokeWeight = 1.7f;
 	
 	public Geometry3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
-		super(_mainApplet,_skeleton);
-		audioManager = _audioManager;
+		super(_mainApplet,_skeleton,_audioManager);
 		mainApplet.setMirrorKinect(false);
 		width = TunnelScene3D.tunnelWidth;
 		height = TunnelScene3D.tunnelHeight;
