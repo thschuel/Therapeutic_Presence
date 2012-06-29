@@ -2,7 +2,7 @@
   associations="true" dependencies="false" nesting-relationships="true">  
   <class id="1" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.GuiHud" project="Therapeutic_Presence" 
     file="/Therapeutic_Presence/src/therapeuticpresence/GuiHud.java" binary="false">    
-    <position height="-1" width="-1" x="307" y="-314"/>    
+    <position height="-1" width="-1" x="301" y="-369"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="false" protected="false" private="false"/>    
@@ -27,7 +27,7 @@
   <class id="4" corner="BOTTOM_RIGHT" language="java" name="visualisations.SkeletonVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/SkeletonVisualisation.java" 
     binary="false">    
-    <position height="-1" width="-1" x="305" y="1215"/>    
+    <position height="-1" width="-1" x="302" y="1144"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="false" protected="false" private="false"/>    
@@ -36,7 +36,7 @@
   <class id="5" corner="BOTTOM_RIGHT" language="java" name="visualisations.StickfigureVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/StickfigureVisualisation.java" 
     binary="false">    
-    <position height="-1" width="-1" x="305" y="1456"/>    
+    <position height="-1" width="-1" x="316" y="1331"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="false" protected="false" private="false"/>    
@@ -45,7 +45,7 @@
   <class id="6" corner="BOTTOM_RIGHT" language="java" name="visualisations.GenerativeTreeVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/GenerativeTreeVisualisation.java" 
     binary="false">    
-    <position height="-1" width="-1" x="-866" y="1482"/>    
+    <position height="-1" width="-1" x="-855" y="1357"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="false" protected="false" private="false"/>    
@@ -54,7 +54,7 @@
   <class id="7" corner="BOTTOM_RIGHT" language="java" name="visualisations.DepthMapVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/DepthMapVisualisation.java" 
     binary="false">    
-    <position height="-1" width="-1" x="635" y="963"/>    
+    <position height="-1" width="-1" x="632" y="892"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="false" protected="false" private="false"/>    
@@ -63,7 +63,7 @@
   <class id="8" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.TherapeuticPresence" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/therapeuticpresence/TherapeuticPresence.java" 
     binary="false">    
-    <position height="-1" width="-1" x="323" y="265"/>    
+    <position height="-1" width="-1" x="317" y="210"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="false" protected="false" private="false"/>    
@@ -72,7 +72,7 @@
   <class id="9" corner="BOTTOM_RIGHT" language="java" name="visualisations.AbstractVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/AbstractVisualisation.java" 
     binary="false">    
-    <position height="-1" width="-1" x="305" y="967"/>    
+    <position height="-1" width="-1" x="302" y="896"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="false" protected="false" private="false"/>    
@@ -81,7 +81,7 @@
   <class id="10" corner="BOTTOM_RIGHT" language="java" name="visualisations.Geometry2DVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/Geometry2DVisualisation.java" 
     binary="false">    
-    <position height="-1" width="-1" x="-462" y="1476"/>    
+    <position height="-1" width="-1" x="-451" y="1351"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="false" protected="false" private="false"/>    
@@ -90,7 +90,7 @@
   <class id="11" corner="BOTTOM_RIGHT" language="java" name="visualisations.Geometry3DVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/Geometry3DVisualisation.java" 
     binary="false">    
-    <position height="-1" width="-1" x="-67" y="1474"/>    
+    <position height="-1" width="-1" x="-56" y="1349"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="false" protected="false" private="false"/>    
@@ -98,7 +98,7 @@
   </class>  
   <class id="12" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.AudioManager" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/therapeuticpresence/AudioManager.java" binary="false">    
-    <position height="-1" width="-1" x="-231" y="408"/>    
+    <position height="-1" width="-1" x="-152" y="358"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -107,7 +107,7 @@
   <class id="13" corner="BOTTOM_RIGHT" language="java" name="visualisations.SkeletonAudioVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/SkeletonAudioVisualisation.java" 
     binary="false">    
-    <position height="-1" width="-1" x="-252" y="1198"/>    
+    <position height="-1" width="-1" x="-159" y="1127"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -115,7 +115,7 @@
   </class>  
   <class id="14" corner="BOTTOM_RIGHT" language="java" name="scenes.AbstractScene" project="Therapeutic_Presence" 
     file="/Therapeutic_Presence/src/scenes/AbstractScene.java" binary="false">    
-    <position height="-1" width="-1" x="-284" y="-129"/>    
+    <position height="-1" width="-1" x="-754" y="-77"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -123,7 +123,7 @@
   </class>  
   <class id="15" corner="BOTTOM_RIGHT" language="java" name="scenes.BasicScene2D" project="Therapeutic_Presence" 
     file="/Therapeutic_Presence/src/scenes/BasicScene2D.java" binary="false">    
-    <position height="-1" width="-1" x="-593" y="-218"/>    
+    <position height="-1" width="-1" x="-896" y="133"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -131,7 +131,7 @@
   </class>  
   <class id="16" corner="BOTTOM_RIGHT" language="java" name="scenes.BasicScene3D" project="Therapeutic_Presence" 
     file="/Therapeutic_Presence/src/scenes/BasicScene3D.java" binary="false">    
-    <position height="-1" width="-1" x="-587" y="39"/>    
+    <position height="-1" width="-1" x="-620" y="190"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="true" private="false"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -139,7 +139,7 @@
   </class>  
   <class id="17" corner="BOTTOM_RIGHT" language="java" name="scenes.TunnelScene2D" project="Therapeutic_Presence" 
     file="/Therapeutic_Presence/src/scenes/TunnelScene2D.java" binary="false">    
-    <position height="-1" width="-1" x="-919" y="-224"/>    
+    <position height="-1" width="-1" x="-923" y="388"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="true" protected="true" private="false"/>    
@@ -147,7 +147,7 @@
   </class>  
   <class id="18" corner="BOTTOM_RIGHT" language="java" name="scenes.TunnelScene3D" project="Therapeutic_Presence" 
     file="/Therapeutic_Presence/src/scenes/TunnelScene3D.java" binary="false">    
-    <position height="-1" width="-1" x="-916" y="33"/>    
+    <position height="-1" width="-1" x="-599" y="443"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="false" protected="false" private="false"/>    
@@ -156,7 +156,7 @@
   <class id="19" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.BezierCurve2D" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/therapeuticpresence/BezierCurve2D.java" 
     binary="false">    
-    <position height="-1" width="-1" x="-475" y="1777"/>    
+    <position height="-1" width="-1" x="-464" y="1604"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -165,7 +165,7 @@
   <class id="20" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.BezierCurve3D" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/therapeuticpresence/BezierCurve3D.java" 
     binary="false">    
-    <position height="-1" width="-1" x="-65" y="1811"/>    
+    <position height="-1" width="-1" x="-54" y="1638"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="false" protected="false" private="false"/>      
       <operations public="true" package="false" protected="false" private="false"/>    
@@ -184,7 +184,8 @@
     <display labels="true" multiplicity="true"/>  
   </association>  
   <association id="25">    
-    <bendpoint x="-918" y="396"/>    
+    <bendpoint x="-714" y="604"/>    
+    <bendpoint x="-434" y="602"/>    
     <end type="SOURCE" refId="17" navigable="false">      
       <attribute id="26" name="audioManager"/>      
       <multiplicity id="27" minimum="0" maximum="1"/>    
@@ -293,7 +294,7 @@
     <end type="TARGET" refId="13"/>  
   </generalization>  
   <association id="62">    
-    <bendpoint x="1005" y="1218"/>    
+    <bendpoint x="994" y="1144"/>    
     <end type="SOURCE" refId="4" navigable="false">      
       <attribute id="63" name="skeleton"/>      
       <multiplicity id="64" minimum="0" maximum="1"/>    
