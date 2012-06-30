@@ -25,7 +25,7 @@ public class Geometry3DVisualisation extends SkeletonAudioVisualisation {
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width, height;
 	protected float centerz;
-	protected float skeletonOffset = 2000f;
+	protected float skeletonOffset = 2000f; // TODO: make this adjustable via UI
 	
 	// these values are used for drawing the bezier curves
 	protected final float delay = 8f;

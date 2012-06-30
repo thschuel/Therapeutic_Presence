@@ -1,3 +1,10 @@
+Nudge the patients into different poses.
+- show objects that attract attention / touch these objects
+Record discussions with clinicians and patients w/ audio recorder
+using lower body movement for switching between visualisations
+- voice command?
+
+
 Postures that will be evaluated by skeleton
 H = hand
 E = elbow

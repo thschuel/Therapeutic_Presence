@@ -60,7 +60,7 @@ public class TherapeuticPresence extends PApplet {
 	public static short mirrorTherapy = TherapeuticPresence.MIRROR_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
-	public static float maxDistanceToKinect = 2000f; // in mm
+	public static float maxDistanceToKinect = 2000f; // in mm  // TODO: make this adjustable via UI
 	
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
