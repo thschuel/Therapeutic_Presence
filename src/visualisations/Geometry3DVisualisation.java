@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import processing.core.*;
 import scenes.TunnelScene3D;
 import therapeuticpresence.*;
+import therapeuticskeleton.Skeleton;
 
 public class Geometry3DVisualisation extends SkeletonAudioVisualisation {
 	

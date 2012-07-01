@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import processing.core.*;
 import controlP5.*;
 import processing.opengl.*;
+import therapeuticskeleton.Skeleton;
 
 public class GuiHud {
 
@@ -88,17 +89,17 @@ public class GuiHud {
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
-		controlP5.Button mirrorTherapyOff = control.addButton("switchMirrorTherapyOff",TherapeuticPresence.MIRROR_OFF,0,0,150,20);
+		controlP5.Button mirrorTherapyOff = control.addButton("switchMirrorTherapyOff",Skeleton.MIRROR_THERAPY_OFF,0,0,150,20);
 		mirrorTherapyOff.moveTo(menu);
 		mirrorTherapyOff.setCaptionLabel("MT OFF");
 		mirrorTherapyOff.plugTo(this);
 		
-		controlP5.Button mirrorTherapyLeft = control.addButton("switchMirrorTherapyLeft",TherapeuticPresence.MIRROR_LEFT,0,20,150,20);
+		controlP5.Button mirrorTherapyLeft = control.addButton("switchMirrorTherapyLeft",Skeleton.MIRROR_THERAPY_LEFT,0,20,150,20);
 		mirrorTherapyLeft.moveTo(menu);
 		mirrorTherapyLeft.setCaptionLabel("MT LEFT");
 		mirrorTherapyLeft.plugTo(this);
 		
-		controlP5.Button mirrorTherapyRight = control.addButton("switchMirrorTherapyRight",TherapeuticPresence.MIRROR_RIGHT,0,40,150,20);
+		controlP5.Button mirrorTherapyRight = control.addButton("switchMirrorTherapyRight",Skeleton.MIRROR_THERAPY_RIGHT,0,40,150,20);
 		mirrorTherapyRight.moveTo(menu);
 		mirrorTherapyRight.setCaptionLabel("MT RIGHT");
 		mirrorTherapyRight.plugTo(this);
@@ -162,15 +163,15 @@ public class GuiHud {
 	}
 	
 	private void switchMirrorTherapyOff (int theValue) {
-		TherapeuticPresence.mirrorTherapy = TherapeuticPresence.MIRROR_OFF;
+		mainApplet.switchMirrorTherapy(Skeleton.MIRROR_THERAPY_OFF);
 	}
 	
 	private void switchMirrorTherapyLeft (int theValue) {
-		TherapeuticPresence.mirrorTherapy = TherapeuticPresence.MIRROR_LEFT;
+		mainApplet.switchMirrorTherapy(Skeleton.MIRROR_THERAPY_LEFT);
 	}
 	
 	private void switchMirrorTherapyRight (int theValue) {
-		TherapeuticPresence.mirrorTherapy = TherapeuticPresence.MIRROR_RIGHT;
+		mainApplet.switchMirrorTherapy(Skeleton.MIRROR_THERAPY_RIGHT);
 	}
 	
 	private void switchVisualisationDepthMap (int theValue) {

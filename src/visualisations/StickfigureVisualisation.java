@@ -1,7 +1,7 @@
 package visualisations;
 
 import processing.core.*;
-import therapeuticpresence.Skeleton;
+import therapeuticskeleton.Skeleton;
 import therapeuticpresence.TherapeuticPresence;
 
 public class StickfigureVisualisation extends SkeletonVisualisation {
@@ -103,7 +103,7 @@ public class StickfigureVisualisation extends SkeletonVisualisation {
 	private void drawMirrorPlane () {
 		// for debug: show mirror plane
 		// draw plane by finding 4 points in that plane
-		if (TherapeuticPresence.mirrorTherapy != TherapeuticPresence.MIRROR_OFF) {
+		if (skeleton.getMirrorTherapy() != Skeleton.MIRROR_THERAPY_OFF) {
 			PVector n0MP = skeleton.getN0VectorMirrorPlane();
 			PVector rMP = skeleton.getRVectorMirrorPlane();
 			PVector u = n0MP.cross(new PVector(0,0,1)); // cross product of n0 with arbitrary vector -> u lies on the plane

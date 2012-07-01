@@ -1,7 +1,7 @@
 package therapeuticpresence;
 
 import javax.media.opengl.GL;
-
+import therapeuticskeleton.Skeleton;
 import processing.core.*;
 import SimpleOpenNI.*;
 import processing.opengl.*;
@@ -43,9 +43,6 @@ public class TherapeuticPresence extends PApplet {
 	public static final short BASIC_SCENE3D = 1;
 	public static final short TUNNEL_SCENE2D = 2;
 	public static final short TUNNEL_SCENE3D = 3;
-	public static final short MIRROR_OFF = 0;
-	public static final short MIRROR_LEFT = 1;
-	public static final short MIRROR_RIGHT = 2;
 	
 	// --- static setup variables ---
 	public static boolean fullBodyTracking = false; // control for full body tracking
@@ -57,7 +54,7 @@ public class TherapeuticPresence extends PApplet {
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short defaultSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
 	public static short currentSceneType;
-	public static short mirrorTherapy = TherapeuticPresence.MIRROR_OFF;
+	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
 	public static float maxDistanceToKinect = 2000f; // in mm  // TODO: make this adjustable via UI
@@ -301,7 +298,7 @@ public class TherapeuticPresence extends PApplet {
 			if (skeleton != null ) {
 				debugMessage("Skeleton of user "+skeleton.userId+" replaced with skeleton of user "+_userId+"!");
 			}
-			skeleton = new Skeleton(kinect,_userId);
+			skeleton = new Skeleton(kinect,_userId,fullBodyTracking,mirrorTherapy);
 			// start default scene and visualisation
 			setupScene(defaultSceneType);
 			setupVisualisation(defaultVisualisationMethod);
@@ -322,6 +319,17 @@ public class TherapeuticPresence extends PApplet {
 				else kinect.startPoseDetection("Psi",users[0]);
 			}
 		}
+	}
+	
+	// call back for guihud
+	public void switchMirrorTherapy (short _mirrorTherapy) {
+		if (_mirrorTherapy >= Skeleton.MIRROR_THERAPY_OFF && _mirrorTherapy <= Skeleton.MIRROR_THERAPY_RIGHT) 
+			mirrorTherapy = _mirrorTherapy;
+		else
+			mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
+		
+		if (skeleton != null) 
+			skeleton.setMirrorTherapy(mirrorTherapy);
 	}
 	
 	// -----------------------------------------------------------------

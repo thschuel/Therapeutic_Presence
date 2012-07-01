@@ -1,7 +1,7 @@
 package visualisations;
 
 import java.util.ArrayList;
-
+import therapeuticskeleton.Skeleton;
 
 import processing.core.*;
 import therapeuticpresence.*;

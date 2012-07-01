@@ -2,6 +2,7 @@ package visualisations;
 
 import processing.core.*;
 import therapeuticpresence.*;
+import therapeuticskeleton.Skeleton;
 
 public class GenerativeTreeVisualisation extends SkeletonAudioVisualisation {
 

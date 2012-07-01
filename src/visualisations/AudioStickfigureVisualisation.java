@@ -7,7 +7,7 @@ import processing.core.PConstants;
 import processing.core.PVector;
 import therapeuticpresence.AudioManager;
 import therapeuticpresence.BezierCurve3D;
-import therapeuticpresence.Skeleton;
+import therapeuticskeleton.Skeleton;
 import therapeuticpresence.TherapeuticPresence;
 
 public class AudioStickfigureVisualisation extends SkeletonAudioVisualisation {

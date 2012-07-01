@@ -1,6 +1,6 @@
 package visualisations;
 
-import therapeuticpresence.Skeleton;
+import therapeuticskeleton.Skeleton;
 import therapeuticpresence.TherapeuticPresence;
 
 public abstract class SkeletonVisualisation extends AbstractVisualisation {

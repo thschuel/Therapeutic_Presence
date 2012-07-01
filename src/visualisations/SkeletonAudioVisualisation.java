@@ -1,7 +1,7 @@
 package visualisations;
 
 import therapeuticpresence.AudioManager;
-import therapeuticpresence.Skeleton;
+import therapeuticskeleton.Skeleton;
 import therapeuticpresence.TherapeuticPresence;
 
 public abstract class SkeletonAudioVisualisation extends SkeletonVisualisation {
