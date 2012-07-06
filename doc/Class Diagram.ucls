@@ -8,15 +8,7 @@
       <operations public="true" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class id="2" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.Skeleton" project="Therapeutic_Presence" 
-    file="/Therapeutic_Presence/src/therapeuticpresence/Skeleton.java" binary="false">    
-    <position height="-1" width="-1" x="1006" y="297"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
-      <attributes public="true" package="false" protected="false" private="false"/>      
-      <operations public="true" package="false" protected="false" private="false"/>    
-    </display>  
-  </class>  
-  <class id="3" corner="BOTTOM_RIGHT" language="java" name="SimpleOpenNI.SimpleOpenNI" project="Therapeutic_Presence" 
+  <class id="2" corner="BOTTOM_RIGHT" language="java" name="SimpleOpenNI.SimpleOpenNI" project="Therapeutic_Presence" 
     file="/Therapeutic_Presence/lib/user/SimpleOpenNI-0.27/SimpleOpenNI.jar" binary="true">    
     <position height="-1" width="-1" x="637" y="518"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="false" visibility="true">      
@@ -24,7 +16,7 @@
       <operations public="false" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class id="4" corner="BOTTOM_RIGHT" language="java" name="visualisations.SkeletonVisualisation" 
+  <class id="3" corner="BOTTOM_RIGHT" language="java" name="visualisations.SkeletonVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/SkeletonVisualisation.java" 
     binary="false">    
     <position height="-1" width="-1" x="302" y="1144"/>    
@@ -33,7 +25,7 @@
       <operations public="true" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class id="5" corner="BOTTOM_RIGHT" language="java" name="visualisations.StickfigureVisualisation" 
+  <class id="4" corner="BOTTOM_RIGHT" language="java" name="visualisations.StickfigureVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/StickfigureVisualisation.java" 
     binary="false">    
     <position height="-1" width="-1" x="316" y="1331"/>    
@@ -42,7 +34,7 @@
       <operations public="true" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class id="6" corner="BOTTOM_RIGHT" language="java" name="visualisations.GenerativeTreeVisualisation" 
+  <class id="5" corner="BOTTOM_RIGHT" language="java" name="visualisations.GenerativeTreeVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/GenerativeTreeVisualisation.java" 
     binary="false">    
     <position height="-1" width="-1" x="-959" y="1363"/>    
@@ -51,7 +43,7 @@
       <operations public="true" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class id="7" corner="BOTTOM_RIGHT" language="java" name="visualisations.DepthMapVisualisation" 
+  <class id="6" corner="BOTTOM_RIGHT" language="java" name="visualisations.DepthMapVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/DepthMapVisualisation.java" 
     binary="false">    
     <position height="-1" width="-1" x="632" y="892"/>    
@@ -60,7 +52,7 @@
       <operations public="true" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class id="8" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.TherapeuticPresence" 
+  <class id="7" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.TherapeuticPresence" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/therapeuticpresence/TherapeuticPresence.java" 
     binary="false">    
     <position height="-1" width="-1" x="317" y="210"/>    
@@ -69,7 +61,7 @@
       <operations public="true" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class id="9" corner="BOTTOM_RIGHT" language="java" name="visualisations.AbstractVisualisation" 
+  <class id="8" corner="BOTTOM_RIGHT" language="java" name="visualisations.AbstractVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/AbstractVisualisation.java" 
     binary="false">    
     <position height="-1" width="-1" x="302" y="896"/>    
@@ -78,7 +70,7 @@
       <operations public="true" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class id="10" corner="BOTTOM_RIGHT" language="java" name="visualisations.Geometry2DVisualisation" 
+  <class id="9" corner="BOTTOM_RIGHT" language="java" name="visualisations.Geometry2DVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/Geometry2DVisualisation.java" 
     binary="false">    
     <position height="-1" width="-1" x="-505" y="1357"/>    
@@ -87,7 +79,7 @@
       <operations public="true" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class id="11" corner="BOTTOM_RIGHT" language="java" name="visualisations.Geometry3DVisualisation" 
+  <class id="10" corner="BOTTOM_RIGHT" language="java" name="visualisations.Geometry3DVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/Geometry3DVisualisation.java" 
     binary="false">    
     <position height="-1" width="-1" x="-62" y="1355"/>    
@@ -96,7 +88,7 @@
       <operations public="true" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class id="12" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.AudioManager" 
+  <class id="11" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.AudioManager" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/therapeuticpresence/AudioManager.java" binary="false">    
     <position height="-1" width="-1" x="-152" y="358"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
@@ -104,7 +96,7 @@
       <operations public="true" package="true" protected="true" private="true"/>    
     </display>  
   </class>  
-  <class id="13" corner="BOTTOM_RIGHT" language="java" name="visualisations.SkeletonAudioVisualisation" 
+  <class id="12" corner="BOTTOM_RIGHT" language="java" name="visualisations.SkeletonAudioVisualisation" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/visualisations/SkeletonAudioVisualisation.java" 
     binary="false">    
     <position height="-1" width="-1" x="-159" y="1127"/>    
@@ -113,7 +105,7 @@
       <operations public="true" package="true" protected="true" private="true"/>    
     </display>  
   </class>  
-  <class id="14" corner="BOTTOM_RIGHT" language="java" name="scenes.AbstractScene" project="Therapeutic_Presence" 
+  <class id="13" corner="BOTTOM_RIGHT" language="java" name="scenes.AbstractScene" project="Therapeutic_Presence" 
     file="/Therapeutic_Presence/src/scenes/AbstractScene.java" binary="false">    
     <position height="-1" width="-1" x="-754" y="-77"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
@@ -121,7 +113,7 @@
       <operations public="true" package="true" protected="true" private="true"/>    
     </display>  
   </class>  
-  <class id="15" corner="BOTTOM_RIGHT" language="java" name="scenes.BasicScene2D" project="Therapeutic_Presence" 
+  <class id="14" corner="BOTTOM_RIGHT" language="java" name="scenes.BasicScene2D" project="Therapeutic_Presence" 
     file="/Therapeutic_Presence/src/scenes/BasicScene2D.java" binary="false">    
     <position height="-1" width="-1" x="-932" y="143"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
@@ -129,7 +121,7 @@
       <operations public="true" package="true" protected="true" private="true"/>    
     </display>  
   </class>  
-  <class id="16" corner="BOTTOM_RIGHT" language="java" name="scenes.BasicScene3D" project="Therapeutic_Presence" 
+  <class id="15" corner="BOTTOM_RIGHT" language="java" name="scenes.BasicScene3D" project="Therapeutic_Presence" 
     file="/Therapeutic_Presence/src/scenes/BasicScene3D.java" binary="false">    
     <position height="-1" width="-1" x="-620" y="190"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
@@ -137,7 +129,7 @@
       <operations public="true" package="true" protected="true" private="true"/>    
     </display>  
   </class>  
-  <class id="17" corner="BOTTOM_RIGHT" language="java" name="scenes.TunnelScene2D" project="Therapeutic_Presence" 
+  <class id="16" corner="BOTTOM_RIGHT" language="java" name="scenes.TunnelScene2D" project="Therapeutic_Presence" 
     file="/Therapeutic_Presence/src/scenes/TunnelScene2D.java" binary="false">    
     <position height="-1" width="-1" x="-959" y="398"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
@@ -145,7 +137,7 @@
       <operations public="true" package="true" protected="true" private="false"/>    
     </display>  
   </class>  
-  <class id="18" corner="BOTTOM_RIGHT" language="java" name="scenes.TunnelScene3D" project="Therapeutic_Presence" 
+  <class id="17" corner="BOTTOM_RIGHT" language="java" name="scenes.TunnelScene3D" project="Therapeutic_Presence" 
     file="/Therapeutic_Presence/src/scenes/TunnelScene3D.java" binary="false">    
     <position height="-1" width="-1" x="-599" y="443"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
@@ -153,7 +145,7 @@
       <operations public="true" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
-  <class id="19" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.BezierCurve2D" 
+  <class id="18" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.BezierCurve2D" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/therapeuticpresence/BezierCurve2D.java" 
     binary="false">    
     <position height="-1" width="-1" x="-464" y="1604"/>    
@@ -162,7 +154,7 @@
       <operations public="true" package="true" protected="true" private="true"/>    
     </display>  
   </class>  
-  <class id="20" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.BezierCurve3D" 
+  <class id="19" corner="BOTTOM_RIGHT" language="java" name="therapeuticpresence.BezierCurve3D" 
     project="Therapeutic_Presence" file="/Therapeutic_Presence/src/therapeuticpresence/BezierCurve3D.java" 
     binary="false">    
     <position height="-1" width="-1" x="-54" y="1638"/>    
@@ -171,197 +163,206 @@
       <operations public="true" package="false" protected="false" private="false"/>    
     </display>  
   </class>  
+  <class id="20" corner="BOTTOM_RIGHT" language="java" name="therapeuticskeleton.Skeleton" 
+    project="Therapeutic_Presence" file="/Therapeutic_Presence/lib/user/therapeutic_skeleton/therapeutic_skeleton.jar" 
+    binary="true">    
+    <position height="-1" width="-1" x="1021" y="211"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="false" protected="false" private="false"/>      
+      <operations public="true" package="false" protected="false" private="false"/>    
+    </display>  
+  </class>  
   <generalization id="21">    
-    <end type="SOURCE" refId="16"/>    
-    <end type="TARGET" refId="14"/>  
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="8"/>  
   </generalization>  
   <association id="22">    
-    <end type="SOURCE" refId="8" navigable="false">      
-      <attribute id="23" name="audioManager"/>      
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="23" name="kinect"/>      
       <multiplicity id="24" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="12" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="25">    
-    <end type="SOURCE" refId="4"/>    
-    <end type="TARGET" refId="9"/>  
-  </generalization>  
-  <association id="26">    
-    <end type="SOURCE" refId="13" navigable="false">      
-      <attribute id="27" name="audioManager"/>      
-      <multiplicity id="28" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="12" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="29">    
-    <end type="SOURCE" refId="8" navigable="false">      
-      <attribute id="30" name="guiHud"/>      
-      <multiplicity id="31" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="1" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="32">    
-    <end type="SOURCE" refId="5"/>    
-    <end type="TARGET" refId="4"/>  
-  </generalization>  
-  <association id="33">    
-    <end type="SOURCE" refId="7" navigable="false">      
-      <attribute id="34" name="kinect"/>      
-      <multiplicity id="35" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="3" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="36">    
-    <end type="SOURCE" refId="10"/>    
-    <end type="TARGET" refId="13"/>  
-  </generalization>  
-  <association id="37">    
-    <bendpoint x="994" y="1144"/>    
-    <end type="SOURCE" refId="4" navigable="false">      
-      <attribute id="38" name="skeleton"/>      
-      <multiplicity id="39" minimum="0" maximum="1"/>    
     </end>    
     <end type="TARGET" refId="2" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="40">    
-    <end type="SOURCE" refId="11" navigable="false">      
-      <attribute id="41" name="bezierCurves"/>      
-      <multiplicity id="42" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="20" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="43">    
-    <bendpoint x="-714" y="604"/>    
-    <bendpoint x="-434" y="602"/>    
-    <end type="SOURCE" refId="17" navigable="false">      
-      <attribute id="44" name="audioManager"/>      
-      <multiplicity id="45" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="12" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="46">    
-    <end type="SOURCE" refId="1" navigable="false">      
-      <attribute id="47" name="mainApplet"/>      
-      <multiplicity id="48" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="8" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="49">    
-    <end type="SOURCE" refId="12" navigable="false">      
-      <attribute id="50" name="mainApplet"/>      
-      <multiplicity id="51" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="8" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="52">    
-    <end type="SOURCE" refId="13"/>    
-    <end type="TARGET" refId="4"/>  
-  </generalization>  
-  <association id="53">    
-    <end type="SOURCE" refId="9" navigable="false">      
-      <attribute id="54" name="mainApplet"/>      
-      <multiplicity id="55" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="8" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <association id="56">    
-    <end type="SOURCE" refId="8" navigable="false">      
-      <attribute id="57" name="scene"/>      
-      <multiplicity id="58" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="14" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="59">    
-    <end type="SOURCE" refId="7"/>    
-    <end type="TARGET" refId="9"/>  
-  </generalization>  
-  <association id="60">    
+  <association id="25">    
     <end type="SOURCE" refId="10" navigable="false">      
-      <attribute id="61" name="bezierCurves"/>      
-      <multiplicity id="62" minimum="0" maximum="2147483647"/>    
+      <attribute id="26" name="bezierCurves"/>      
+      <multiplicity id="27" minimum="0" maximum="2147483647"/>    
     </end>    
     <end type="TARGET" refId="19" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="63">    
-    <end type="SOURCE" refId="2" navigable="false">      
-      <attribute id="64" name="kinect"/>      
-      <multiplicity id="65" minimum="0" maximum="1"/>    
+  <association id="28">    
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="29" name="mainApplet"/>      
+      <multiplicity id="30" minimum="0" maximum="1"/>    
     </end>    
-    <end type="TARGET" refId="3" navigable="true"/>    
+    <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="66">    
-    <end type="SOURCE" refId="6"/>    
-    <end type="TARGET" refId="13"/>  
+  <association id="31">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="32" name="audioManager"/>      
+      <multiplicity id="33" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="34">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="3"/>  
   </generalization>  
-  <generalization id="67">    
-    <end type="SOURCE" refId="17"/>    
-    <end type="TARGET" refId="15"/>  
-  </generalization>  
-  <generalization id="68">    
-    <end type="SOURCE" refId="15"/>    
-    <end type="TARGET" refId="14"/>  
-  </generalization>  
-  <association id="69">    
-    <end type="SOURCE" refId="14" navigable="false">      
-      <attribute id="70" name="mainApplet"/>      
-      <multiplicity id="71" minimum="0" maximum="1"/>    
+  <association id="35">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="36" name="visualisation"/>      
+      <multiplicity id="37" minimum="0" maximum="1"/>    
     </end>    
     <end type="TARGET" refId="8" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="72">    
-    <end type="SOURCE" refId="11"/>    
+  <association id="38">    
+    <bendpoint x="1018" y="1151"/>    
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="39" name="skeleton"/>      
+      <multiplicity id="40" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="20" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="41">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="12"/>  
+  </generalization>  
+  <association id="42">    
+    <bendpoint x="-714" y="604"/>    
+    <bendpoint x="-434" y="602"/>    
+    <end type="SOURCE" refId="16" navigable="false">      
+      <attribute id="43" name="audioManager"/>      
+      <multiplicity id="44" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="45">    
+    <end type="SOURCE" refId="17"/>    
+    <end type="TARGET" refId="15"/>  
+  </generalization>  
+  <generalization id="46">    
+    <end type="SOURCE" refId="15"/>    
     <end type="TARGET" refId="13"/>  
   </generalization>  
-  <association id="73">    
-    <end type="SOURCE" refId="8" navigable="false">      
-      <attribute id="74" name="skeleton"/>      
-      <multiplicity id="75" minimum="0" maximum="1"/>    
+  <association id="47">    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="48" name="mainApplet"/>      
+      <multiplicity id="49" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="50">    
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="14"/>  
+  </generalization>  
+  <generalization id="51">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="3"/>  
+  </generalization>  
+  <association id="52">    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="53" name="audioManager"/>      
+      <multiplicity id="54" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="55">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="56" name="mainApplet"/>      
+      <multiplicity id="57" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="58">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="12"/>  
+  </generalization>  
+  <association id="59">    
+    <end type="SOURCE" refId="20" navigable="false">      
+      <attribute id="60" name="kinect"/>      
+      <multiplicity id="61" minimum="0" maximum="1"/>    
     </end>    
     <end type="TARGET" refId="2" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="76">    
+  <association id="62">    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="63" name="audioManager"/>      
+      <multiplicity id="64" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="11" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="65">    
     <end type="SOURCE" refId="8" navigable="false">      
-      <attribute id="77" name="kinect"/>      
-      <multiplicity id="78" minimum="0" maximum="1"/>    
+      <attribute id="66" name="mainApplet"/>      
+      <multiplicity id="67" minimum="0" maximum="1"/>    
     </end>    
-    <end type="TARGET" refId="3" navigable="true"/>    
+    <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="79">    
-    <end type="SOURCE" refId="8" navigable="false">      
-      <attribute id="80" name="visualisation"/>      
-      <multiplicity id="81" minimum="0" maximum="1"/>    
+  <association id="68">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="69" name="skeleton"/>      
+      <multiplicity id="70" minimum="0" maximum="1"/>    
     </end>    
-    <end type="TARGET" refId="9" navigable="true"/>    
+    <end type="TARGET" refId="20" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="82">    
-    <end type="SOURCE" refId="18" navigable="false">      
-      <attribute id="83" name="audioManager"/>      
-      <multiplicity id="84" minimum="0" maximum="1"/>    
+  <association id="71">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="72" name="scene"/>      
+      <multiplicity id="73" minimum="0" maximum="1"/>    
     </end>    
-    <end type="TARGET" refId="12" navigable="true"/>    
+    <end type="TARGET" refId="13" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="85">    
-    <end type="SOURCE" refId="18"/>    
-    <end type="TARGET" refId="16"/>  
+  <generalization id="74">    
+    <end type="SOURCE" refId="9"/>    
+    <end type="TARGET" refId="12"/>  
   </generalization>  
+  <association id="75">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="76" name="kinect"/>      
+      <multiplicity id="77" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="78">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="79" name="guiHud"/>      
+      <multiplicity id="80" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <generalization id="81">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="13"/>  
+  </generalization>  
+  <generalization id="82">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <association id="83">    
+    <end type="SOURCE" refId="9" navigable="false">      
+      <attribute id="84" name="bezierCurves"/>      
+      <multiplicity id="85" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="18" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     visibility="true">    
     <attributes public="true" package="true" protected="true" private="true"/>    

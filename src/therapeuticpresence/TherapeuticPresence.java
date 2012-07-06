@@ -46,6 +46,7 @@ public class TherapeuticPresence extends PApplet {
 	
 	// --- static setup variables ---
 	public static boolean fullBodyTracking = false; // control for full body tracking
+	public static boolean calculateLocalCoordSys = true; // control for full body tracking
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = true;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
@@ -298,7 +299,7 @@ public class TherapeuticPresence extends PApplet {
 			if (skeleton != null ) {
 				debugMessage("Skeleton of user "+skeleton.userId+" replaced with skeleton of user "+_userId+"!");
 			}
-			skeleton = new Skeleton(kinect,_userId,fullBodyTracking,mirrorTherapy);
+			skeleton = new Skeleton(kinect,_userId,fullBodyTracking,calculateLocalCoordSys,mirrorTherapy);
 			// start default scene and visualisation
 			setupScene(defaultSceneType);
 			setupVisualisation(defaultVisualisationMethod);
