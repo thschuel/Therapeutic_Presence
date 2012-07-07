@@ -4,10 +4,10 @@ import therapeuticpresence.AudioManager;
 import therapeuticskeleton.Skeleton;
 import therapeuticpresence.TherapeuticPresence;
 
-public abstract class SkeletonAudioVisualisation extends SkeletonVisualisation {
+public abstract class AbstractSkeletonAudioVisualisation extends AbstractSkeletonVisualisation {
 	protected AudioManager audioManager = null;
 	
-	public SkeletonAudioVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
+	public AbstractSkeletonAudioVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton);
 		audioManager = _audioManager;
 	}

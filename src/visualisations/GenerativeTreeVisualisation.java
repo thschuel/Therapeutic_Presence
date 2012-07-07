@@ -4,7 +4,7 @@ import processing.core.*;
 import therapeuticpresence.*;
 import therapeuticskeleton.Skeleton;
 
-public class GenerativeTreeVisualisation extends SkeletonAudioVisualisation {
+public class GenerativeTreeVisualisation extends AbstractSkeletonAudioVisualisation {
 
 	private int strokeColor = 0;
 	

@@ -6,11 +6,11 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PVector;
 import therapeuticpresence.AudioManager;
-import therapeuticpresence.BezierCurve3D;
 import therapeuticskeleton.Skeleton;
 import therapeuticpresence.TherapeuticPresence;
+import utils.BezierCurve3D;
 
-public class AudioStickfigureVisualisation extends SkeletonAudioVisualisation {
+public class AudioStickfigureVisualisation extends AbstractSkeletonAudioVisualisation {
 	
 	// these values are used for drawing the bezier curves
 	protected float delay = 8f;

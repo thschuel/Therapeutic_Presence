@@ -58,7 +58,7 @@ public class TherapeuticPresence extends PApplet {
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
-	public static float maxDistanceToKinect = 2000f; // in mm  // TODO: make this adjustable via UI
+	public static float maxDistanceToKinect = 2500f; // in mm 
 	
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
@@ -73,15 +73,9 @@ public class TherapeuticPresence extends PApplet {
 	protected GuiHud guiHud = null;
 	// audio interface
 	protected AudioManager audioManager = null;
+	// posture processing for skeleton interface
+	protected PostureProcessing postureProcessing = null;
 	
-	// TODO: implement sophisticated version of shape recognition
-	// using counter for now
-	protected int vShapeCounter = 0;
-	public int oShapeCounter = 0;
-	protected int vShapeStarted = -9999;
-	protected int oShapeStarted = -9999;
-	protected int lastSwitch = -9999;
-
 	
 	// -----------------------------------------------------------------
 	public void setup() {		
@@ -126,16 +120,16 @@ public class TherapeuticPresence extends PApplet {
 			}
 		}
 	}
-	
-	public void setMirrorKinect (boolean _mirror) {
-		// TODO: fix switch mirroring on the fly
-//		mirrorKinect = _mirror;
-//		if (skeleton!=null && skeleton.isUpdated) {
+
+	public void setMirrorKinect (boolean _mirrorKinect) {
+//		if (skeleton != null) {
 //			kinect.stopTrackingSkeleton(skeleton.userId);
-//			kinect.setMirror(mirrorKinect); 
+//		}
+//		mirrorKinect = _mirrorKinect;
+//		kinect.setMirror(mirrorKinect);
+//		kinect.update();
+//		if (skeleton != null) {
 //			kinect.startTrackingSkeleton(skeleton.userId);
-//		} else if (skeleton == null) {
-//			kinect.setMirror(mirrorKinect); 
 //		}
 	}
 	
@@ -225,53 +219,10 @@ public class TherapeuticPresence extends PApplet {
 			kinect.update();
 		if (skeleton != null && kinect.isTrackingSkeleton(skeleton.userId))
 			skeleton.update();
-
-		if (false && skeleton != null && skeleton.getUpperJointPosture() == Skeleton.V_SHAPE) {
-			if (vShapeCounter == 0) {
-				vShapeStarted = frameCount;
-			}
-			vShapeCounter++;
-			oShapeCounter=0;
-			oShapeStarted=-9999;
-		} else if (skeleton != null && skeleton.getUpperJointPosture() == Skeleton.O_SHAPE) {
-			if (oShapeCounter == 0) {
-				oShapeStarted = frameCount;
-			}
-			oShapeCounter++;
-			vShapeCounter=0;
-			vShapeStarted=-9999;
-		} else {
-			if (frameCount-vShapeStarted > 30) {
-				vShapeCounter=0;
-				vShapeStarted=-9999;
-			}
-			if (frameCount-oShapeStarted > 30) {
-				oShapeCounter=0;
-				oShapeStarted=-9999;
-			}
-		}
-		
-//		if (vShapeCounter > 20 && currentVisualisationMethod != TherapeuticPresence.GEOMETRY_3D_VISUALISATION) {
-//			setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
-//			setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
-//			vShapeCounter=0;
-//			vShapeStarted=-9999;
-//		}
-		if (oShapeCounter > 20 && frameCount-lastSwitch > 50) {
-			if (currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_VISUALISATION) {
-				setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
-				setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
-			} else if (currentVisualisationMethod == TherapeuticPresence.GEOMETRY_3D_VISUALISATION) {
-				setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
-				setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_VISUALISATION);
-			}
-			oShapeCounter=0;
-			oShapeStarted=-9999;
-			lastSwitch = frameCount;
-		}
-		
 		if (audioManager != null)
 			audioManager.update();
+		if (postureProcessing != null)
+			postureProcessing.updatePosture();
 		
 		// -------- drawing --------------------------------
 		if (scene != null)
@@ -303,6 +254,7 @@ public class TherapeuticPresence extends PApplet {
 			// start default scene and visualisation
 			setupScene(defaultSceneType);
 			setupVisualisation(defaultVisualisationMethod);
+			postureProcessing = new PostureProcessing(this,skeleton);
 		}
 	}
 	
@@ -360,6 +312,7 @@ public class TherapeuticPresence extends PApplet {
 		if (successfull) { 
 			debugMessage("  User calibrated !!!");
 			kinect.startTrackingSkeleton(userId); 
+			//kinect.update(); // one update loop before going on with calculations prevents kinect to be in an unstable state
 			this.newSkeletonFound(userId);
 		} else { 
 			debugMessage("  Failed to calibrate user !!!");
@@ -411,8 +364,7 @@ public class TherapeuticPresence extends PApplet {
 			    break;
 			    
 			case 'm':
-				mirrorKinect = !mirrorKinect;
-				kinect.setMirror(mirrorKinect);
+				setMirrorKinect(!mirrorKinect);
 				break;
 				
 		}

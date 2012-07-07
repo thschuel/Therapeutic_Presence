@@ -5,8 +5,9 @@ import processing.core.*;
 import scenes.TunnelScene3D;
 import therapeuticpresence.*;
 import therapeuticskeleton.Skeleton;
+import utils.BezierCurve3D;
 
-public class Geometry3DVisualisation extends SkeletonAudioVisualisation {
+public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	
 	// coordinates for the visualization are defined through angles of limbs
 	// bezier curves used for drawing. anchor points and control points.
@@ -26,7 +27,6 @@ public class Geometry3DVisualisation extends SkeletonAudioVisualisation {
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width, height;
 	protected float centerz;
-	protected float skeletonOffset = 2000f; // TODO: make this adjustable via UI
 	
 	// these values are used for drawing the bezier curves
 	protected final float delay = 8f;
@@ -40,7 +40,7 @@ public class Geometry3DVisualisation extends SkeletonAudioVisualisation {
 		mainApplet.setMirrorKinect(false);
 		width = TunnelScene3D.tunnelWidth;
 		height = TunnelScene3D.tunnelHeight;
-		centerz = PApplet.constrain(skeleton.distanceToKinect()+skeletonOffset,0,TunnelScene3D.tunnelLength);
+		centerz = PApplet.constrain(skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength,0,TunnelScene3D.tunnelLength);
 	}
 	
 	public void setup() {
@@ -50,7 +50,7 @@ public class Geometry3DVisualisation extends SkeletonAudioVisualisation {
 	
 	public void updateCanvasCoordinates () {
 		// center.z reacts to position of user with delay
-		centerz += (skeleton.distanceToKinect()+skeletonOffset-centerz)/delay;
+		centerz += (skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength-centerz)/delay;
 		centerz = PApplet.constrain(centerz,0,TunnelScene3D.tunnelLength);
 	    center.set(0,0,centerz);
 		width = TunnelScene3D.getTunnelWidthAt(center.z);

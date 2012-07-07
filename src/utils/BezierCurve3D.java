@@ -1,8 +1,9 @@
-package therapeuticpresence;
+package utils;
 
 import processing.core.PApplet;
 import processing.core.PVector;
 import scenes.TunnelScene3D;
+import therapeuticpresence.TherapeuticPresence;
 
 public class BezierCurve3D {
 	public static final int MAX_POINTS = 16;

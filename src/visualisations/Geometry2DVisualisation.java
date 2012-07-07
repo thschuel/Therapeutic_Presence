@@ -5,8 +5,9 @@ import therapeuticskeleton.Skeleton;
 
 import processing.core.*;
 import therapeuticpresence.*;
+import utils.BezierCurve2D;
 
-public class Geometry2DVisualisation extends SkeletonAudioVisualisation {
+public class Geometry2DVisualisation extends AbstractSkeletonAudioVisualisation {
 	
 	// coordinates for the visualization are defined through angles of limbs
 	// bezier curves used for drawing. anchor points and control points.

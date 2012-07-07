@@ -4,7 +4,7 @@ import processing.core.*;
 import therapeuticskeleton.Skeleton;
 import therapeuticpresence.TherapeuticPresence;
 
-public class StickfigureVisualisation extends SkeletonVisualisation {
+public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 
 	private int strokeColor = 0;
 	private int jointColor = 0;

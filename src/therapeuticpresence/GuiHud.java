@@ -46,7 +46,7 @@ public class GuiHud {
 		// reset camera to draw HUD
 		g3.camera();
 	    // update fps Text
-	    fps.setText("fps: "+PApplet.round(mainApplet.frameRate)+" oShape: "+mainApplet.oShapeCounter);
+	    fps.setText("fps: "+PApplet.round(mainApplet.frameRate)+" active Shape: "+PostureProcessing.activeShape);
 	    // toggle debug output
 	    if (!TherapeuticPresence.debugOutput) {
 			guiMessages.hide();
@@ -85,7 +85,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,150);
-		menu.setBackgroundHeight(220);
+		menu.setBackgroundHeight(240);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -149,6 +149,11 @@ public class GuiHud {
 		fftGain.moveTo(menu);
 		fftGain.setCaptionLabel("FFT Gain");
 		fftGain.plugTo(this);
+		
+		controlP5.Slider maxDistanceToKinect = control.addSlider("changeMaxDistanceToKinect",0.0f,4000.0f,TherapeuticPresence.maxDistanceToKinect,0,220,108,20);
+		maxDistanceToKinect.moveTo(menu);
+		maxDistanceToKinect.setCaptionLabel("Max dist");
+		maxDistanceToKinect.plugTo(this);
 	}
 	
 	
@@ -209,6 +214,10 @@ public class GuiHud {
 	
 	private void changeFFTGain (float theValue) {
 		AudioManager.gain = theValue;
+	}
+	
+	private void changeMaxDistanceToKinect (float theValue) {
+		TherapeuticPresence.maxDistanceToKinect = theValue;
 	}
 	
 
