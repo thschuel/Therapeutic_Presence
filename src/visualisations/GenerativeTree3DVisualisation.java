@@ -15,8 +15,13 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	protected PVector center = new PVector();
 
 	// variables to calculate and draw the tree
-	private float curlx = 0;
-	private float curly = 0;
+	private float curlRightLowerArm = 0;
+	private float curlLeftLowerArm = 0;
+	private float curlRightUpperArm = 0;
+	private float curlLeftUpperArm = 0;
+	private float curlRight = 0;
+	private float curlLeft = 0;
+	private float orientationTree = 0;
 	private float downscaleStrokeLength = PApplet.sqrt(2)/2.f;
 	private float delay = 20;
 	private int minBranches = 5;
@@ -69,6 +74,30 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			int branchCount = minBranches+PApplet.round(addBranches*actualScale);
 			float initialStrokeLength = mappedScale*height/3;
 			
+			// get angles for drawing
+			float angleLeftUpperArm = skeleton.angleToLocalYAxis(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER); 
+			float angleRightUpperArm = skeleton.angleToLocalYAxis(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
+			float angleLeftLowerArm = skeleton.angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER,Skeleton.LEFT_HAND,Skeleton.LEFT_ELBOW); 
+			float angleRightLowerArm =  skeleton.angleBetween(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW); 
+			float orientationSkeleton = PVector.angleBetween(new PVector(0,0,1),skeleton.getOrientationX()) - PConstants.HALF_PI;
+			
+			// TODO this is a hack. find solution to switch on/off mirroring of kinect
+			if (!TherapeuticPresence.mirrorKinect) {
+				// trees react to body posture with a delay
+				curlLeftLowerArm += (angleRightLowerArm*0.5-curlLeftLowerArm)/delay;
+				curlRightLowerArm += (angleLeftLowerArm*0.5-curlRightLowerArm)/delay;		
+				curlLeftUpperArm += (angleRightUpperArm*0.5-curlLeftUpperArm)/delay;
+				curlRightUpperArm += (angleLeftUpperArm*0.5-curlRightUpperArm)/delay;		
+				orientationTree += (-orientationSkeleton*0.8-orientationTree)/delay;
+			} else {
+				// trees react to body posture with a delay
+				curlLeftLowerArm += (angleLeftLowerArm*0.5-curlLeftLowerArm)/delay;
+				curlRightLowerArm += (angleRightLowerArm*0.5-curlRightLowerArm)/delay;		
+				curlLeftUpperArm += (angleLeftUpperArm*0.5-curlLeftUpperArm)/delay;
+				curlRightUpperArm += (angleRightUpperArm*0.5-curlRightUpperArm)/delay;	
+				orientationTree += (orientationSkeleton*0.8-orientationTree)/delay;
+			}
+			
 			// draw trunk of the tree
 			mainApplet.pushMatrix();
 			mainApplet.translate(center.x,-mappedScale*height/8-initialStrokeLength,center.z);
@@ -77,19 +106,8 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			mainApplet.strokeWeight(strokeWeight);
 			mainApplet.line(0,0,0,0,initialStrokeLength,0);
 			mainApplet.translate(0,initialStrokeLength,0);
-			
-			float anglelArmToBodyAxis = skeleton.angleBetween(Skeleton.LEFT_SHOULDER,Skeleton.LEFT_HAND,Skeleton.TORSO,Skeleton.NECK); 
-			float anglerArmToBodyAxis = skeleton.angleBetween(Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_HAND,Skeleton.TORSO,Skeleton.NECK);
-			// TODO this is a hack. find solution to switch on/off mirroring of kinect
-			if (!TherapeuticPresence.mirrorKinect) {
-				// trees react to body posture with a delay
-				curlx += (anglerArmToBodyAxis*0.5-curlx)/delay;
-				curly += (anglelArmToBodyAxis*0.5-curly)/delay;		
-			} else {
-				// trees react to body posture with a delay
-				curlx += (anglelArmToBodyAxis*0.5-curlx)/delay;
-				curly += (anglerArmToBodyAxis*0.5-curly)/delay;		
-			}
+
+			mainApplet.rotateY(orientationTree);
 			
 			// colors of leafs differ in HSB-space
 			colorsStepSize = colorsSize/PApplet.pow(2,branchCount); 
@@ -97,7 +115,10 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			// sizes of leafs differ according to music samples
 			sampleStepSize = audioManager.getBufferSize()/PApplet.pow(2,branchCount);
 			actSampleIndex = 0f;
+
 			// start branching
+			curlLeft = curlLeftUpperArm;
+			curlRight = curlRightUpperArm;
 			branch(initialStrokeLength*downscaleStrokeLength,branchCount,strokeWeight*downScale);
 			
 			mainApplet.popMatrix();
@@ -105,15 +126,17 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		
 	}
 	
-	private void branch(float length, int count, float strokeWeight)
-	{
+	private void branch(float length, int count, float strokeWeight) {
 		length *= downscaleStrokeLength;
 		count -= 1;
 		if ((length > 1) && (count > 0)) {
 		    // draw branch and go ahead
 			mainApplet.pushMatrix();
 		    
-			mainApplet.rotateZ(-curlx);
+			mainApplet.rotateZ(-curlLeft); // rotate works clockwise
+			// TODO: check why this doesnt work
+			if (curlLeft == curlLeftLowerArm) curlLeft = curlLeftUpperArm; // alternating angles
+			else curlLeft = curlLeftLowerArm;
 			mainApplet.stroke(strokeColor,transparency);
 			mainApplet.strokeWeight(strokeWeight);
 			mainApplet.line(0,0,0,0,length,0);
@@ -124,7 +147,10 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	      
 		    mainApplet.pushMatrix();
 		    
-		    mainApplet.rotateZ(curly);
+		    mainApplet.rotateZ(curlRight);
+		 // TODO: check why this doesnt work
+			if (curlRight == curlRightLowerArm) curlRight = curlRightUpperArm; // alternating angles
+			else curlRight = curlRightLowerArm;
 			mainApplet.stroke(strokeColor,transparency);
 			mainApplet.strokeWeight(strokeWeight);
 			mainApplet.line(0,0,0,0,length,0);
@@ -145,7 +171,6 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			mainApplet.popMatrix();
 			mainApplet.noFill();
 		}
-		
 	}
 
 	public short getVisualisationType() {
