@@ -38,12 +38,12 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	public Geometry3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton,_audioManager);
 		mainApplet.setMirrorKinect(false);
-		width = TunnelScene3D.tunnelWidth;
-		height = TunnelScene3D.tunnelHeight;
-		centerz = PApplet.constrain(skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength,0,TunnelScene3D.tunnelLength);
 	}
 	
 	public void setup() {
+		centerz = PApplet.constrain(skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength,0,TunnelScene3D.tunnelLength);
+		width = TunnelScene3D.getTunnelWidthAt(centerz);
+		height = TunnelScene3D.getTunnelHeightAt(centerz);
 		// coordinates based on canvas size
 		updateCanvasCoordinates();
 	}
@@ -53,8 +53,8 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 		centerz += (skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength-centerz)/delay;
 		centerz = PApplet.constrain(centerz,0,TunnelScene3D.tunnelLength);
 	    center.set(0,0,centerz);
-		width = TunnelScene3D.getTunnelWidthAt(center.z);
-		height = TunnelScene3D.getTunnelHeightAt(center.z);
+		width = TunnelScene3D.getTunnelWidthAt(centerz);
+		height = TunnelScene3D.getTunnelHeightAt(centerz);
 
 		left1.x = center.x-width/2;
 		left2.x = center.x-width/4;
@@ -88,6 +88,30 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 			for (int i=0; i<bezierCurves.size(); i++) {
 				bezierCurves.get(i).draw(mainApplet);
 			}
+		}
+	}
+	
+	public boolean fadeIn () {
+		return true;
+	}
+	
+	// Fade out method is used to blend between visualisations. it should be over in 20 frames!!!
+	public boolean fadeOut () {
+		// clean up bezierCurves ArrayList
+		for (int i=0;i<bezierCurves.size();i++) {
+			if (bezierCurves.get(i).transparency <= 0) {
+				bezierCurves.remove(i--);
+			}
+		}
+		if (bezierCurves.size() == 0) {
+			return true;
+		} else {
+			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
+			mainApplet.strokeWeight(strokeWeight);
+			for (int i=0; i<bezierCurves.size(); i++) {
+				bezierCurves.get(i).draw(mainApplet);
+			}
+			return false;
 		}
 	}
 	

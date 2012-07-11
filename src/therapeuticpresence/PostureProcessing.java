@@ -9,7 +9,7 @@ public class PostureProcessing {
 	// using counter for now
 	private float vShapeCounter = 0f; // seconds V Shape occured in a row
 	private float oShapeCounter = 0f; // seconds O Shape occured in a row
-	private float timeSinceLastSwitch = 0f; // seconds since last switch
+	private float timeSinceLastAction = 0f; // seconds since last switch
 	
 	public PostureProcessing (TherapeuticPresence _mainApplet, Skeleton _skeleton) {
 		mainApplet = _mainApplet;
@@ -17,7 +17,7 @@ public class PostureProcessing {
 	}
 	
 	public void updatePosture () {
-		timeSinceLastSwitch += 1f/mainApplet.frameRate;
+		timeSinceLastAction += 1f/mainApplet.frameRate;
 		
 		switch (skeleton.getUpperJointPosture()) {
 			case Skeleton.V_SHAPE:
@@ -42,16 +42,20 @@ public class PostureProcessing {
 				}
 				break;
 		}
-		
-		if (oShapeCounter > 1.2f && timeSinceLastSwitch > 2f) {
-			if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_VISUALISATION) {
-				mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
-				mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
-			} else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GEOMETRY_3D_VISUALISATION) {
-				mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
-				mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_VISUALISATION);
+	}
+	
+	public void triggerAction () {
+		if (timeSinceLastAction > 2f) {
+			if (oShapeCounter > 1.2f) {
+				if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
+					mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+					mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
+				} else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GEOMETRY_3D_VISUALISATION) {
+					mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+					mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION);
+				}
+				timeSinceLastAction = 0f;
 			}
-			timeSinceLastSwitch = 0f;
 		}
 	}
 	

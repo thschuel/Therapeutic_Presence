@@ -85,7 +85,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,150);
-		menu.setBackgroundHeight(240);
+		menu.setBackgroundHeight(260);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -114,43 +114,48 @@ public class GuiHud {
 		drawSkeletons.setCaptionLabel("Draw Skeletons");
 		drawSkeletons.plugTo(this);
 
-		controlP5.Button drawTree = control.addButton("switchVisualisationTree",TherapeuticPresence.GENERATIVE_TREE_VISUALISATION,0,100,150,20);
-		drawTree.moveTo(menu);
-		drawTree.setCaptionLabel("Draw Tree");
-		drawTree.plugTo(this);
+		controlP5.Button drawTree2D = control.addButton("switchVisualisationTree2D",TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION,0,100,150,20);
+		drawTree2D.moveTo(menu);
+		drawTree2D.setCaptionLabel("Draw Tree 2D");
+		drawTree2D.plugTo(this);
 
-		controlP5.Button drawAudioSkeletons = control.addButton("switchVisualisationGeometry2D",TherapeuticPresence.GEOMETRY_2D_VISUALISATION,0,120,150,20);
+		controlP5.Button drawTree3D = control.addButton("switchVisualisationTree3D",TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION,0,120,150,20);
+		drawTree3D.moveTo(menu);
+		drawTree3D.setCaptionLabel("Draw Tree 3D");
+		drawTree3D.plugTo(this);
+
+		controlP5.Button drawAudioSkeletons = control.addButton("switchVisualisationGeometry2D",TherapeuticPresence.GEOMETRY_2D_VISUALISATION,0,140,150,20);
 		drawAudioSkeletons.moveTo(menu);
 		drawAudioSkeletons.setCaptionLabel("Draw Geometry2D");
 		drawAudioSkeletons.plugTo(this);
 
-		controlP5.Button drawGeometry3D = control.addButton("switchVisualisationGeometry3D",TherapeuticPresence.GEOMETRY_3D_VISUALISATION,0,140,150,20);
+		controlP5.Button drawGeometry3D = control.addButton("switchVisualisationGeometry3D",TherapeuticPresence.GEOMETRY_3D_VISUALISATION,0,160,150,20);
 		drawGeometry3D.moveTo(menu);
 		drawGeometry3D.setCaptionLabel("Draw Geometry3D");
 		drawGeometry3D.plugTo(this);
 
-		controlP5.Textarea autoCalibrationLabel = control.addTextarea("autoCalibrationLabel","Toggle AutoCalibration",2,164,128,16);
+		controlP5.Textarea autoCalibrationLabel = control.addTextarea("autoCalibrationLabel","Toggle AutoCalibration",2,184,128,16);
 		autoCalibrationLabel.moveTo(menu);
 		
-		controlP5.Toggle autoCalibration = control.addToggle("switchAutoCalibration",TherapeuticPresence.autoCalibration,130,160,20,20);
+		controlP5.Toggle autoCalibration = control.addToggle("switchAutoCalibration",TherapeuticPresence.autoCalibration,130,180,20,20);
 		autoCalibration.moveTo(menu);
 		autoCalibration.setLabelVisible(false);
 		autoCalibration.plugTo(this);
 
-		controlP5.Textarea debugOutputLabel = control.addTextarea("debugOutputLabel","Toggle debugOutput",2,184,128,16);
+		controlP5.Textarea debugOutputLabel = control.addTextarea("debugOutputLabel","Toggle debugOutput",2,204,128,16);
 		debugOutputLabel.moveTo(menu);
 		
-		controlP5.Toggle debugOuput = control.addToggle("switchDebugOuput",TherapeuticPresence.debugOutput,130,180,20,20);
+		controlP5.Toggle debugOuput = control.addToggle("switchDebugOuput",TherapeuticPresence.debugOutput,130,200,20,20);
 		debugOuput.moveTo(menu);
 		debugOuput.setLabelVisible(false);
 		debugOuput.plugTo(this);
 		
-		controlP5.Slider fftGain = control.addSlider("changeFFTGain",0.0f,1.0f,AudioManager.gain,0,200,108,20);
+		controlP5.Slider fftGain = control.addSlider("changeFFTGain",0.0f,1.0f,AudioManager.gain,0,220,108,20);
 		fftGain.moveTo(menu);
 		fftGain.setCaptionLabel("FFT Gain");
 		fftGain.plugTo(this);
 		
-		controlP5.Slider maxDistanceToKinect = control.addSlider("changeMaxDistanceToKinect",0.0f,4000.0f,TherapeuticPresence.maxDistanceToKinect,0,220,108,20);
+		controlP5.Slider maxDistanceToKinect = control.addSlider("changeMaxDistanceToKinect",0.0f,4000.0f,TherapeuticPresence.maxDistanceToKinect,0,240,108,20);
 		maxDistanceToKinect.moveTo(menu);
 		maxDistanceToKinect.setCaptionLabel("Max dist");
 		maxDistanceToKinect.plugTo(this);
@@ -189,9 +194,14 @@ public class GuiHud {
 		mainApplet.setupVisualisation(TherapeuticPresence.STICKFIGURE_VISUALISATION);
 	}
 	
-	private void switchVisualisationTree (int theValue) {
+	private void switchVisualisationTree2D (int theValue) {
 		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
-		mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_VISUALISATION);
+		mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION);
+	}
+	
+	private void switchVisualisationTree3D (int theValue) {
+		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+		mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION);
 	}
 	
 	private void switchVisualisationGeometry2D (int theValue) {

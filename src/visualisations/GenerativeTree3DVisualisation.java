@@ -1,15 +1,18 @@
 package visualisations;
 
 import processing.core.*;
+import scenes.TunnelScene3D;
 import therapeuticpresence.*;
 import therapeuticskeleton.Skeleton;
 
-public class GenerativeTreeVisualisation extends AbstractSkeletonAudioVisualisation {
+public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualisation {
 
 	private int strokeColor = 0;
-	
-	private float canvasWidth;
-	private float canvasHeight;
+
+	// size of drawing canvas for bezier curves. is controlled by distance of user.
+	protected float width, height;
+	protected float centerz;
+	protected PVector center = new PVector();
 
 	// variables to calculate and draw the tree
 	private float curlx = 0;
@@ -17,6 +20,7 @@ public class GenerativeTreeVisualisation extends AbstractSkeletonAudioVisualisat
 	private float downscaleStrokeLength = PApplet.sqrt(2)/2.f;
 	private float delay = 20;
 	private int minBranches = 5;
+	private int addBranches = 5;
 //	private float growth = 0;
 //	private float growthTarget = 0;
 //	private int branches = 17;
@@ -26,8 +30,8 @@ public class GenerativeTreeVisualisation extends AbstractSkeletonAudioVisualisat
 	private float actColorIndex = 0.f;
 	private int colorsSize = 360;
 	private float colorsStepSize = 10.f;
-	private int leafWidth = 15;
-	private int leafHeight = 30;
+	private int leafWidth = 25;
+	private int leafHeight = 50;
 	
 	// audio responsive tree
 	protected float initialScale = 2f;
@@ -36,11 +40,9 @@ public class GenerativeTreeVisualisation extends AbstractSkeletonAudioVisualisat
 	protected float sampleStepSize =10f;
 	protected float actSampleIndex = 0f;
 	
-	public GenerativeTreeVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
+	public GenerativeTree3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super (_mainApplet,_skeleton,_audioManager);
 		mainApplet.setMirrorKinect(true);
-		canvasWidth = mainApplet.width;
-		canvasHeight = mainApplet.height;
 	}
 	
 	public void setup() {
@@ -55,33 +57,35 @@ public class GenerativeTreeVisualisation extends AbstractSkeletonAudioVisualisat
 
 	public void draw() {
 		if (skeleton.isUpdated && audioManager.isUpdated) {
-			float scale = skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect;
-			int branchCount = minBranches+PApplet.round(minBranches*scale);
-			float initialStrokeLength = scale*canvasHeight/3;
+			// center.z reacts to position of user with delay
+			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,TherapeuticPresence.lowerZBoundary,TherapeuticPresence.upperZBoundary);
+			centerz = PApplet.constrain(mappedDistance/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength,0,TunnelScene3D.tunnelLength);
+			width = TunnelScene3D.getTunnelWidthAt(centerz);
+			height = TunnelScene3D.getTunnelHeightAt(centerz);
+		    center.set(0,0,centerz);
+
+			float actualScale = skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect;
+			float mappedScale = mappedDistance/TherapeuticPresence.maxDistanceToKinect;
+			int branchCount = minBranches+PApplet.round(addBranches*actualScale);
+			float initialStrokeLength = mappedScale*height/3;
+			
 			// draw trunk of the tree
 			mainApplet.pushMatrix();
-			mainApplet.translate(canvasWidth/2,(scale+2.5f)*canvasHeight/5+initialStrokeLength);
+			mainApplet.translate(center.x,-mappedScale*height/8-initialStrokeLength,center.z);
 			mainApplet.stroke(strokeColor,transparency);
 			float strokeWeight = audioManager.getMeanFFT(0) * initialScale;
 			mainApplet.strokeWeight(strokeWeight);
-			mainApplet.line(0,0,0,-initialStrokeLength);
-			mainApplet.translate(0,-initialStrokeLength);
+			mainApplet.line(0,0,0,0,initialStrokeLength,0);
+			mainApplet.translate(0,initialStrokeLength,0);
 			
 			float anglelArmToBodyAxis = skeleton.angleBetween(Skeleton.LEFT_SHOULDER,Skeleton.LEFT_HAND,Skeleton.TORSO,Skeleton.NECK); 
 			float anglerArmToBodyAxis = skeleton.angleBetween(Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_HAND,Skeleton.TORSO,Skeleton.NECK);
-			 		
-			
 			// TODO this is a hack. find solution to switch on/off mirroring of kinect
 			if (!TherapeuticPresence.mirrorKinect) {
-//				float temp = curlx;
-//				curlx = curly;
-//				curly = temp;
-				
 				// trees react to body posture with a delay
 				curlx += (anglerArmToBodyAxis*0.5-curlx)/delay;
 				curly += (anglelArmToBodyAxis*0.5-curly)/delay;		
 			} else {
-
 				// trees react to body posture with a delay
 				curlx += (anglelArmToBodyAxis*0.5-curlx)/delay;
 				curly += (anglerArmToBodyAxis*0.5-curly)/delay;		
@@ -109,22 +113,22 @@ public class GenerativeTreeVisualisation extends AbstractSkeletonAudioVisualisat
 		    // draw branch and go ahead
 			mainApplet.pushMatrix();
 		    
-			mainApplet.rotate(-curlx);
+			mainApplet.rotateZ(-curlx);
 			mainApplet.stroke(strokeColor,transparency);
 			mainApplet.strokeWeight(strokeWeight);
-			mainApplet.line(0,0,0,-length);
-			mainApplet.translate(0,-length);
+			mainApplet.line(0,0,0,0,length,0);
+			mainApplet.translate(0,length,0);
 		    branch(length,count,strokeWeight*downScale);
 		    
 		    mainApplet.popMatrix();
 	      
 		    mainApplet.pushMatrix();
 		    
-		    mainApplet.rotate(curly);
+		    mainApplet.rotateZ(curly);
 			mainApplet.stroke(strokeColor,transparency);
 			mainApplet.strokeWeight(strokeWeight);
-			mainApplet.line(0,0,0,-length);
-		    mainApplet.translate(0,-length);
+			mainApplet.line(0,0,0,0,length,0);
+		    mainApplet.translate(0,length,0);
 		    branch(length,count,strokeWeight*downScale);
 		    
 		    mainApplet.popMatrix();
@@ -135,8 +139,8 @@ public class GenerativeTreeVisualisation extends AbstractSkeletonAudioVisualisat
 			mainApplet.fill(leafColors[PApplet.round(actColorIndex+=colorsStepSize)],transparency);
 			float scale = audioManager.getMeanSampleAt(PApplet.round(actSampleIndex+=sampleStepSize));
 			mainApplet.pushMatrix();
-			mainApplet.rotate(PConstants.HALF_PI*scale);
-			mainApplet.translate(0,-leafHeight/2);
+			mainApplet.rotateZ(PConstants.HALF_PI*scale);
+			mainApplet.translate(0,leafHeight/2,0);
 			mainApplet.ellipse(0,0,leafWidth,leafHeight);
 			mainApplet.popMatrix();
 			mainApplet.noFill();
@@ -145,7 +149,7 @@ public class GenerativeTreeVisualisation extends AbstractSkeletonAudioVisualisat
 	}
 
 	public short getVisualisationType() {
-		return TherapeuticPresence.GENERATIVE_TREE_VISUALISATION;
+		return TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION;
 	}
 
 }

@@ -36,13 +36,15 @@ public class TherapeuticPresence extends PApplet {
 	public static final short DEPTHMAP_VISUALISATION = 0;
 	public static final short STICKFIGURE_VISUALISATION = 1;
 	public static final short AUDIO_STICKFIGURE_VISUALISATION = 2;
-	public static final short GENERATIVE_TREE_VISUALISATION = 3;
-	public static final short GEOMETRY_2D_VISUALISATION = 4;
-	public static final short GEOMETRY_3D_VISUALISATION = 5;
+	public static final short GENERATIVE_TREE_2D_VISUALISATION = 3;
+	public static final short GENERATIVE_TREE_3D_VISUALISATION = 4;
+	public static final short GEOMETRY_2D_VISUALISATION = 5;
+	public static final short GEOMETRY_3D_VISUALISATION = 6;
 	public static final short BASIC_SCENE2D = 0;
 	public static final short BASIC_SCENE3D = 1;
 	public static final short TUNNEL_SCENE2D = 2;
 	public static final short TUNNEL_SCENE3D = 3;
+
 	
 	// --- static setup variables ---
 	public static boolean fullBodyTracking = false; // control for full body tracking
@@ -50,7 +52,7 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = true;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
-	public static short defaultVisualisationMethod = TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
+	public static short defaultVisualisationMethod = TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION;
 	public static short currentVisualisationMethod;
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short defaultSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
@@ -59,6 +61,8 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
 	public static float maxDistanceToKinect = 2500f; // in mm 
+	public static float lowerZBoundary = 0.45f*maxDistanceToKinect; // to control z position of drawing within a narrow corridor
+	public static float upperZBoundary = 0.78f*maxDistanceToKinect;
 	
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
@@ -66,7 +70,9 @@ public class TherapeuticPresence extends PApplet {
 	// interface to the Scene/Background
 	protected AbstractScene scene = null;
 	// interface to the chosen visualisation object
+	protected AbstractVisualisation nextVisualisation = null;
 	protected AbstractVisualisation visualisation = null;
+	protected AbstractVisualisation lastVisualisation = null;
 	// the skeleton that control the scene, only one user for now
 	protected Skeleton skeleton = null;
 	// user interface
@@ -173,40 +179,51 @@ public class TherapeuticPresence extends PApplet {
 	
 	public void setupVisualisation (short _visualisationMethod) {
 		
+		// prepare for fade out
+		lastVisualisation = visualisation;
+		visualisation = null;
+		
+		// set up next visualisation for fade in
 		switch (_visualisationMethod) {
 			case TherapeuticPresence.STICKFIGURE_VISUALISATION:
-				visualisation = new StickfigureVisualisation(this,skeleton);
-				visualisation.setup();
+				nextVisualisation = new StickfigureVisualisation(this,skeleton);
+				nextVisualisation.setup();
 				currentVisualisationMethod = TherapeuticPresence.STICKFIGURE_VISUALISATION;
 				break;
 				
 			case TherapeuticPresence.AUDIO_STICKFIGURE_VISUALISATION:
-				visualisation = new AudioStickfigureVisualisation(this,skeleton,audioManager);
-				visualisation.setup();
+				nextVisualisation = new AudioStickfigureVisualisation(this,skeleton,audioManager);
+				nextVisualisation.setup();
 				currentVisualisationMethod = TherapeuticPresence.AUDIO_STICKFIGURE_VISUALISATION;
 				break;
 				
-			case TherapeuticPresence.GENERATIVE_TREE_VISUALISATION:
-				visualisation = new GenerativeTreeVisualisation(this,skeleton,audioManager);
-				visualisation.setup();
-				currentVisualisationMethod = TherapeuticPresence.GENERATIVE_TREE_VISUALISATION;
+			case TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION:
+				nextVisualisation = new GenerativeTree2DVisualisation(this,skeleton,audioManager);
+				nextVisualisation.setup();
+				currentVisualisationMethod = TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION;
+				break;
+				
+			case TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION:
+				nextVisualisation = new GenerativeTree3DVisualisation(this,skeleton,audioManager);
+				nextVisualisation.setup();
+				currentVisualisationMethod = TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION;
 				break;
 				
 			case TherapeuticPresence.GEOMETRY_2D_VISUALISATION:
-				visualisation = new Geometry2DVisualisation(this,skeleton,audioManager);
-				visualisation.setup();
+				nextVisualisation = new Geometry2DVisualisation(this,skeleton,audioManager);
+				nextVisualisation.setup();
 				currentVisualisationMethod = TherapeuticPresence.GEOMETRY_2D_VISUALISATION;
 				break;
 				
 			case TherapeuticPresence.GEOMETRY_3D_VISUALISATION:
-				visualisation = new Geometry3DVisualisation(this,skeleton,audioManager);
-				visualisation.setup();
+				nextVisualisation = new Geometry3DVisualisation(this,skeleton,audioManager);
+				nextVisualisation.setup();
 				currentVisualisationMethod = TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
 				break;
 			
 			default:
-				visualisation = new DepthMapVisualisation(this,kinect);
-				visualisation.setup();
+				nextVisualisation = new DepthMapVisualisation(this,kinect);
+				nextVisualisation.setup();
 				currentVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 				break;
 		}
@@ -215,22 +232,43 @@ public class TherapeuticPresence extends PApplet {
 	// -----------------------------------------------------------------
 	public void draw() {
 		// -------- update status --------------------------
-		if (kinect != null)
+		if (kinect != null) {
 			kinect.update();
-		if (skeleton != null && kinect.isTrackingSkeleton(skeleton.userId))
+		}
+		if (skeleton != null && kinect.isTrackingSkeleton(skeleton.userId)) {
 			skeleton.update();
-		if (audioManager != null)
+		}
+		if (audioManager != null) {
 			audioManager.update();
-		if (postureProcessing != null)
+		}
+		if (postureProcessing != null) {
 			postureProcessing.updatePosture();
+			postureProcessing.triggerAction();
+		}
 		
 		// -------- drawing --------------------------------
-		if (scene != null)
+		if (scene != null) {
 			scene.reset();
-		if (visualisation != null) 
+		}
+		
+		if (lastVisualisation != null) {
+			if (lastVisualisation.fadeOut()) { // true when visualisation has done fade out
+				lastVisualisation = null;
+			}
+		}
+		if (nextVisualisation != null) {
+			if (nextVisualisation.fadeIn()) { // true when visualisation has done fade in
+				visualisation = nextVisualisation;
+				nextVisualisation = null;
+			}
+		}
+		if (visualisation != null) { 
 			visualisation.draw();
-		if (guiHud != null)
+		}
+		
+		if (guiHud != null) {
 			guiHud.draw();
+		}
 
 	}
 	

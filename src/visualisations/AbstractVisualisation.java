@@ -11,4 +11,7 @@ public abstract class AbstractVisualisation {
 	public abstract void setup ();
 	public abstract void draw ();
 	public abstract short getVisualisationType ();
+	
+	public boolean fadeIn () { return true; }
+	public boolean fadeOut () { return true; }
 }
