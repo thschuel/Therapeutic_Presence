@@ -54,7 +54,7 @@ public class GenerativeTree2DVisualisation extends AbstractSkeletonAudioVisualis
 	}
 
 	public void draw() {
-		if (skeleton.isUpdated && audioManager.isUpdated) {
+		if (skeleton.isUpdated() && audioManager.isUpdated) {
 			float scale = skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect;
 			int branchCount = minBranches+PApplet.round(minBranches*scale);
 			float initialStrokeLength = scale*canvasHeight/3;

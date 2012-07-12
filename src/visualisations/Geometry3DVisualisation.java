@@ -80,7 +80,7 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	}
 	
 	public void draw () {
-		if (skeleton.isUpdated && audioManager.isUpdated) {
+		if (skeleton.isUpdated() && audioManager.isUpdated) {
 			updateCanvasCoordinates();
 			updateBezierCurves();
 			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);

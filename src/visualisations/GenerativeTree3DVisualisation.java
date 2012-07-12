@@ -61,7 +61,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	}
 
 	public void draw() {
-		if (skeleton.isUpdated && audioManager.isUpdated) {
+		if (skeleton.isUpdated() && audioManager.isUpdated) {
 			// center.z reacts to position of user with delay
 			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,TherapeuticPresence.lowerZBoundary,TherapeuticPresence.upperZBoundary);
 			centerz = PApplet.constrain(mappedDistance/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength,0,TunnelScene3D.tunnelLength);

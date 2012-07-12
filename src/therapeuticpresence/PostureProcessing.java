@@ -19,7 +19,7 @@ public class PostureProcessing {
 	public void updatePosture () {
 		timeSinceLastAction += 1f/mainApplet.frameRate;
 		
-		switch (skeleton.getUpperJointPosture()) {
+		switch (skeleton.evaluateUpperJointPosture()) {
 			case Skeleton.V_SHAPE:
 				vShapeCounter += 1f/mainApplet.frameRate;
 				if (activeShape != Skeleton.V_SHAPE) {
