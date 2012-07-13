@@ -75,7 +75,7 @@ public class Geometry2DVisualisation extends AbstractSkeletonAudioVisualisation 
 	}
 	
 	public void draw () {
-		if (skeleton.isUpdated() && audioManager.isUpdated) {
+		if (skeleton.isUpdated() && audioManager.isUpdated()) {
 			updateBezierCurves();
 			for (int i=0; i<bezierCurves.size(); i++) {
 				bezierCurves.get(i).draw(mainApplet);

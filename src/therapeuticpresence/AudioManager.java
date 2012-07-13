@@ -15,11 +15,11 @@ public class AudioManager implements AudioListener{
 	protected float[] rightChannelSamples = null;
 	protected FFT fft; 
 	public static float gain = 0.25f;
-	public float maxFFT;
+	protected float maxFFT;
 	protected float[] leftFFT = null;
 	protected float[] rightFFT = null;
 	
-	public boolean isUpdated = false;
+	protected boolean isUpdated = false;
 
 	public AudioManager (TherapeuticPresence _mainApplet) {
 		mainApplet = _mainApplet;
@@ -109,5 +109,14 @@ public class AudioManager implements AudioListener{
 	public void samples(float[] sampL, float[] sampR) {
 		leftChannelSamples = sampL;
 		rightChannelSamples = sampR;
+	}
+	
+
+	public float getMaxFFT() {
+		return maxFFT;
+	}
+
+	public boolean isUpdated() {
+		return isUpdated;
 	}
 }

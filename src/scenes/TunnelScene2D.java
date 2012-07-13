@@ -39,7 +39,7 @@ public class TunnelScene2D extends BasicScene2D {
 		// change colors based on audio stream
 		fftDCValue = audioManager.getMeanFFT(0);
 		fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/audioReactionDelay;
-		mainApplet.colorMode(PConstants.HSB,backgroundTintHueMax,1,audioManager.maxFFT,1);
+		mainApplet.colorMode(PConstants.HSB,backgroundTintHueMax,1,audioManager.getMaxFFT(),1);
 		backgroundColor = mainApplet.color(backgroundTintHue,1,fftDCValueDelayed,1);
 		// transition effect
 		circlesOffset += 1.0f/mainApplet.frameRate;

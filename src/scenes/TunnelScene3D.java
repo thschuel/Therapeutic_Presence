@@ -58,7 +58,7 @@ public class TunnelScene3D extends BasicScene3D {
 		// change colors based on audio stream
 		fftDCValue = audioManager.getMeanFFT(0);
 		fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/audioReactionDelay;
-		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,1,audioManager.maxFFT,1);
+		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,1,audioManager.getMaxFFT(),1);
 		backgroundTintColor = mainApplet.color(backgroundTintHue,1,fftDCValueDelayed,1);
 		backgroundColor = backgroundTintColor+0x00060606;
 		// update texture and draw background

@@ -19,16 +19,12 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	private float curlLeftLowerArm = 0;
 	private float curlRightUpperArm = 0;
 	private float curlLeftUpperArm = 0;
-	private float curlRight = 0;
-	private float curlLeft = 0;
 	private float orientationTree = 0;
 	private float downscaleStrokeLength = PApplet.sqrt(2)/2.f;
 	private float delay = 20;
 	private int minBranches = 5;
 	private int addBranches = 5;
-//	private float growth = 0;
-//	private float growthTarget = 0;
-//	private int branches = 17;
+	private int branchCount = 0;
 	
 	// colors of leafs
 	private int[] leafColors;
@@ -61,7 +57,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	}
 
 	public void draw() {
-		if (skeleton.isUpdated() && audioManager.isUpdated) {
+		if (skeleton.isUpdated() && audioManager.isUpdated()) {
 			// center.z reacts to position of user with delay
 			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,TherapeuticPresence.lowerZBoundary,TherapeuticPresence.upperZBoundary);
 			centerz = PApplet.constrain(mappedDistance/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength,0,TunnelScene3D.tunnelLength);
@@ -71,7 +67,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 
 			float actualScale = skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect;
 			float mappedScale = mappedDistance/TherapeuticPresence.maxDistanceToKinect;
-			int branchCount = minBranches+PApplet.round(addBranches*actualScale);
+			int branchDepth = minBranches+PApplet.round(addBranches*actualScale);
 			float initialStrokeLength = mappedScale*height/3;
 			
 			// get angles for drawing
@@ -84,18 +80,18 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			// TODO this is a hack. find solution to switch on/off mirroring of kinect
 			if (!TherapeuticPresence.mirrorKinect) {
 				// trees react to body posture with a delay
-				curlLeftLowerArm += (angleRightLowerArm*0.5-curlLeftLowerArm)/delay;
-				curlRightLowerArm += (angleLeftLowerArm*0.5-curlRightLowerArm)/delay;		
+				curlLeftLowerArm += (angleRightLowerArm*0.5-curlLeftLowerArm)/delay;		
 				curlLeftUpperArm += (angleRightUpperArm*0.5-curlLeftUpperArm)/delay;
+				curlRightLowerArm += (angleLeftLowerArm*0.5-curlRightLowerArm)/delay;
 				curlRightUpperArm += (angleLeftUpperArm*0.5-curlRightUpperArm)/delay;		
-				orientationTree += (-orientationSkeleton*0.8-orientationTree)/delay;
+				orientationTree += (orientationSkeleton*0.8-orientationTree)/delay;
 			} else {
 				// trees react to body posture with a delay
 				curlLeftLowerArm += (angleLeftLowerArm*0.5-curlLeftLowerArm)/delay;
-				curlRightLowerArm += (angleRightLowerArm*0.5-curlRightLowerArm)/delay;		
 				curlLeftUpperArm += (angleLeftUpperArm*0.5-curlLeftUpperArm)/delay;
+				curlRightLowerArm += (angleRightLowerArm*0.5-curlRightLowerArm)/delay;		
 				curlRightUpperArm += (angleRightUpperArm*0.5-curlRightUpperArm)/delay;	
-				orientationTree += (orientationSkeleton*0.8-orientationTree)/delay;
+				orientationTree += (-orientationSkeleton*0.8-orientationTree)/delay;
 			}
 			
 			// draw trunk of the tree
@@ -110,52 +106,53 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			mainApplet.rotateY(orientationTree);
 			
 			// colors of leafs differ in HSB-space
-			colorsStepSize = colorsSize/PApplet.pow(2,branchCount); 
+			colorsStepSize = colorsSize/PApplet.pow(2,branchDepth); 
 			actColorIndex = 0.f;
 			// sizes of leafs differ according to music samples
-			sampleStepSize = audioManager.getBufferSize()/PApplet.pow(2,branchCount);
+			sampleStepSize = audioManager.getBufferSize()/PApplet.pow(2,branchDepth);
 			actSampleIndex = 0f;
 
 			// start branching
-			curlLeft = curlLeftUpperArm;
-			curlRight = curlRightUpperArm;
-			branch(initialStrokeLength*downscaleStrokeLength,branchCount,strokeWeight*downScale);
-			
+			branchCount = branchDepth;
+			branch(initialStrokeLength*downscaleStrokeLength,branchDepth,strokeWeight*downScale);
+
 			mainApplet.popMatrix();
 		}
 		
 	}
 	
-	private void branch(float length, int count, float strokeWeight) {
-		length *= downscaleStrokeLength;
-		count -= 1;
-		if ((length > 1) && (count > 0)) {
+	private void branch(float _strokeLength, int _branchDepth, float _strokeWeight) {
+		_strokeLength *= downscaleStrokeLength;
+		_branchDepth -= 1;
+		if ((_strokeLength > 1) && (_branchDepth > 0)) {
 		    // draw branch and go ahead
 			mainApplet.pushMatrix();
 		    
-			mainApplet.rotateZ(-curlLeft); // rotate works clockwise
-			// TODO: check why this doesnt work
-			if (curlLeft == curlLeftLowerArm) curlLeft = curlLeftUpperArm; // alternating angles
-			else curlLeft = curlLeftLowerArm;
+			if ((branchCount-_branchDepth)%2 == 0) { // alternating use of upper/lower arm
+				mainApplet.rotateZ(-curlLeftLowerArm); // rotate clockwise
+			} else {
+				mainApplet.rotateZ(-curlLeftUpperArm); // rotate clockwise
+			}
 			mainApplet.stroke(strokeColor,transparency);
-			mainApplet.strokeWeight(strokeWeight);
-			mainApplet.line(0,0,0,0,length,0);
-			mainApplet.translate(0,length,0);
-		    branch(length,count,strokeWeight*downScale);
+			mainApplet.strokeWeight(_strokeWeight);
+			mainApplet.line(0,0,0,0,_strokeLength,0);
+			mainApplet.translate(0,_strokeLength,0);
+		    branch(_strokeLength,_branchDepth,_strokeWeight*downScale);
 		    
 		    mainApplet.popMatrix();
 	      
 		    mainApplet.pushMatrix();
-		    
-		    mainApplet.rotateZ(curlRight);
-		 // TODO: check why this doesnt work
-			if (curlRight == curlRightLowerArm) curlRight = curlRightUpperArm; // alternating angles
-			else curlRight = curlRightLowerArm;
+
+			if ((branchCount-_branchDepth)%2 == 0) { // alternating use of upper/lower arm
+				mainApplet.rotateZ(curlRightLowerArm); // rotate clockwise
+			} else {
+				mainApplet.rotateZ(curlRightUpperArm); // rotate clockwise
+			}
 			mainApplet.stroke(strokeColor,transparency);
-			mainApplet.strokeWeight(strokeWeight);
-			mainApplet.line(0,0,0,0,length,0);
-		    mainApplet.translate(0,length,0);
-		    branch(length,count,strokeWeight*downScale);
+			mainApplet.strokeWeight(_strokeWeight);
+			mainApplet.line(0,0,0,0,_strokeLength,0);
+		    mainApplet.translate(0,_strokeLength,0);
+		    branch(_strokeLength,_branchDepth,_strokeWeight*downScale);
 		    
 		    mainApplet.popMatrix();
 		} else {
