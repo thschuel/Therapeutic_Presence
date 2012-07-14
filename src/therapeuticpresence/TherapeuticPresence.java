@@ -39,10 +39,12 @@ public class TherapeuticPresence extends PApplet {
 	public static final short GENERATIVE_TREE_3D_VISUALISATION = 3;
 	public static final short GEOMETRY_2D_VISUALISATION = 4;
 	public static final short GEOMETRY_3D_VISUALISATION = 5;
+	public static final short ELLIPSOIDAL_3D_VISUALISATION = 6;
 	public static final short BASIC_SCENE2D = 0;
 	public static final short BASIC_SCENE3D = 1;
 	public static final short TUNNEL_SCENE2D = 2;
 	public static final short TUNNEL_SCENE3D = 3;
+
 
 	
 	// --- static setup variables ---
@@ -212,6 +214,12 @@ public class TherapeuticPresence extends PApplet {
 				nextVisualisation = new Geometry3DVisualisation(this,skeleton,audioManager);
 				nextVisualisation.setup();
 				currentVisualisationMethod = TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
+				break;
+				
+			case TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION:
+				nextVisualisation = new Ellipsoidal3DVisualisation(this,skeleton,audioManager);
+				nextVisualisation.setup();
+				currentVisualisationMethod = TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION;
 				break;
 			
 			default:
