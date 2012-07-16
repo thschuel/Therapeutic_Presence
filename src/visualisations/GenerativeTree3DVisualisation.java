@@ -71,33 +71,35 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			float initialStrokeLength = mappedScale*height/3;
 			
 			// get angles for drawing
-			PVector bodyAxis = PVector.sub(skeleton.getJointProjective(Skeleton.HEAD),skeleton.getJointProjective(Skeleton.TORSO));
-			PVector leftUpperArm = PVector.sub(skeleton.getJointProjective(Skeleton.LEFT_ELBOW),skeleton.getJointProjective(Skeleton.LEFT_SHOULDER));
-			PVector rightUpperArm = PVector.sub(skeleton.getJointProjective(Skeleton.RIGHT_ELBOW),skeleton.getJointProjective(Skeleton.RIGHT_SHOULDER));
-			PVector leftLowerArm = PVector.sub(skeleton.getJointProjective(Skeleton.LEFT_HAND),skeleton.getJointProjective(Skeleton.LEFT_ELBOW));
-			PVector rightLowerArm = PVector.sub(skeleton.getJointProjective(Skeleton.RIGHT_HAND),skeleton.getJointProjective(Skeleton.RIGHT_ELBOW));
-			
-			
-			float angleLeftUpperArm = PVector.angleBetween(leftUpperArm,bodyAxis);//skeleton.angleToLocalYAxis(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER); 
-			float angleRightUpperArm = PVector.angleBetween(rightUpperArm,bodyAxis);//skeleton.angleToLocalYAxis(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
-			float angleLeftLowerArm = PVector.angleBetween(leftLowerArm,leftUpperArm);//skeleton.angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER,Skeleton.LEFT_HAND,Skeleton.LEFT_ELBOW); 
-			float angleRightLowerArm =  PVector.angleBetween(rightLowerArm,rightUpperArm);//skeleton.angleBetween(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW); 
+//			PVector bodyAxis = skeleton.getOrientationYProjective();
+//			PVector leftUpperArm = PVector.sub(skeleton.getJointProjective(Skeleton.LEFT_ELBOW),skeleton.getJointProjective(Skeleton.LEFT_SHOULDER));
+//			PVector rightUpperArm = PVector.sub(skeleton.getJointProjective(Skeleton.RIGHT_ELBOW),skeleton.getJointProjective(Skeleton.RIGHT_SHOULDER));
+//			PVector leftLowerArm = PVector.sub(skeleton.getJointProjective(Skeleton.LEFT_HAND),skeleton.getJointProjective(Skeleton.LEFT_ELBOW));
+//			PVector rightLowerArm = PVector.sub(skeleton.getJointProjective(Skeleton.RIGHT_HAND),skeleton.getJointProjective(Skeleton.RIGHT_ELBOW));
+//			float angleLeftUpperArm = PVector.angleBetween(leftUpperArm,bodyAxis);
+//			float angleRightUpperArm = PVector.angleBetween(rightUpperArm,bodyAxis);
+//			float angleLeftLowerArm = PVector.angleBetween(leftLowerArm,leftUpperArm);
+//			float angleRightLowerArm =  PVector.angleBetween(rightLowerArm,rightUpperArm);
+			float angleLeftUpperArm = skeleton.angleToLocalYAxis(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER); 
+			float angleRightUpperArm = skeleton.angleToLocalYAxis(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
+			float angleLeftLowerArm = skeleton.angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER,Skeleton.LEFT_HAND,Skeleton.LEFT_ELBOW); 
+			float angleRightLowerArm =  skeleton.angleBetween(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW); 
 			float orientationSkeleton = PVector.angleBetween(new PVector(0,0,1),skeleton.getOrientationX()) - PConstants.HALF_PI;
 			
 			// TODO this is a hack. find solution to switch on/off mirroring of kinect
 			if (!TherapeuticPresence.mirrorKinect) {
 				// trees react to body posture with a delay
-				curlLeftLowerArm += (angleRightLowerArm*0.5-curlLeftLowerArm)/delay;		
-				curlLeftUpperArm += (angleRightUpperArm*0.5-curlLeftUpperArm)/delay;
-				curlRightLowerArm += (angleLeftLowerArm*0.5-curlRightLowerArm)/delay;
-				curlRightUpperArm += (angleLeftUpperArm*0.5-curlRightUpperArm)/delay;		
+				curlLeftLowerArm += (angleRightLowerArm*0.7-curlLeftLowerArm)/delay;		
+				curlLeftUpperArm += (angleRightUpperArm*0.7-curlLeftUpperArm)/delay;
+				curlRightLowerArm += (angleLeftLowerArm*0.7-curlRightLowerArm)/delay;
+				curlRightUpperArm += (angleLeftUpperArm*0.7-curlRightUpperArm)/delay;		
 				orientationTree += (orientationSkeleton*0.8-orientationTree)/delay;
 			} else {
 				// trees react to body posture with a delay
-				curlLeftLowerArm += (angleLeftLowerArm*0.5-curlLeftLowerArm)/delay;
-				curlLeftUpperArm += (angleLeftUpperArm*0.5-curlLeftUpperArm)/delay;
-				curlRightLowerArm += (angleRightLowerArm*0.5-curlRightLowerArm)/delay;		
-				curlRightUpperArm += (angleRightUpperArm*0.5-curlRightUpperArm)/delay;	
+				curlLeftLowerArm += (angleLeftLowerArm*0.7-curlLeftLowerArm)/delay;
+				curlLeftUpperArm += (angleLeftUpperArm*0.7-curlLeftUpperArm)/delay;
+				curlRightLowerArm += (angleRightLowerArm*0.7-curlRightLowerArm)/delay;		
+				curlRightUpperArm += (angleRightUpperArm*0.7-curlRightUpperArm)/delay;	
 				orientationTree += (-orientationSkeleton*0.8-orientationTree)/delay;
 			}
 			

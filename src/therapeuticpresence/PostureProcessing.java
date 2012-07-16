@@ -45,8 +45,8 @@ public class PostureProcessing {
 	}
 	
 	public void triggerAction () {
-		if (timeSinceLastAction > 2f) {
-			if (oShapeCounter > 1.2f) {
+		if (timeSinceLastAction > 1.5f) {
+			if (oShapeCounter > 0.7f) {
 				if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
 					mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
 					mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);

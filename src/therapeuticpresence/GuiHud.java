@@ -46,7 +46,7 @@ public class GuiHud {
 		// reset camera to draw HUD
 		g3.camera();
 	    // update fps Text
-	    fps.setText("fps: "+PApplet.round(mainApplet.frameRate)+" active Shape: "+PostureProcessing.activeShape);
+	    fps.setText("active Shape: "+PostureProcessing.activeShape+" fps: "+PApplet.round(mainApplet.frameRate));
 	    // toggle debug output
 	    if (!TherapeuticPresence.debugOutput) {
 			guiMessages.hide();

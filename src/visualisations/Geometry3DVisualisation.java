@@ -6,6 +6,7 @@ import scenes.TunnelScene3D;
 import therapeuticpresence.*;
 import therapeuticskeleton.Skeleton;
 import utils.BezierCurve3D;
+import utils.Constants;
 
 public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	
@@ -116,32 +117,27 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	}
 	
 	private void updateBezierCurves () {
-		float angleLeftUpperArm = skeleton.angleToYAxis(Skeleton.LEFT_SHOULDER,Skeleton.LEFT_ELBOW);
-		float angleRightUpperArm = skeleton.angleToYAxis(Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_ELBOW);
+		float angleLeftUpperArm = skeleton.angleToYAxis(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER);
+		float angleRightUpperArm = skeleton.angleToYAxis(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
 		float angleLeftLowerArm = skeleton.angleBetween(Skeleton.LEFT_HAND,Skeleton.LEFT_ELBOW,Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER);
 		float angleRightLowerArm = skeleton.angleBetween(Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
 		
-		
 		// check for angles not to reach out of quadrants.
-		if(angleLeftUpperArm+angleLeftLowerArm > PConstants.PI) {
-			angleLeftLowerArm = PConstants.PI - angleLeftUpperArm;
-		}
-		if(angleRightUpperArm+angleRightLowerArm > PConstants.PI) {
-			angleRightLowerArm = PConstants.PI - angleRightUpperArm;
-		}
-		
-		// shift angles of upper arms by 90 degree to use calculations in polar coordinates
-		angleLeftUpperArm = (angleLeftUpperArm+PConstants.HALF_PI)%PConstants.PI;
-		angleRightUpperArm = (angleRightUpperArm+PConstants.HALF_PI)%PConstants.PI;
-		// shift angles of lower arms by angles of upper arms to use calculations in polar coordinates
-		angleLeftLowerArm = (angleLeftLowerArm+angleLeftUpperArm)%PConstants.PI;
-		angleRightLowerArm = (angleRightLowerArm+angleRightUpperArm)%PConstants.PI;
+		angleLeftUpperArm = PApplet.constrain(angleLeftUpperArm,Constants.QUARTER_PI,Constants.THREE_QUARTER_PI);
+		angleRightUpperArm = PApplet.constrain(angleRightUpperArm,Constants.QUARTER_PI,Constants.THREE_QUARTER_PI);
+		angleLeftLowerArm = PApplet.constrain(angleLeftLowerArm,0,Constants.HALF_PI-(Constants.THREE_QUARTER_PI-angleLeftUpperArm));
+		angleRightLowerArm = PApplet.constrain(angleRightLowerArm,0,Constants.HALF_PI-(Constants.THREE_QUARTER_PI-angleRightUpperArm));
 		
 		// use negative angles because kinect data comes upside down
-		angleLeftUpperArm = -angleLeftUpperArm;
-		angleRightUpperArm = -angleRightUpperArm;
 		angleLeftLowerArm = -angleLeftLowerArm;
 		angleRightLowerArm = -angleRightLowerArm;
+		
+		// shift angles of upper arms by 90 degree to use calculations in polar coordinates
+		angleLeftUpperArm = (angleLeftUpperArm+Constants.HALF_PI)%Constants.PI;
+		angleRightUpperArm = (angleRightUpperArm+Constants.HALF_PI)%Constants.PI;
+		// shift angles of lower arms by angles of upper arms to use calculations in polar coordinates
+		angleLeftLowerArm = (angleLeftLowerArm+angleLeftUpperArm)%Constants.PI;
+		angleRightLowerArm = (angleRightLowerArm+angleRightUpperArm)%Constants.PI;
 		
 		// actual coordinates
 		float left2YNew = center.y+(left2.x-center.x)*PApplet.sin(angleLeftUpperArm)/PApplet.cos(angleLeftUpperArm);
