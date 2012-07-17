@@ -46,7 +46,7 @@ public class GuiHud {
 		// reset camera to draw HUD
 		g3.camera();
 	    // update fps Text
-	    fps.setText("active Shape: "+PostureProcessing.activeShape+" fps: "+PApplet.round(mainApplet.frameRate));
+	    fps.setText("shape: "+PostureProcessing.activeShape+" fps: "+PApplet.round(mainApplet.frameRate));
 	    // toggle debug output
 	    if (!TherapeuticPresence.debugOutput) {
 			guiMessages.hide();
@@ -77,15 +77,16 @@ public class GuiHud {
 									"shift+up/+down = +/-rotateZ \n" +
 									"o/l = save/load calibration data \n" +
 									"m = toggle mirror kinect data",
-									3,mainApplet.height-170,145,150);
-		fps = control.addTextarea("fpsArea","",3,mainApplet.height-20,145,20);
+									3,mainApplet.height-200,145,150);
+		fps = control.addTextarea("fpsArea","",3,mainApplet.height-50,300,50);
+		fps.setFont(mainApplet.createFont("Arial",34));
 	}
 	
 	
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,150);
-		menu.setBackgroundHeight(260);
+		menu.setBackgroundHeight(280);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -159,6 +160,11 @@ public class GuiHud {
 		maxDistanceToKinect.moveTo(menu);
 		maxDistanceToKinect.setCaptionLabel("Max dist");
 		maxDistanceToKinect.plugTo(this);
+		
+		controlP5.Slider postureTolerance = control.addSlider("changePostureTolerance",0.0f,1.0f,TherapeuticPresence.postureTolerance,0,260,108,20);
+		postureTolerance.moveTo(menu);
+		postureTolerance.setCaptionLabel("Posture Tolerance");
+		postureTolerance.plugTo(this);
 	}
 	
 	
@@ -230,5 +236,7 @@ public class GuiHud {
 		TherapeuticPresence.maxDistanceToKinect = theValue;
 	}
 	
-
+	private void changePostureTolerance (float theValue) {
+		mainApplet.changePostureTolerance(theValue);
+	}
 }

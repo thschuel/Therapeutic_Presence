@@ -9,6 +9,8 @@ public class PostureProcessing {
 	// using counter for now
 	private float vShapeCounter = 0f; // seconds V Shape occured in a row
 	private float oShapeCounter = 0f; // seconds O Shape occured in a row
+	private float nShapeCounter = 0f;
+	private float namasteShapeCounter = 0f;
 	private float timeSinceLastAction = 0f; // seconds since last switch
 	
 	public PostureProcessing (TherapeuticPresence _mainApplet, Skeleton _skeleton) {
@@ -24,20 +26,44 @@ public class PostureProcessing {
 				vShapeCounter += 1f/mainApplet.frameRate;
 				if (activeShape != Skeleton.V_SHAPE) {
 					oShapeCounter = 0f;
+					nShapeCounter = 0f;
+					namasteShapeCounter = 0f;
 					activeShape = Skeleton.V_SHAPE;
+				}
+				break;
+			case Skeleton.N_SHAPE:
+				nShapeCounter += 1f/mainApplet.frameRate;
+				if (activeShape != Skeleton.N_SHAPE) {
+					vShapeCounter = 0f;
+					oShapeCounter = 0f;
+					namasteShapeCounter = 0f;
+					activeShape = Skeleton.N_SHAPE;
 				}
 				break;
 			case Skeleton.O_SHAPE:
 				oShapeCounter += 1f/mainApplet.frameRate;
 				if (activeShape != Skeleton.O_SHAPE) {
 					vShapeCounter = 0f;
+					nShapeCounter = 0f;
+					namasteShapeCounter = 0f;
 					activeShape = Skeleton.O_SHAPE;
+				}
+				break;
+			case Skeleton.NAMASTE_SHAPE:
+				namasteShapeCounter += 1f/mainApplet.frameRate;
+				if (activeShape != Skeleton.NAMASTE_SHAPE) {
+					vShapeCounter = 0f;
+					nShapeCounter = 0f;
+					oShapeCounter = 0f;
+					activeShape = Skeleton.NAMASTE_SHAPE;
 				}
 				break;
 			default:
 				if (activeShape != Skeleton.NO_SHAPE) {
 					oShapeCounter = 0f;
-					vShapeCounter =0f;
+					vShapeCounter = 0f;
+					nShapeCounter = 0f;
+					namasteShapeCounter = 0f;
 					activeShape = Skeleton.NO_SHAPE;
 				}
 				break;
@@ -65,6 +91,10 @@ public class PostureProcessing {
 				return vShapeCounter;
 			case Skeleton.O_SHAPE:
 				return oShapeCounter;
+			case Skeleton.N_SHAPE:
+				return nShapeCounter;
+			case Skeleton.NAMASTE_SHAPE:
+				return namasteShapeCounter;
 			default:
 				return 0f;
 		}

@@ -45,8 +45,6 @@ public class TherapeuticPresence extends PApplet {
 	public static final short TUNNEL_SCENE2D = 2;
 	public static final short TUNNEL_SCENE3D = 3;
 
-
-	
 	// --- static setup variables ---
 	public static boolean fullBodyTracking = false; // control for full body tracking
 	public static boolean calculateLocalCoordSys = true; // control for full body tracking
@@ -64,6 +62,7 @@ public class TherapeuticPresence extends PApplet {
 	public static float maxDistanceToKinect = 2500f; // in mm 
 	public static float lowerZBoundary = 0.45f*maxDistanceToKinect; // to control z position of drawing within a narrow corridor
 	public static float upperZBoundary = 0.78f*maxDistanceToKinect;
+	public static float postureTolerance = Skeleton.DEFAULT_POSTURE_TOLERANCE;
 	
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
@@ -322,6 +321,18 @@ public class TherapeuticPresence extends PApplet {
 		
 		if (skeleton != null) 
 			skeleton.setMirrorTherapy(mirrorTherapy);
+	}
+	
+	public void changePostureTolerance (float _postureTolerance) {
+		if (skeleton != null) {
+			if (_postureTolerance >= 0f && _postureTolerance <= 1.0f) {
+				postureTolerance = _postureTolerance;
+				skeleton.setPostureTolerance(postureTolerance);
+			} else { 
+				postureTolerance = Skeleton.DEFAULT_POSTURE_TOLERANCE;
+				skeleton.setPostureTolerance(postureTolerance);
+			}
+		}
 	}
 	
 	// -----------------------------------------------------------------
