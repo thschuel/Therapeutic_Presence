@@ -180,7 +180,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	}
 
 	public short getVisualisationType() {
-		return TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION;
+		return TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION;
 	}
 
 }

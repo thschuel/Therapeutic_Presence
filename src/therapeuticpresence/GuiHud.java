@@ -46,7 +46,19 @@ public class GuiHud {
 		// reset camera to draw HUD
 		g3.camera();
 	    // update fps Text
-	    fps.setText("shape: "+PostureProcessing.activeShape+" fps: "+PApplet.round(mainApplet.frameRate));
+		String shapeString = "";
+		switch (PostureProcessing.activeShape) {
+			case Skeleton.V_SHAPE: shapeString="V"; break;
+			case Skeleton.A_SHAPE: shapeString="A"; break;
+			case Skeleton.U_SHAPE: shapeString="U"; break;
+			case Skeleton.N_SHAPE: shapeString="N"; break;
+			case Skeleton.M_SHAPE: shapeString="M"; break;
+			case Skeleton.W_SHAPE: shapeString="W"; break;
+			case Skeleton.O_SHAPE: shapeString="O"; break;
+			case Skeleton.I_SHAPE: shapeString="I"; break;
+			default: shapeString="NO"+PostureProcessing.activeShape; break;
+		}
+	    fps.setText("shape: "+shapeString+" fps: "+PApplet.round(mainApplet.frameRate));
 	    // toggle debug output
 	    if (!TherapeuticPresence.debugOutput) {
 			guiMessages.hide();
@@ -86,7 +98,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,150);
-		menu.setBackgroundHeight(280);
+		menu.setBackgroundHeight(300);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -165,6 +177,11 @@ public class GuiHud {
 		postureTolerance.moveTo(menu);
 		postureTolerance.setCaptionLabel("Posture Tolerance");
 		postureTolerance.plugTo(this);
+		
+		controlP5.Slider smoothingSkeleton = control.addSlider("changeSmoothingSkeleton",0.0f,1.0f,TherapeuticPresence.smoothingSkeleton,0,280,108,20);
+		smoothingSkeleton.moveTo(menu);
+		smoothingSkeleton.setCaptionLabel("Skeleton Smoothing");
+		smoothingSkeleton.plugTo(this);
 	}
 	
 	
@@ -235,8 +252,11 @@ public class GuiHud {
 	private void changeMaxDistanceToKinect (float theValue) {
 		TherapeuticPresence.maxDistanceToKinect = theValue;
 	}
-	
+
 	private void changePostureTolerance (float theValue) {
 		mainApplet.changePostureTolerance(theValue);
+	}
+	private void changeSmoothingSkeleton (float theValue) {
+		mainApplet.changeSmoothingSkeleton(theValue);
 	}
 }

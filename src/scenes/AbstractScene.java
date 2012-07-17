@@ -14,4 +14,11 @@ public abstract class AbstractScene {
 	public abstract void reset ();
 	public abstract short getSceneType ();
 	public abstract boolean sceneIs3D ();
+	
+	public void setBackgroundColor (int _backgroundColor) {
+		backgroundColor = _backgroundColor;
+	}
+	public int getBackgroundColor () {
+		return backgroundColor;
+	}
 }
