@@ -32,15 +32,14 @@ public class TunnelScene2D extends BasicScene2D {
 	}
 
 	public void reset() {
-		// reset the scene
-		mainApplet.background(backgroundColor);
-		mainApplet.camera(); // reset the camera for 2d drawing
-		drawTunnel();
 		// change colors based on audio stream
 		fftDCValue = audioManager.getMeanFFT(0);
 		fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/audioReactionDelay;
-		mainApplet.colorMode(PConstants.HSB,backgroundTintHueMax,1,audioManager.getMaxFFT(),1);
-		backgroundColor = mainApplet.color(backgroundTintHue,1,fftDCValueDelayed,1);
+		mainApplet.colorMode(PConstants.HSB,backgroundTintHueMax,1,audioManager.getMaxFFT(),100);
+		defaultBackgroundColor = mainApplet.color(backgroundTintHue,1,fftDCValueDelayed,100);
+		// reset the scene
+		super.reset();
+		drawTunnel();
 		// transition effect
 		circlesOffset += 1.0f/mainApplet.frameRate;
 		if (circlesOffset > 1.0f) circlesOffset = 0.0f;

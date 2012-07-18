@@ -178,6 +178,9 @@ public class TherapeuticPresence extends PApplet {
 				currentSceneType = TherapeuticPresence.BASIC_SCENE3D;
 				break;
 		}
+		if (postureProcessing != null) {
+			postureProcessing.setScene(scene);
+		}
 	}
 	
 	public void setupVisualisation (short _visualisationMethod) {
@@ -307,6 +310,7 @@ public class TherapeuticPresence extends PApplet {
 			debugMessage("skeletonLost: User id "+_userId+" outside range. Maximum users: "+TherapeuticPresence.MAX_USERS);
 		} else {
 			skeleton = null;
+			postureProcessing = null;
 			setupScene(initialSceneType);
 			setupVisualisation(initialVisualisationMethod);
 			int[] users = kinect.getUsers();

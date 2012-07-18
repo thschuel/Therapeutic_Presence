@@ -28,6 +28,7 @@ public class TunnelScene3D extends BasicScene3D {
 	protected int backgroundTintColor = 0;
 	protected int backgroundTintHueMax = 255;
 	protected int backgroundTintHue = 120;
+	protected int defaultBackgroundHighlightColor = 0x10ffffff;
 	protected float audioReactionDelay = 12f;
 	protected float fftDCValue=0f;
 	protected float fftDCValueDelayed=0f;
@@ -44,7 +45,6 @@ public class TunnelScene3D extends BasicScene3D {
 		tunnelTube.rotateBy(-PConstants.PI/2,0,0);
 		tunnelTube.z(tunnelLength/2f-1f);
 		tunnelTube.visible(false,Tube.BOTH_CAP);
-		
 		// basic components for texture animation
 		textureWallsVer = mainApplet.loadImage("../data/textureTunnel.png");
 		textureWallsHor = mainApplet.loadImage("../data/textureTunnelCrossline.png");
@@ -54,13 +54,14 @@ public class TunnelScene3D extends BasicScene3D {
 	}
 	
 	public void reset () {
-		super.reset();
 		// change colors based on audio stream
 		fftDCValue = audioManager.getMeanFFT(0);
 		fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/audioReactionDelay;
-		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,1,audioManager.getMaxFFT(),1);
-		backgroundTintColor = mainApplet.color(backgroundTintHue,1,fftDCValueDelayed,1);
-		backgroundColor = backgroundTintColor+0x00060606;
+		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,1,audioManager.getMaxFFT(),100);
+		backgroundTintColor = mainApplet.color(backgroundTintHue,1,fftDCValueDelayed,100);
+		defaultBackgroundColor = PApplet.blendColor(backgroundTintColor,defaultBackgroundHighlightColor,PConstants.BLEND);
+		backgroundTintColor = PApplet.blendColor(backgroundTintColor,alertColor,PConstants.BLEND);
+		super.reset();
 		// update texture and draw background
 		updateTexture();
 		tunnelTube.setTexture(textureWalls.get(),10,1);
