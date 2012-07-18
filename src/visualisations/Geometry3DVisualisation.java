@@ -26,8 +26,9 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	protected ArrayList<BezierCurve3D> bezierCurves = new ArrayList<BezierCurve3D>();
 	
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
-	protected float width, height;
-	protected float centerz;
+	protected float width=0, height=0;
+	protected float centerZ=0;
+	protected float fadeInCenterZ=0;
 	
 	// these values are used for drawing the bezier curves
 	protected final float delay = 8f;
@@ -42,21 +43,12 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	}
 	
 	public void setup() {
-		centerz = PApplet.constrain(skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength,0,TunnelScene3D.tunnelLength);
-		width = TunnelScene3D.getTunnelWidthAt(centerz);
-		height = TunnelScene3D.getTunnelHeightAt(centerz);
-		// coordinates based on canvas size
-		updateCanvasCoordinates();
 	}
 	
 	public void updateCanvasCoordinates () {
-		// center.z reacts to position of user with delay
-		centerz += (skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength-centerz)/delay;
-		centerz = PApplet.constrain(centerz,0,TunnelScene3D.tunnelLength);
-	    center.set(0,0,centerz);
-		width = TunnelScene3D.getTunnelWidthAt(centerz);
-		height = TunnelScene3D.getTunnelHeightAt(centerz);
-
+	    center.set(0,0,centerZ);
+		width = TunnelScene3D.getTunnelWidthAt(centerZ);
+		height = TunnelScene3D.getTunnelHeightAt(centerZ);
 		left1.x = center.x-width/2;
 		left2.x = center.x-width/4;
 		right2.x = center.x+width/4;
@@ -67,7 +59,6 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 		anchorR3.x = center.x+width/8;
 		anchorR2.x = center.x+3*width/8;
 		anchorR1.x = center.x+5*width/8;
-
 		left1.z += (center.z + skeleton.getJoint(Skeleton.LEFT_HAND).z-skeleton.getJoint(Skeleton.LEFT_SHOULDER).z - left1.z)/delay;
 		left2.z += (center.z + skeleton.getJoint(Skeleton.LEFT_ELBOW).z-skeleton.getJoint(Skeleton.LEFT_SHOULDER).z - left2.z)/delay;
 		right2.z += (center.z + skeleton.getJoint(Skeleton.RIGHT_ELBOW).z-skeleton.getJoint(Skeleton.RIGHT_SHOULDER).z - right2.z)/delay;
@@ -82,6 +73,9 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	
 	public void draw () {
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
+			// center.z reacts to position of user with delay
+			centerZ += (skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength-centerZ)/delay;
+			centerZ = PApplet.constrain(centerZ,0,TunnelScene3D.tunnelLength);
 			updateCanvasCoordinates();
 			updateBezierCurves();
 			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
@@ -93,10 +87,26 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	}
 	
 	public boolean fadeIn () {
-		return true;
+		if (skeleton.isUpdated() && audioManager.isUpdated()) {
+			// center.z reacts to position of user with delay
+			fadeInCenterZ+=skeleton.distanceToKinect()/mainApplet.frameRate;
+			centerZ += (fadeInCenterZ/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength-centerZ)/delay;
+			centerZ = PApplet.constrain(centerZ,0,TunnelScene3D.tunnelLength);
+			updateCanvasCoordinates();
+			updateBezierCurves();
+			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
+			mainApplet.strokeWeight(strokeWeight);
+			for (int i=0; i<bezierCurves.size(); i++) {
+				bezierCurves.get(i).draw(mainApplet);
+			}
+			if (fadeInCenterZ >= skeleton.distanceToKinect()) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
-	// Fade out method is used to blend between visualisations. it should be over in 20 frames!!!
+	// Fade out method is used to blend between visualisations.
 	public boolean fadeOut () {
 		// clean up bezierCurves ArrayList
 		for (int i=0;i<bezierCurves.size();i++) {

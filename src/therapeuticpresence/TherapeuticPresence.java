@@ -46,15 +46,15 @@ public class TherapeuticPresence extends PApplet {
 	public static final short TUNNEL_SCENE3D = 3;
 
 	// --- static setup variables ---
-	public static boolean fullBodyTracking = false; // control for full body tracking
+	public static boolean fullBodyTracking = true; // control for full body tracking
 	public static boolean calculateLocalCoordSys = true; // control for full body tracking
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = true;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
-	public static short defaultVisualisationMethod = TherapeuticPresence.STICKFIGURE_VISUALISATION;
+	public static short defaultVisualisationMethod = TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
 	public static short currentVisualisationMethod;
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
-	public static short defaultSceneType = TherapeuticPresence.BASIC_SCENE3D;
+	public static short defaultSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
 	public static short currentSceneType;
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
@@ -62,7 +62,7 @@ public class TherapeuticPresence extends PApplet {
 	public static float maxDistanceToKinect = 2500f; // in mm 
 	public static float lowerZBoundary = 0.45f*maxDistanceToKinect; // to control z position of drawing within a narrow corridor
 	public static float upperZBoundary = 0.78f*maxDistanceToKinect;
-	public static final float DEFAULT_POSTURE_TOLERANCE = 0.1f;
+	public static final float DEFAULT_POSTURE_TOLERANCE = 0.3f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
 	public static final float DEFAULT_SMOOTHING_SKELETON = 0.8f;
 	public static float smoothingSkeleton = TherapeuticPresence.DEFAULT_SMOOTHING_SKELETON;
@@ -184,7 +184,6 @@ public class TherapeuticPresence extends PApplet {
 	}
 	
 	public void setupVisualisation (short _visualisationMethod) {
-		
 		// prepare for fade out
 		lastVisualisation = visualisation;
 		visualisation = null;

@@ -56,6 +56,7 @@ public class GuiHud {
 			case Skeleton.W_SHAPE: shapeString="W"; break;
 			case Skeleton.O_SHAPE: shapeString="O"; break;
 			case Skeleton.I_SHAPE: shapeString="I"; break;
+			case Skeleton.HANDS_FORWARD_DOWN_POSE: shapeString="HF"; break;
 			default: shapeString="NO"+PostureProcessing.activeShape; break;
 		}
 	    fps.setText("shape: "+shapeString+" fps: "+PApplet.round(mainApplet.frameRate));

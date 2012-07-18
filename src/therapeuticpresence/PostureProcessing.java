@@ -11,9 +11,9 @@ public class PostureProcessing {
 
 	public static final float timeHoldShapeToTrigger = 1.7f;
 	public static final float timeBlockTrigger = 2.5f;
-	public static short activeShape = Skeleton.NO_SHAPE;
+	public static short activeShape = Skeleton.NO_POSE;
 	// using counter for now
-	private float[] shapeActiveCounters = new float[9]; // seconds Shape occured in a row
+	private float[] shapeActiveCounters = new float[Skeleton.NUMBER_OF_POSES]; // seconds Shape occured in a row
 	private float timeSinceLastAction = 0f; // seconds since last switch
 	
 	public PostureProcessing (TherapeuticPresence _mainApplet, Skeleton _skeleton, AbstractScene _scene) {
@@ -43,7 +43,10 @@ public class PostureProcessing {
 	
 	public void triggerAction () {
 		if (timeSinceLastAction > timeBlockTrigger) {
-			if (shapeActiveCounters[Skeleton.U_SHAPE] > timeHoldShapeToTrigger) {
+			if (activeShape == Skeleton.HANDS_FORWARD_DOWN_POSE) {
+				scene.shapeActiveAlert(shapeActiveCounters[activeShape]);
+			}
+			if (shapeActiveCounters[Skeleton.HANDS_FORWARD_DOWN_POSE] > timeHoldShapeToTrigger) {
 				if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
 					mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
 					mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
@@ -56,9 +59,6 @@ public class PostureProcessing {
 				}
 				timeSinceLastAction = 0f;
 			}
-		}
-		if (activeShape != Skeleton.NO_SHAPE) {
-			scene.shapeActiveAlert(shapeActiveCounters[activeShape]);
 		}
 	}
 	

@@ -30,6 +30,7 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		drawStickfigure();
 		drawJoints(true);
 		drawMirrorPlane();
+		drawLocalCoordinateSystem();
 	}
 	
 	private void drawStickfigure () {
@@ -134,6 +135,27 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 			mainApplet.popMatrix();
 		}
 				
+	}
+	
+	private void drawLocalCoordinateSystem () {
+		PVector origin = skeleton.getOrigin();
+		PVector xVector = skeleton.getOrientationX();
+		PVector yVector = skeleton.getOrientationY();
+		PVector zVector = skeleton.getOrientationZ();
+		xVector.mult(1000);
+		yVector.mult(1000);
+		zVector.mult(1000);
+		mainApplet.pushMatrix();
+		mainApplet.translate(origin.x,origin.y,origin.z);
+		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
+		mainApplet.strokeWeight(4);
+		mainApplet.stroke(255,0,0,255);
+		mainApplet.line(0,0,0,xVector.x,xVector.y,xVector.z);
+		mainApplet.stroke(0,255,0,255);
+		mainApplet.line(0,0,0,yVector.x,yVector.y,yVector.z);
+		mainApplet.stroke(0,0,255,255);
+		mainApplet.line(0,0,0,zVector.x,zVector.y,zVector.z);
+		mainApplet.popMatrix();
 	}
 
 	public short getVisualisationType() {
