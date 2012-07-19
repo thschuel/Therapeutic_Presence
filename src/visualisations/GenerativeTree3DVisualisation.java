@@ -1,5 +1,7 @@
 package visualisations;
 
+import java.util.ArrayList;
+
 import processing.core.*;
 import scenes.TunnelScene3D;
 import therapeuticpresence.*;
@@ -13,6 +15,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	protected float width, height;
 	protected float centerZ;
 	protected float fadeInCenterZ=0;
+	protected float fadeOutCenterZ=0;
 	protected PVector center = new PVector();
 	protected final float lowerZBoundary = 0.45f*TunnelScene3D.tunnelLength; // to control z position of drawing within a narrow corridor
 	protected final float upperZBoundary = 0.7f*TunnelScene3D.tunnelLength;
@@ -29,9 +32,10 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	private int addBranches = 5;
 	private int branchCount = 0;
 	
-	// colors of leafs
+	// leafs
+	private ArrayList<PVector> leafs = new ArrayList<PVector>();
 	private int[] leafColors;
-	private float actColorIndex = 0.f;
+	private int actColorIndex = 0;
 	private int colorsSize = 360;
 	private float colorsStepSize = 10.f;
 	private int leafWidth = 25;
@@ -42,7 +46,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	protected float downScale = 0.9f;
 	protected float transparency = 200;
 	protected float sampleStepSize =10f;
-	protected float actSampleIndex = 0f;
+	protected int actSampleIndex = 0;
 	
 	public GenerativeTree3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super (_mainApplet,_skeleton,_audioManager);
@@ -61,52 +65,44 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	
 	public boolean fadeIn () {
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
-			// center.z reacts to position of user with delay
 			fadeInCenterZ+=skeleton.distanceToKinect()/mainApplet.frameRate;
+			if (fadeInCenterZ >= skeleton.distanceToKinect())
+				return true;
+			
+			// center.z reacts to position of user with delay
 			centerZ = PApplet.map(fadeInCenterZ,0,TherapeuticPresence.maxDistanceToKinect,0,upperZBoundary);
 			width = TunnelScene3D.getTunnelWidthAt(centerZ);
 			height = TunnelScene3D.getTunnelHeightAt(centerZ);
 		    center.set(0,0,centerZ);
-			float scale = centerZ/upperZBoundary;
-			int branchDepth = minBranches+PApplet.round(addBranches*scale);
-			float initialStrokeLength = scale*height/3;
-			
 			// get angles for drawing
 			getAnglesForBranches();
 			// turn the tree fast for fade in effect
-			orientationTree = (fadeInCenterZ/skeleton.distanceToKinect() * 1.5f * PConstants.TWO_PI)%PConstants.TWO_PI;
-
-			// colors of leafs differ in HSB-space
-			colorsStepSize = colorsSize/PApplet.pow(2,branchDepth); 
-			actColorIndex = 0.f;
-			// sizes of leafs differ according to music samples
-			sampleStepSize = audioManager.getBufferSize()/PApplet.pow(2,branchDepth);
-			actSampleIndex = 0f;
-			
-			// draw trunk of the tree
-			mainApplet.pushMatrix();
-			mainApplet.translate(center.x,-scale*height/8-initialStrokeLength,center.z);
-			mainApplet.stroke(strokeColor,transparency);
-			float strokeWeight = audioManager.getMeanFFT(0) * initialScale;
-			mainApplet.strokeWeight(strokeWeight);
-			mainApplet.line(0,0,0,0,initialStrokeLength,0);
-			mainApplet.translate(0,initialStrokeLength,0);
-			// rotate tree according to body rotation
-			mainApplet.rotateY(orientationTree);
-			// start branching
-			branchCount = branchDepth;
-			branch(initialStrokeLength*downscaleStrokeLength,branchDepth,strokeWeight*downScale);
-			mainApplet.popMatrix();
-			
-			if (fadeInCenterZ >= skeleton.distanceToKinect()) {
-				return true;
-			}
+			orientationTree = (fadeInCenterZ/skeleton.distanceToKinect() * 1.4f * PConstants.TWO_PI)%PConstants.TWO_PI;
+			// draw
+			drawTree(minBranches+PApplet.round(addBranches*centerZ/upperZBoundary),centerZ/upperZBoundary,centerZ/upperZBoundary*height/3);
 		}
 		return false;
 	}
 	
 	public boolean fadeOut () {
-		return true;
+		if (skeleton.isUpdated() && audioManager.isUpdated()) {
+			fadeOutCenterZ-=skeleton.distanceToKinect()/mainApplet.frameRate;
+			if (fadeOutCenterZ <= 0f)
+				return true;
+			
+			// center.z reacts to position of user with delay
+			centerZ = fadeOutCenterZ;
+			width = TunnelScene3D.getTunnelWidthAt(centerZ);
+			height = TunnelScene3D.getTunnelHeightAt(centerZ);
+		    center.set(0,0,centerZ);
+			// get angles for drawing
+			getAnglesForBranches();
+			// turn the tree fast for fade out effect
+			orientationTree = (fadeOutCenterZ/skeleton.distanceToKinect() * -1.4f * PConstants.TWO_PI)%PConstants.TWO_PI;
+			// draw
+			drawTree(minBranches+PApplet.round(addBranches*centerZ/upperZBoundary),centerZ/upperZBoundary,centerZ/upperZBoundary*height/3);
+		}
+		return false;
 	}
 
 	public void draw() {
@@ -116,36 +112,13 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			width = TunnelScene3D.getTunnelWidthAt(centerZ);
 			height = TunnelScene3D.getTunnelHeightAt(centerZ);
 		    center.set(0,0,centerZ);
-			float scale = centerZ/upperZBoundary;
-			int branchDepth = minBranches+PApplet.round(addBranches*scale);
-			float initialStrokeLength = scale*height/3;
-			
 			// get angles for drawing
 			getAnglesForBranches();
-
-			// colors of leafs differ in HSB-space
-			colorsStepSize = colorsSize/PApplet.pow(2,branchDepth); 
-			actColorIndex = 0.f;
-			// sizes of leafs differ according to music samples
-			sampleStepSize = audioManager.getBufferSize()/PApplet.pow(2,branchDepth);
-			actSampleIndex = 0f;
-			
-			// draw trunk of the tree
-			mainApplet.pushMatrix();
-			mainApplet.translate(center.x,-scale*height/8-initialStrokeLength,center.z);
-			mainApplet.stroke(strokeColor,transparency);
-			float strokeWeight = audioManager.getMeanFFT(0) * initialScale;
-			mainApplet.strokeWeight(strokeWeight);
-			mainApplet.line(0,0,0,0,initialStrokeLength,0);
-			mainApplet.translate(0,initialStrokeLength,0);
-			// rotate tree according to body rotation
-			mainApplet.rotateY(orientationTree);
-			// start branching
-			branchCount = branchDepth;
-			branch(initialStrokeLength*downscaleStrokeLength,branchDepth,strokeWeight*downScale);
-			mainApplet.popMatrix();
-		}
-		
+			// draw
+			drawTree(minBranches+PApplet.round(addBranches*centerZ/upperZBoundary),centerZ/upperZBoundary,centerZ/upperZBoundary*height/3);
+			// prepare for fade out
+			fadeOutCenterZ = centerZ;
+		}	
 	}
 	
 	private void getAnglesForBranches () {
@@ -180,6 +153,45 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			curlRightUpperArm += (angleRightUpperArm*0.7-curlRightUpperArm)/delay;	
 			orientationTree += (-orientationSkeleton*0.8-orientationTree)/delay;
 		}
+	}
+	
+	private void drawTree(int branchDepth,float scale, float initialStrokeLength) {
+		// colors of leafs differ in HSB-space
+		colorsStepSize = colorsSize/PApplet.pow(2,branchDepth); 
+		actColorIndex = 0;
+		// leafs flicker according to music samples
+		sampleStepSize = audioManager.getBufferSize()/PApplet.pow(2,branchDepth);
+		actSampleIndex = 0;
+		// the leafs
+		leafs.clear();
+		
+		// draw trunk of the tree
+		mainApplet.pushMatrix();
+		mainApplet.translate(center.x,-scale*height/8-initialStrokeLength,center.z);
+		mainApplet.stroke(strokeColor,transparency);
+		float strokeWeight = audioManager.getMeanFFT(0) * initialScale;
+		mainApplet.strokeWeight(strokeWeight);
+		mainApplet.line(0,0,0,0,initialStrokeLength,0);
+		mainApplet.translate(0,initialStrokeLength,0);
+		// rotate tree according to body rotation
+		mainApplet.rotateY(orientationTree);
+		// start branching
+		branchCount = branchDepth;
+		branch(initialStrokeLength*downscaleStrokeLength,branchDepth,strokeWeight*downScale);
+		mainApplet.popMatrix();
+		// draw leafs
+		mainApplet.pushStyle();
+		mainApplet.stroke(0,0,0);
+		mainApplet.strokeWeight(1);
+		for (int i=0; i<leafs.size(); i++) {
+			mainApplet.fill(leafColors[PApplet.round(i*colorsStepSize)],transparency);
+			mainApplet.pushMatrix();
+			mainApplet.rotateZ(PConstants.HALF_PI*audioManager.getMeanSampleAt(PApplet.round(i*sampleStepSize)));
+			mainApplet.translate(leafs.get(i).x,leafs.get(i).y,leafs.get(i).z);
+			mainApplet.ellipse(0,0,leafWidth,leafHeight);
+			mainApplet.popMatrix();
+		}
+		mainApplet.popStyle();
 	}
 	
 	private void branch(float _strokeLength, int _branchDepth, float _strokeWeight) {
@@ -218,16 +230,10 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		    mainApplet.popMatrix();
 		} else {
 			// draw leafs
-			mainApplet.stroke(0,0,0);
-			mainApplet.strokeWeight(1);
-			mainApplet.fill(leafColors[PApplet.round(actColorIndex+=colorsStepSize)],transparency);
-			float scale = audioManager.getMeanSampleAt(PApplet.round(actSampleIndex+=sampleStepSize));
 			mainApplet.pushMatrix();
-			mainApplet.rotateZ(PConstants.HALF_PI*scale);
 			mainApplet.translate(0,leafHeight/2,0);
-			mainApplet.ellipse(0,0,leafWidth,leafHeight);
+			leafs.add(new PVector(mainApplet.modelX(0,0,0),mainApplet.modelY(0,0,0),mainApplet.modelZ(0,0,0)));
 			mainApplet.popMatrix();
-			mainApplet.noFill();
 		}
 	}
 
