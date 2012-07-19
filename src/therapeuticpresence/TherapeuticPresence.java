@@ -51,7 +51,7 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = true;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
-	public static short defaultVisualisationMethod = TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
+	public static short defaultVisualisationMethod = TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION;
 	public static short currentVisualisationMethod;
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short defaultSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
@@ -60,7 +60,7 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
 	public static float maxDistanceToKinect = 2500f; // in mm 
-	public static final float DEFAULT_POSTURE_TOLERANCE = 0.3f;
+	public static final float DEFAULT_POSTURE_TOLERANCE = 0.5f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
 	public static final float DEFAULT_SMOOTHING_SKELETON = 0.8f;
 	public static float smoothingSkeleton = TherapeuticPresence.DEFAULT_SMOOTHING_SKELETON;

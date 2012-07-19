@@ -59,6 +59,9 @@ public class PostureProcessing {
 				}
 				timeSinceLastAction = 0f;
 			}
+			if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
+				// TODO: gesture recognition and event handling
+			}
 		}
 	}
 	
