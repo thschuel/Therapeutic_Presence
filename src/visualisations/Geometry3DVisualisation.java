@@ -29,6 +29,8 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	protected float width=0, height=0;
 	protected float centerZ=0;
 	protected float fadeInCenterZ=0;
+	protected final float lowerZBoundary = 0.3f*TunnelScene3D.tunnelLength; // to control z position of drawing within a narrow corridor
+	protected final float upperZBoundary = 0.85f*TunnelScene3D.tunnelLength;
 	
 	// these values are used for drawing the bezier curves
 	protected final float delay = 8f;
@@ -74,8 +76,8 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	public void draw () {
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
 			// center.z reacts to position of user with delay
-			centerZ += (skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength-centerZ)/delay;
-			centerZ = PApplet.constrain(centerZ,0,TunnelScene3D.tunnelLength);
+			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
+			centerZ += (mappedDistance-centerZ)/delay;
 			updateCanvasCoordinates();
 			updateBezierCurves();
 			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
@@ -90,8 +92,8 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
 			// center.z reacts to position of user with delay
 			fadeInCenterZ+=skeleton.distanceToKinect()/mainApplet.frameRate;
-			centerZ += (fadeInCenterZ/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength-centerZ)/delay;
-			centerZ = PApplet.constrain(centerZ,0,TunnelScene3D.tunnelLength);
+			float mappedDistance = PApplet.map(fadeInCenterZ,0,TherapeuticPresence.maxDistanceToKinect,0,upperZBoundary);
+			centerZ += (mappedDistance-centerZ)/delay;
 			updateCanvasCoordinates();
 			updateBezierCurves();
 			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);

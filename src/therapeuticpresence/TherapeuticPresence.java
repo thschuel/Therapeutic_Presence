@@ -60,8 +60,6 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
 	public static float maxDistanceToKinect = 2500f; // in mm 
-	public static float lowerZBoundary = 0.45f*maxDistanceToKinect; // to control z position of drawing within a narrow corridor
-	public static float upperZBoundary = 0.78f*maxDistanceToKinect;
 	public static final float DEFAULT_POSTURE_TOLERANCE = 0.3f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
 	public static final float DEFAULT_SMOOTHING_SKELETON = 0.8f;

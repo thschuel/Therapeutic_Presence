@@ -11,8 +11,11 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width, height;
-	protected float centerz;
+	protected float centerZ;
+	protected float fadeInCenterZ=0;
 	protected PVector center = new PVector();
+	protected final float lowerZBoundary = 0.45f*TunnelScene3D.tunnelLength; // to control z position of drawing within a narrow corridor
+	protected final float upperZBoundary = 0.7f*TunnelScene3D.tunnelLength;
 
 	// variables to calculate and draw the tree
 	private float curlRightLowerArm = 0;
@@ -55,79 +58,128 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			leafColors[i] = mainApplet.color(i,100,100);
 		}
 	}
-
-	public void draw() {
+	
+	public boolean fadeIn () {
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
 			// center.z reacts to position of user with delay
-			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,TherapeuticPresence.lowerZBoundary,TherapeuticPresence.upperZBoundary);
-			centerz = PApplet.constrain(mappedDistance/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength,0,TunnelScene3D.tunnelLength);
-			width = TunnelScene3D.getTunnelWidthAt(centerz);
-			height = TunnelScene3D.getTunnelHeightAt(centerz);
-		    center.set(0,0,centerz);
-
-			float actualScale = skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect;
-			float mappedScale = mappedDistance/TherapeuticPresence.maxDistanceToKinect;
-			int branchDepth = minBranches+PApplet.round(addBranches*actualScale);
-			float initialStrokeLength = mappedScale*height/3;
+			fadeInCenterZ+=skeleton.distanceToKinect()/mainApplet.frameRate;
+			centerZ = PApplet.map(fadeInCenterZ,0,TherapeuticPresence.maxDistanceToKinect,0,upperZBoundary);
+			width = TunnelScene3D.getTunnelWidthAt(centerZ);
+			height = TunnelScene3D.getTunnelHeightAt(centerZ);
+		    center.set(0,0,centerZ);
+			float scale = centerZ/upperZBoundary;
+			int branchDepth = minBranches+PApplet.round(addBranches*scale);
+			float initialStrokeLength = scale*height/3;
 			
 			// get angles for drawing
-//			PVector bodyAxis = skeleton.getOrientationYProjective();
-//			PVector leftUpperArm = PVector.sub(skeleton.getJointProjective(Skeleton.LEFT_ELBOW),skeleton.getJointProjective(Skeleton.LEFT_SHOULDER));
-//			PVector rightUpperArm = PVector.sub(skeleton.getJointProjective(Skeleton.RIGHT_ELBOW),skeleton.getJointProjective(Skeleton.RIGHT_SHOULDER));
-//			PVector leftLowerArm = PVector.sub(skeleton.getJointProjective(Skeleton.LEFT_HAND),skeleton.getJointProjective(Skeleton.LEFT_ELBOW));
-//			PVector rightLowerArm = PVector.sub(skeleton.getJointProjective(Skeleton.RIGHT_HAND),skeleton.getJointProjective(Skeleton.RIGHT_ELBOW));
-//			float angleLeftUpperArm = PVector.angleBetween(leftUpperArm,bodyAxis);
-//			float angleRightUpperArm = PVector.angleBetween(rightUpperArm,bodyAxis);
-//			float angleLeftLowerArm = PVector.angleBetween(leftLowerArm,leftUpperArm);
-//			float angleRightLowerArm =  PVector.angleBetween(rightLowerArm,rightUpperArm);
-			float angleLeftUpperArm = skeleton.angleToLocalYAxis(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER); 
-			float angleRightUpperArm = skeleton.angleToLocalYAxis(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
-			float angleLeftLowerArm = skeleton.angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER,Skeleton.LEFT_HAND,Skeleton.LEFT_ELBOW); 
-			float angleRightLowerArm =  skeleton.angleBetween(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW); 
-			float orientationSkeleton = PVector.angleBetween(new PVector(0,0,1),skeleton.getOrientationX()) - PConstants.HALF_PI;
-			
-			// TODO this is a hack. find solution to switch on/off mirroring of kinect
-			if (!TherapeuticPresence.mirrorKinect) {
-				// trees react to body posture with a delay
-				curlLeftLowerArm += (angleRightLowerArm*0.7-curlLeftLowerArm)/delay;		
-				curlLeftUpperArm += (angleRightUpperArm*0.7-curlLeftUpperArm)/delay;
-				curlRightLowerArm += (angleLeftLowerArm*0.7-curlRightLowerArm)/delay;
-				curlRightUpperArm += (angleLeftUpperArm*0.7-curlRightUpperArm)/delay;		
-				orientationTree += (orientationSkeleton*0.8-orientationTree)/delay;
-			} else {
-				// trees react to body posture with a delay
-				curlLeftLowerArm += (angleLeftLowerArm*0.7-curlLeftLowerArm)/delay;
-				curlLeftUpperArm += (angleLeftUpperArm*0.7-curlLeftUpperArm)/delay;
-				curlRightLowerArm += (angleRightLowerArm*0.7-curlRightLowerArm)/delay;		
-				curlRightUpperArm += (angleRightUpperArm*0.7-curlRightUpperArm)/delay;	
-				orientationTree += (-orientationSkeleton*0.8-orientationTree)/delay;
-			}
-			
-			// draw trunk of the tree
-			mainApplet.pushMatrix();
-			mainApplet.translate(center.x,-mappedScale*height/8-initialStrokeLength,center.z);
-			mainApplet.stroke(strokeColor,transparency);
-			float strokeWeight = audioManager.getMeanFFT(0) * initialScale;
-			mainApplet.strokeWeight(strokeWeight);
-			mainApplet.line(0,0,0,0,initialStrokeLength,0);
-			mainApplet.translate(0,initialStrokeLength,0);
+			getAnglesForBranches();
+			// turn the tree fast for fade in effect
+			orientationTree = (fadeInCenterZ/skeleton.distanceToKinect() * 1.5f * PConstants.TWO_PI)%PConstants.TWO_PI;
 
-			mainApplet.rotateY(orientationTree);
-			
 			// colors of leafs differ in HSB-space
 			colorsStepSize = colorsSize/PApplet.pow(2,branchDepth); 
 			actColorIndex = 0.f;
 			// sizes of leafs differ according to music samples
 			sampleStepSize = audioManager.getBufferSize()/PApplet.pow(2,branchDepth);
 			actSampleIndex = 0f;
-
+			
+			// draw trunk of the tree
+			mainApplet.pushMatrix();
+			mainApplet.translate(center.x,-scale*height/8-initialStrokeLength,center.z);
+			mainApplet.stroke(strokeColor,transparency);
+			float strokeWeight = audioManager.getMeanFFT(0) * initialScale;
+			mainApplet.strokeWeight(strokeWeight);
+			mainApplet.line(0,0,0,0,initialStrokeLength,0);
+			mainApplet.translate(0,initialStrokeLength,0);
+			// rotate tree according to body rotation
+			mainApplet.rotateY(orientationTree);
 			// start branching
 			branchCount = branchDepth;
 			branch(initialStrokeLength*downscaleStrokeLength,branchDepth,strokeWeight*downScale);
+			mainApplet.popMatrix();
+			
+			if (fadeInCenterZ >= skeleton.distanceToKinect()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean fadeOut () {
+		return true;
+	}
 
+	public void draw() {
+		if (skeleton.isUpdated() && audioManager.isUpdated()) {
+			// center.z reacts to position of user with delay
+			centerZ = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
+			width = TunnelScene3D.getTunnelWidthAt(centerZ);
+			height = TunnelScene3D.getTunnelHeightAt(centerZ);
+		    center.set(0,0,centerZ);
+			float scale = centerZ/upperZBoundary;
+			int branchDepth = minBranches+PApplet.round(addBranches*scale);
+			float initialStrokeLength = scale*height/3;
+			
+			// get angles for drawing
+			getAnglesForBranches();
+
+			// colors of leafs differ in HSB-space
+			colorsStepSize = colorsSize/PApplet.pow(2,branchDepth); 
+			actColorIndex = 0.f;
+			// sizes of leafs differ according to music samples
+			sampleStepSize = audioManager.getBufferSize()/PApplet.pow(2,branchDepth);
+			actSampleIndex = 0f;
+			
+			// draw trunk of the tree
+			mainApplet.pushMatrix();
+			mainApplet.translate(center.x,-scale*height/8-initialStrokeLength,center.z);
+			mainApplet.stroke(strokeColor,transparency);
+			float strokeWeight = audioManager.getMeanFFT(0) * initialScale;
+			mainApplet.strokeWeight(strokeWeight);
+			mainApplet.line(0,0,0,0,initialStrokeLength,0);
+			mainApplet.translate(0,initialStrokeLength,0);
+			// rotate tree according to body rotation
+			mainApplet.rotateY(orientationTree);
+			// start branching
+			branchCount = branchDepth;
+			branch(initialStrokeLength*downscaleStrokeLength,branchDepth,strokeWeight*downScale);
 			mainApplet.popMatrix();
 		}
 		
+	}
+	
+	private void getAnglesForBranches () {
+//		PVector bodyAxis = skeleton.getOrientationYProjective();
+//		PVector leftUpperArm = PVector.sub(skeleton.getJointProjective(Skeleton.LEFT_ELBOW),skeleton.getJointProjective(Skeleton.LEFT_SHOULDER));
+//		PVector rightUpperArm = PVector.sub(skeleton.getJointProjective(Skeleton.RIGHT_ELBOW),skeleton.getJointProjective(Skeleton.RIGHT_SHOULDER));
+//		PVector leftLowerArm = PVector.sub(skeleton.getJointProjective(Skeleton.LEFT_HAND),skeleton.getJointProjective(Skeleton.LEFT_ELBOW));
+//		PVector rightLowerArm = PVector.sub(skeleton.getJointProjective(Skeleton.RIGHT_HAND),skeleton.getJointProjective(Skeleton.RIGHT_ELBOW));
+//		float angleLeftUpperArm = PVector.angleBetween(leftUpperArm,bodyAxis);
+//		float angleRightUpperArm = PVector.angleBetween(rightUpperArm,bodyAxis);
+//		float angleLeftLowerArm = PVector.angleBetween(leftLowerArm,leftUpperArm);
+//		float angleRightLowerArm =  PVector.angleBetween(rightLowerArm,rightUpperArm);
+		float angleLeftUpperArm = skeleton.angleToLocalYAxis(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER); 
+		float angleRightUpperArm = skeleton.angleToLocalYAxis(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
+		float angleLeftLowerArm = skeleton.angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER,Skeleton.LEFT_HAND,Skeleton.LEFT_ELBOW); 
+		float angleRightLowerArm =  skeleton.angleBetween(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW); 
+		float orientationSkeleton = PVector.angleBetween(new PVector(0,0,1),skeleton.getOrientationX()) - PConstants.HALF_PI;
+		
+		// TODO this is a hack. find solution to switch on/off mirroring of kinect
+		if (!TherapeuticPresence.mirrorKinect) {
+			// trees react to body posture with a delay
+			curlLeftLowerArm += (angleRightLowerArm*0.7-curlLeftLowerArm)/delay;		
+			curlLeftUpperArm += (angleRightUpperArm*0.7-curlLeftUpperArm)/delay;
+			curlRightLowerArm += (angleLeftLowerArm*0.7-curlRightLowerArm)/delay;
+			curlRightUpperArm += (angleLeftUpperArm*0.7-curlRightUpperArm)/delay;		
+			orientationTree += (orientationSkeleton*0.8-orientationTree)/delay;
+		} else {
+			// trees react to body posture with a delay
+			curlLeftLowerArm += (angleLeftLowerArm*0.7-curlLeftLowerArm)/delay;
+			curlLeftUpperArm += (angleLeftUpperArm*0.7-curlLeftUpperArm)/delay;
+			curlRightLowerArm += (angleRightLowerArm*0.7-curlRightLowerArm)/delay;		
+			curlRightUpperArm += (angleRightUpperArm*0.7-curlRightUpperArm)/delay;	
+			orientationTree += (-orientationSkeleton*0.8-orientationTree)/delay;
+		}
 	}
 	
 	private void branch(float _strokeLength, int _branchDepth, float _strokeWeight) {
