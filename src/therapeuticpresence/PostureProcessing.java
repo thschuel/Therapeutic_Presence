@@ -1,25 +1,28 @@
 package therapeuticpresence;
 
-import processing.core.PConstants;
-import scenes.AbstractScene;
+import scenes.*;
 import therapeuticskeleton.Skeleton;
+import visualisations.*;
 
 public class PostureProcessing {
 	private Skeleton skeleton;
 	private TherapeuticPresence mainApplet;
 	private AbstractScene scene;
+	private AbstractVisualisation visualisation;
 
 	public static final float timeHoldShapeToTrigger = 1.7f;
-	public static final float timeBlockTrigger = 2.5f;
-	public static short activeShape = Skeleton.NO_POSE;
+	public static final float timeBlockTrigger = 5.5f;
+	public static short activePosture = Skeleton.NO_POSE;
+	public static short currentGesture = Skeleton.NO_GESTURE;
 	// using counter for now
 	private float[] shapeActiveCounters = new float[Skeleton.NUMBER_OF_POSES]; // seconds Shape occured in a row
 	private float timeSinceLastAction = 0f; // seconds since last switch
 	
-	public PostureProcessing (TherapeuticPresence _mainApplet, Skeleton _skeleton, AbstractScene _scene) {
+	public PostureProcessing (TherapeuticPresence _mainApplet, Skeleton _skeleton, AbstractScene _scene, AbstractVisualisation _visualisation) {
 		mainApplet = _mainApplet;
 		skeleton = _skeleton;
 		scene = _scene;
+		visualisation = _visualisation;
 		for (int i=0; i<shapeActiveCounters.length; i++) {
 			shapeActiveCounters[i] = 0f;
 		}
@@ -29,11 +32,16 @@ public class PostureProcessing {
 		scene = _scene;
 	}
 	
+	public void setVisualisation (AbstractVisualisation _visualisation) {
+		visualisation = _visualisation;
+	}
+	
 	public void updatePosture () {
 		timeSinceLastAction += 1f/mainApplet.frameRate;
-		activeShape = skeleton.evaluateUpperJointPosture();
+		activePosture = skeleton.getCurrentUpperBodyPosture();
+		currentGesture = skeleton.getLastUpperBodyGesture(100);
 		for (int i=0; i<shapeActiveCounters.length; i++) {
-			if (i==activeShape) {
+			if (i==activePosture) {
 				shapeActiveCounters[i] += 1f/mainApplet.frameRate;
 			} else {
 				shapeActiveCounters[i] = 0f;
@@ -43,8 +51,8 @@ public class PostureProcessing {
 	
 	public void triggerAction () {
 		if (timeSinceLastAction > timeBlockTrigger) {
-			if (activeShape == Skeleton.HANDS_FORWARD_DOWN_POSE) {
-				scene.shapeActiveAlert(shapeActiveCounters[activeShape]);
+			if (activePosture == Skeleton.HANDS_FORWARD_DOWN_POSE) {
+				scene.shapeActiveAlert(shapeActiveCounters[activePosture]);
 			}
 			if (shapeActiveCounters[Skeleton.HANDS_FORWARD_DOWN_POSE] > timeHoldShapeToTrigger) {
 				if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
@@ -60,13 +68,16 @@ public class PostureProcessing {
 				timeSinceLastAction = 0f;
 			}
 			if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
-				// TODO: gesture recognition and event handling
+				if (currentGesture == Skeleton.PUSH_GESTURE) {
+					((GenerativeTree3DVisualisation)visualisation).shakeTree();
+					timeSinceLastAction = 0f;
+				}
 			}
 		}
 	}
 	
 	public float timeActiveShape () {
-		return shapeActiveCounters[activeShape];
+		return shapeActiveCounters[activePosture];
 	}
 	
 }

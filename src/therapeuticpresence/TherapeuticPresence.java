@@ -48,6 +48,7 @@ public class TherapeuticPresence extends PApplet {
 	// --- static setup variables ---
 	public static boolean fullBodyTracking = true; // control for full body tracking
 	public static boolean calculateLocalCoordSys = true; // control for full body tracking
+	public static boolean evaluatePostureAndGesture = true; // control for full body tracking
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = true;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
@@ -62,6 +63,8 @@ public class TherapeuticPresence extends PApplet {
 	public static float maxDistanceToKinect = 2500f; // in mm 
 	public static final float DEFAULT_POSTURE_TOLERANCE = 0.5f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
+	public static final float DEFAULT_GESTURE_TOLERANCE = 0.7f;
+	public static float gestureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
 	public static final float DEFAULT_SMOOTHING_SKELETON = 0.8f;
 	public static float smoothingSkeleton = TherapeuticPresence.DEFAULT_SMOOTHING_SKELETON;
 	
@@ -262,6 +265,9 @@ public class TherapeuticPresence extends PApplet {
 		if (nextVisualisation != null) {
 			if (nextVisualisation.fadeIn()) { // true when visualisation has done fade in
 				visualisation = nextVisualisation;
+				if (postureProcessing != null) {
+					postureProcessing.setVisualisation(visualisation);
+				}
 				nextVisualisation = null;
 			}
 		}
@@ -291,13 +297,14 @@ public class TherapeuticPresence extends PApplet {
 			if (skeleton != null ) {
 				debugMessage("Skeleton of user "+skeleton.getUserId()+" replaced with skeleton of user "+_userId+"!");
 			}
-			skeleton = new Skeleton(kinect,_userId,fullBodyTracking,calculateLocalCoordSys,mirrorTherapy);
+			skeleton = new Skeleton(kinect,_userId,fullBodyTracking,calculateLocalCoordSys,evaluatePostureAndGesture,mirrorTherapy);
 			skeleton.setPostureTolerance(DEFAULT_POSTURE_TOLERANCE);
+			skeleton.setGestureTolerance(DEFAULT_GESTURE_TOLERANCE);
 			kinect.setSmoothingSkeleton(smoothingSkeleton);
 			// start default scene and visualisation
 			setupScene(defaultSceneType);
 			setupVisualisation(defaultVisualisationMethod);
-			postureProcessing = new PostureProcessing(this,skeleton,scene);
+			postureProcessing = new PostureProcessing(this,skeleton,scene,visualisation);
 		}
 	}
 	
@@ -337,6 +344,18 @@ public class TherapeuticPresence extends PApplet {
 			} else { 
 				postureTolerance = DEFAULT_POSTURE_TOLERANCE;
 				skeleton.setPostureTolerance(postureTolerance);
+			}
+		}
+	}
+	
+	public void changeGestureTolerance (float _gestureTolerance) {
+		if (skeleton != null) {
+			if (_gestureTolerance >= 0f && _gestureTolerance <= 1.0f) {
+				gestureTolerance = _gestureTolerance;
+				skeleton.setGestureTolerance(gestureTolerance);
+			} else { 
+				gestureTolerance = DEFAULT_GESTURE_TOLERANCE;
+				skeleton.setGestureTolerance(gestureTolerance);
 			}
 		}
 	}

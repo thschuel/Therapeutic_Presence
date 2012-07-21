@@ -47,7 +47,7 @@ public class GuiHud {
 		g3.camera();
 	    // update fps Text
 		String shapeString = "";
-		switch (PostureProcessing.activeShape) {
+		switch (PostureProcessing.activePosture) {
 			case Skeleton.V_SHAPE: shapeString="V"; break;
 			case Skeleton.A_SHAPE: shapeString="A"; break;
 			case Skeleton.U_SHAPE: shapeString="U"; break;
@@ -57,9 +57,9 @@ public class GuiHud {
 			case Skeleton.O_SHAPE: shapeString="O"; break;
 			case Skeleton.I_SHAPE: shapeString="I"; break;
 			case Skeleton.HANDS_FORWARD_DOWN_POSE: shapeString="HF"; break;
-			default: shapeString="NO"+PostureProcessing.activeShape; break;
+			default: shapeString="NO"+PostureProcessing.activePosture; break;
 		}
-	    fps.setText("shape: "+shapeString+" fps: "+PApplet.round(mainApplet.frameRate));
+	    fps.setText("pG "+Skeleton.pushGestureStartCycle+" g "+PostureProcessing.currentGesture+" shape: "+shapeString+" fps: "+PApplet.round(mainApplet.frameRate));
 	    // toggle debug output
 	    if (!TherapeuticPresence.debugOutput) {
 			guiMessages.hide();
@@ -91,7 +91,7 @@ public class GuiHud {
 									"o/l = save/load calibration data \n" +
 									"m = toggle mirror kinect data",
 									3,mainApplet.height-200,145,150);
-		fps = control.addTextarea("fpsArea","",3,mainApplet.height-50,300,50);
+		fps = control.addTextarea("fpsArea","",3,mainApplet.height-50,500,50);
 		fps.setFont(mainApplet.createFont("Arial",34));
 	}
 	
@@ -99,7 +99,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,150);
-		menu.setBackgroundHeight(300);
+		menu.setBackgroundHeight(320);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -179,7 +179,12 @@ public class GuiHud {
 		postureTolerance.setCaptionLabel("Posture Tolerance");
 		postureTolerance.plugTo(this);
 		
-		controlP5.Slider smoothingSkeleton = control.addSlider("changeSmoothingSkeleton",0.0f,1.0f,TherapeuticPresence.smoothingSkeleton,0,280,108,20);
+		controlP5.Slider gestureTolerance = control.addSlider("changeGestureTolerance",0.0f,1.0f,TherapeuticPresence.gestureTolerance,0,280,108,20);
+		gestureTolerance.moveTo(menu);
+		gestureTolerance.setCaptionLabel("Gesture Tolerance");
+		gestureTolerance.plugTo(this);
+		
+		controlP5.Slider smoothingSkeleton = control.addSlider("changeSmoothingSkeleton",0.0f,1.0f,TherapeuticPresence.smoothingSkeleton,0,300,108,20);
 		smoothingSkeleton.moveTo(menu);
 		smoothingSkeleton.setCaptionLabel("Skeleton Smoothing");
 		smoothingSkeleton.plugTo(this);
@@ -256,6 +261,10 @@ public class GuiHud {
 
 	private void changePostureTolerance (float theValue) {
 		mainApplet.changePostureTolerance(theValue);
+	}
+
+	private void changeGestureTolerance (float theValue) {
+		mainApplet.changeGestureTolerance(theValue);
 	}
 	private void changeSmoothingSkeleton (float theValue) {
 		mainApplet.changeSmoothingSkeleton(theValue);

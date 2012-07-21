@@ -41,6 +41,10 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	private float colorsStepSize = 10.f;
 	private int leafWidth = 25;
 	private int leafHeight = 50;
+	private boolean leafsFallDown = false;
+	private boolean leafsGrow = false;
+	private int frameTreeShaken = -9999;
+	private float fallDownSpeed = 5f;
 	
 	// audio responsive tree
 	protected float initialScale = 2f;
@@ -82,6 +86,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			// draw
 			mainApplet.pushStyle();
 			drawTree(minBranches+PApplet.round(addBranches*centerZ/upperZBoundary),centerZ/upperZBoundary,centerZ/upperZBoundary*height/3);
+			drawLeafs();
 			mainApplet.popStyle();
 		}
 		return false;
@@ -105,6 +110,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			// draw
 			mainApplet.pushStyle();
 			drawTree(minBranches+PApplet.round(addBranches*centerZ/upperZBoundary),centerZ/upperZBoundary,centerZ/upperZBoundary*height/3);
+			drawLeafs();
 			mainApplet.popStyle();
 		}
 		return false;
@@ -122,10 +128,20 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			// draw
 			mainApplet.pushStyle();
 			drawTree(minBranches+PApplet.round(addBranches*centerZ/upperZBoundary),centerZ/upperZBoundary,centerZ/upperZBoundary*height/3);
+			drawLeafs();
 			mainApplet.popStyle();
 			// prepare for fade out
 			fadeOutCenterZ = centerZ;
+			if (mainApplet.frameCount-frameTreeShaken > 70) {
+				leafsFallDown = false;
+			}
 		}	
+	}
+	
+	public void shakeTree () {
+		frameTreeShaken = mainApplet.frameCount; 
+		leafsFallDown = true;
+		fallDownSpeed = 5;
 	}
 	
 	private void getAnglesForBranches () {
@@ -170,8 +186,10 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		sampleStepSize = audioManager.getBufferSize()/PApplet.pow(2,branchDepth);
 		actSampleIndex = 0;
 		// the leafs
-		leafsBottom.clear();
-		leafsTop.clear();
+		if (!leafsFallDown) {
+			leafsBottom.clear();
+			leafsTop.clear();
+		}
 		
 		// draw trunk of the tree
 		mainApplet.pushMatrix();
@@ -187,7 +205,22 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		branchCount = branchDepth;
 		branch(initialStrokeLength*downscaleStrokeLength,branchDepth,strokeWeight*downScale);
 		mainApplet.popMatrix();
-		// draw leafs
+	}
+	
+	private void drawLeafs () {
+		if (leafsFallDown) {
+			for (int i=0; i<leafsBottom.size(); i++) {
+				PVector top = leafsTop.get(i);
+				//top.z+=20;
+				top.y+=fallDownSpeed;
+				leafsTop.set(i,top);
+				PVector bottom = leafsBottom.get(i);
+				//bottom.z+=20;
+				bottom.y+=fallDownSpeed;
+				leafsBottom.set(i,bottom);
+			}
+			fallDownSpeed+=2f;
+		}
 		mainApplet.stroke(0,0,0);
 		mainApplet.strokeWeight(1);
 		mainApplet.pushMatrix();
@@ -195,13 +228,15 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		mainApplet.rotateZ(PConstants.PI);
 		mainApplet.translate(0,0,-TunnelScene3D.tunnelLength);
 		for (int i=0; i<leafsBottom.size(); i++) {
+			PVector top = leafsTop.get(i);
+			PVector bottom = leafsBottom.get(i);
 			mainApplet.fill(leafColors[PApplet.round(i*colorsStepSize)],transparency);
 			mainApplet.pushMatrix();
-			mainApplet.translate(leafsBottom.get(i).x,leafsBottom.get(i).y,leafsBottom.get(i).z);
+			mainApplet.translate(bottom.x,bottom.y,bottom.z);
 			mainApplet.rotateY(orientationTree);
 			// get the orientation of the leafs by looking at the bottom and at the top point
-			float y = leafsTop.get(i).y-leafsBottom.get(i).y;
-			float x = leafsTop.get(i).x-leafsBottom.get(i).x;
+			float y = top.y-bottom.y;
+			float x = top.x-bottom.x;
 			float angle = PApplet.atan2(y,x); // gives angle between -PI and PI
 			mainApplet.rotateZ(angle+1.5f*PConstants.PI); // transfer to angle between 0 and 2PI with regard to the positive y axis
 			mainApplet.rotateZ(audioManager.getMeanSampleAt(PApplet.round(i*sampleStepSize)));
@@ -247,13 +282,15 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		    
 		    mainApplet.popMatrix();
 		} else {
-			// store leaf positions to draw them later (for manipulation)
-			mainApplet.pushMatrix();
-			mainApplet.rotateZ(PConstants.HALF_PI*audioManager.getMeanSampleAt(actSampleIndex+=sampleStepSize));
-			leafsBottom.add(new PVector(mainApplet.modelX(0,0,0),mainApplet.modelY(0,0,0),mainApplet.modelZ(0,0,0)));
-			mainApplet.translate(0,leafHeight,0);
-			leafsTop.add(new PVector(mainApplet.modelX(0,0,0),mainApplet.modelY(0,0,0),mainApplet.modelZ(0,0,0)));
-			mainApplet.popMatrix();
+			if (!leafsFallDown) {
+				// store leaf positions to draw them later (for manipulation)
+				mainApplet.pushMatrix();
+				mainApplet.rotateZ(PConstants.HALF_PI*audioManager.getMeanSampleAt(actSampleIndex+=sampleStepSize));
+				leafsBottom.add(new PVector(mainApplet.modelX(0,0,0),mainApplet.modelY(0,0,0),mainApplet.modelZ(0,0,0)));
+				mainApplet.translate(0,leafHeight,0);
+				leafsTop.add(new PVector(mainApplet.modelX(0,0,0),mainApplet.modelY(0,0,0),mainApplet.modelZ(0,0,0)));
+				mainApplet.popMatrix();
+			}
 		}
 	}
 
