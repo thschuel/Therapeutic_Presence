@@ -33,8 +33,10 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	private int branchCount = 0;
 	
 	// leafs
-	private ArrayList<PVector> leafsBottom = new ArrayList<PVector>();
-	private ArrayList<PVector> leafsTop = new ArrayList<PVector>();
+	private ArrayList<PVector> leafs = new ArrayList<PVector>();
+	private ArrayList<Float> leafsRotationZ = new ArrayList<Float>();
+	private ArrayList<PVector> leafsFalling = null;
+	private ArrayList<Float> leafsRotationZFalling = null;
 	private int[] leafColors;
 	private int actColorIndex = 0;
 	private int colorsSize = 360;
@@ -42,14 +44,13 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	private int leafWidth = 25;
 	private int leafHeight = 50;
 	private boolean leafsFallDown = false;
-	private boolean leafsGrow = false;
-	private int frameTreeShaken = -9999;
-	private float fallDownSpeed = 5f;
+	private float fallDownGravity = 5f;
 	
 	// audio responsive tree
 	protected float initialScale = 2f;
 	protected float downScale = 0.9f;
 	protected float transparency = 200;
+	protected float fallingLeafsTransparency = 200;
 	protected float sampleStepSize =10f;
 	protected int actSampleIndex = 0;
 	
@@ -82,7 +83,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			// get angles for drawing
 			getAnglesForBranches();
 			// turn the tree fast for fade in effect
-			orientationTree = (fadeInCenterZ/skeleton.distanceToKinect() * 1.4f * PConstants.TWO_PI)%PConstants.TWO_PI;
+			orientationTree = (fadeInCenterZ/skeleton.distanceToKinect() * -1.4f * PConstants.TWO_PI)%PConstants.TWO_PI;
 			// draw
 			mainApplet.pushStyle();
 			drawTree(minBranches+PApplet.round(addBranches*centerZ/upperZBoundary),centerZ/upperZBoundary,centerZ/upperZBoundary*height/3);
@@ -132,16 +133,18 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			mainApplet.popStyle();
 			// prepare for fade out
 			fadeOutCenterZ = centerZ;
-			if (mainApplet.frameCount-frameTreeShaken > 70) {
+			// reset leaf falling
+			if (fallingLeafsTransparency <= 0) {
 				leafsFallDown = false;
+				leafsFalling = null;
+				leafsRotationZFalling = null;
+				fallingLeafsTransparency = transparency;
 			}
 		}	
 	}
 	
 	public void shakeTree () {
-		frameTreeShaken = mainApplet.frameCount; 
 		leafsFallDown = true;
-		fallDownSpeed = 5;
 	}
 	
 	private void getAnglesForBranches () {
@@ -186,10 +189,12 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		sampleStepSize = audioManager.getBufferSize()/PApplet.pow(2,branchDepth);
 		actSampleIndex = 0;
 		// the leafs
-		if (!leafsFallDown) {
-			leafsBottom.clear();
-			leafsTop.clear();
+		if (leafsFallDown && leafsFalling == null) {
+			leafsFalling = (ArrayList<PVector>)leafs.clone();
+			leafsRotationZFalling = (ArrayList<Float>)leafsRotationZ.clone();
 		}
+		leafs.clear();
+		leafsRotationZ.clear();
 		
 		// draw trunk of the tree
 		mainApplet.pushMatrix();
@@ -208,36 +213,43 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	}
 	
 	private void drawLeafs () {
-		if (leafsFallDown) {
-			for (int i=0; i<leafsBottom.size(); i++) {
-				PVector top = leafsTop.get(i);
-				//top.z+=20;
-				top.y+=fallDownSpeed;
-				leafsTop.set(i,top);
-				PVector bottom = leafsBottom.get(i);
-				//bottom.z+=20;
-				bottom.y+=fallDownSpeed;
-				leafsBottom.set(i,bottom);
-			}
-			fallDownSpeed+=2f;
-		}
-		mainApplet.stroke(0,0,0);
-		mainApplet.strokeWeight(1);
+//		mainApplet.stroke(0,0,0);
+//		mainApplet.strokeWeight(1);
+		mainApplet.noStroke();
 		mainApplet.pushMatrix();
 		mainApplet.rotateY(PConstants.PI);
 		mainApplet.rotateZ(PConstants.PI);
-		mainApplet.translate(0,0,-TunnelScene3D.tunnelLength);
-		for (int i=0; i<leafsBottom.size(); i++) {
-			PVector top = leafsTop.get(i);
-			PVector bottom = leafsBottom.get(i);
+		//mainApplet.translate(0,0,-TunnelScene3D.tunnelLength);
+		if (leafsFallDown && leafsFalling != null) {
+			// draw falling leafs
+			for (int i=0; i<leafsFalling.size(); i++) {
+				float rand = mainApplet.random(-1f,1f);
+				PVector leafFalling = leafsFalling.get(i);
+				leafFalling.y+=fallDownGravity+rand*fallDownGravity;
+				leafFalling.x+=rand*10;
+				leafsFalling.set(i,leafFalling);
+				mainApplet.fill(leafColors[PApplet.round(i*colorsStepSize)],fallingLeafsTransparency);
+				mainApplet.pushMatrix();
+				mainApplet.translate(leafFalling.x,leafFalling.y,leafFalling.z);
+				mainApplet.rotateY(orientationTree);
+				float angle = leafsRotationZFalling.get(i);
+				angle += mainApplet.random(-1f,1f)*PApplet.radians(30);
+				mainApplet.rotateZ(angle+1.5f*PConstants.PI); // transfer to angle between 0 and 2PI with regard to the positive y axis
+				leafsRotationZFalling.set(i,angle);
+				mainApplet.translate(0,leafHeight/2);
+				mainApplet.ellipse(0,0,leafWidth,leafHeight);
+				mainApplet.popMatrix();
+			}
+			fallingLeafsTransparency -= fallDownGravity/1.5f;
+		}
+		// draw current leafs
+		for (int i=0; i<leafs.size(); i++) {
+			PVector leaf = leafs.get(i);
 			mainApplet.fill(leafColors[PApplet.round(i*colorsStepSize)],transparency);
 			mainApplet.pushMatrix();
-			mainApplet.translate(bottom.x,bottom.y,bottom.z);
+			mainApplet.translate(leaf.x,leaf.y,leaf.z);
 			mainApplet.rotateY(orientationTree);
-			// get the orientation of the leafs by looking at the bottom and at the top point
-			float y = top.y-bottom.y;
-			float x = top.x-bottom.x;
-			float angle = PApplet.atan2(y,x); // gives angle between -PI and PI
+			float angle = leafsRotationZ.get(i);
 			mainApplet.rotateZ(angle+1.5f*PConstants.PI); // transfer to angle between 0 and 2PI with regard to the positive y axis
 			mainApplet.rotateZ(audioManager.getMeanSampleAt(PApplet.round(i*sampleStepSize)));
 			mainApplet.translate(0,leafHeight/2);
@@ -282,15 +294,18 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		    
 		    mainApplet.popMatrix();
 		} else {
-			if (!leafsFallDown) {
-				// store leaf positions to draw them later (for manipulation)
-				mainApplet.pushMatrix();
-				mainApplet.rotateZ(PConstants.HALF_PI*audioManager.getMeanSampleAt(actSampleIndex+=sampleStepSize));
-				leafsBottom.add(new PVector(mainApplet.modelX(0,0,0),mainApplet.modelY(0,0,0),mainApplet.modelZ(0,0,0)));
-				mainApplet.translate(0,leafHeight,0);
-				leafsTop.add(new PVector(mainApplet.modelX(0,0,0),mainApplet.modelY(0,0,0),mainApplet.modelZ(0,0,0)));
-				mainApplet.popMatrix();
-			}
+			// store leaf positions to draw them later (for manipulation)
+			mainApplet.pushMatrix();
+			mainApplet.rotateZ(PConstants.HALF_PI*audioManager.getMeanSampleAt(actSampleIndex+=sampleStepSize));
+			PVector leaf = new PVector(mainApplet.modelX(0,0,0),mainApplet.modelY(0,0,0),mainApplet.modelZ(0,0,0)-TunnelScene3D.tunnelLength); 
+			leafs.add(leaf);
+			mainApplet.translate(0,leafHeight,0);
+			// get the orientation of the leafs by looking at the bottom and at the top point
+			float y = mainApplet.modelY(0,0,0)-leaf.y;
+			float x = mainApplet.modelX(0,0,0)-leaf.x;
+			float angle = PApplet.atan2(y,x); // gives angle between -PI and PI
+			leafsRotationZ.add(angle);
+			mainApplet.popMatrix();	
 		}
 	}
 

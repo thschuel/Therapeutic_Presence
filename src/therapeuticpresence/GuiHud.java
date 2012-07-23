@@ -63,8 +63,10 @@ public class GuiHud {
 	    // toggle debug output
 	    if (!TherapeuticPresence.debugOutput) {
 			guiMessages.hide();
+			info.hide();
 		} else {
 			guiMessages.show();
+			info.show();
 		}
 	    // draw the HUD
 		control.draw();   
@@ -91,75 +93,74 @@ public class GuiHud {
 									"o/l = save/load calibration data \n" +
 									"m = toggle mirror kinect data",
 									3,mainApplet.height-200,145,150);
-		fps = control.addTextarea("fpsArea","",3,mainApplet.height-50,500,50);
-		fps.setFont(mainApplet.createFont("Arial",34));
+		fps = control.addTextarea("fpsArea","",3,mainApplet.height-20,500,50);
 	}
 	
 	
 	private void createMenu() {
 		// create a group to store the menu elements
-		menu = control.addGroup("Menu",0,20,150);
+		menu = control.addGroup("Menu",0,20,200);
 		menu.setBackgroundHeight(320);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
-		controlP5.Button mirrorTherapyOff = control.addButton("switchMirrorTherapyOff",Skeleton.MIRROR_THERAPY_OFF,0,0,150,20);
+		controlP5.Button mirrorTherapyOff = control.addButton("switchMirrorTherapyOff",Skeleton.MIRROR_THERAPY_OFF,0,0,200,20);
 		mirrorTherapyOff.moveTo(menu);
-		mirrorTherapyOff.setCaptionLabel("MT OFF");
+		mirrorTherapyOff.setCaptionLabel("Mirror off");
 		mirrorTherapyOff.plugTo(this);
 		
-		controlP5.Button mirrorTherapyLeft = control.addButton("switchMirrorTherapyLeft",Skeleton.MIRROR_THERAPY_LEFT,0,20,150,20);
+		controlP5.Button mirrorTherapyLeft = control.addButton("switchMirrorTherapyLeft",Skeleton.MIRROR_THERAPY_LEFT,0,20,200,20);
 		mirrorTherapyLeft.moveTo(menu);
-		mirrorTherapyLeft.setCaptionLabel("MT LEFT");
+		mirrorTherapyLeft.setCaptionLabel("Mirror right");
 		mirrorTherapyLeft.plugTo(this);
 		
-		controlP5.Button mirrorTherapyRight = control.addButton("switchMirrorTherapyRight",Skeleton.MIRROR_THERAPY_RIGHT,0,40,150,20);
+		controlP5.Button mirrorTherapyRight = control.addButton("switchMirrorTherapyRight",Skeleton.MIRROR_THERAPY_RIGHT,0,40,200,20);
 		mirrorTherapyRight.moveTo(menu);
-		mirrorTherapyRight.setCaptionLabel("MT RIGHT");
+		mirrorTherapyRight.setCaptionLabel("Mirror left");
 		mirrorTherapyRight.plugTo(this);
 		
-		controlP5.Button drawDepthMap = control.addButton("switchVisualisationDepthMap",TherapeuticPresence.DEPTHMAP_VISUALISATION,0,60,150,20);
+		controlP5.Button drawDepthMap = control.addButton("switchVisualisationDepthMap",TherapeuticPresence.DEPTHMAP_VISUALISATION,0,60,200,20);
 		drawDepthMap.moveTo(menu);
 		drawDepthMap.setCaptionLabel("Draw DepthMap");
 		drawDepthMap.plugTo(this);
 		
-		controlP5.Button drawSkeletons = control.addButton("switchVisualisationSkeletons",TherapeuticPresence.STICKFIGURE_VISUALISATION,0,80,150,20);
+		controlP5.Button drawSkeletons = control.addButton("switchVisualisationSkeletons",TherapeuticPresence.STICKFIGURE_VISUALISATION,0,80,200,20);
 		drawSkeletons.moveTo(menu);
 		drawSkeletons.setCaptionLabel("Draw Skeletons");
 		drawSkeletons.plugTo(this);
 
-		controlP5.Button drawTree2D = control.addButton("switchVisualisationTree2D",TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION,0,100,150,20);
+		controlP5.Button drawTree2D = control.addButton("switchVisualisationTree2D",TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION,0,100,200,20);
 		drawTree2D.moveTo(menu);
 		drawTree2D.setCaptionLabel("Draw Tree 2D");
 		drawTree2D.plugTo(this);
 
-		controlP5.Button drawTree3D = control.addButton("switchVisualisationTree3D",TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION,0,120,150,20);
+		controlP5.Button drawTree3D = control.addButton("switchVisualisationTree3D",TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION,0,120,200,20);
 		drawTree3D.moveTo(menu);
 		drawTree3D.setCaptionLabel("Draw Tree 3D");
 		drawTree3D.plugTo(this);
 
-		controlP5.Button drawAudioSkeletons = control.addButton("switchVisualisationGeometry2D",TherapeuticPresence.GEOMETRY_2D_VISUALISATION,0,140,150,20);
+		controlP5.Button drawAudioSkeletons = control.addButton("switchVisualisationGeometry2D",TherapeuticPresence.GEOMETRY_2D_VISUALISATION,0,140,200,20);
 		drawAudioSkeletons.moveTo(menu);
 		drawAudioSkeletons.setCaptionLabel("Draw Geometry2D");
 		drawAudioSkeletons.plugTo(this);
 
-		controlP5.Button drawGeometry3D = control.addButton("switchVisualisationGeometry3D",TherapeuticPresence.GEOMETRY_3D_VISUALISATION,0,160,150,20);
+		controlP5.Button drawGeometry3D = control.addButton("switchVisualisationGeometry3D",TherapeuticPresence.GEOMETRY_3D_VISUALISATION,0,160,200,20);
 		drawGeometry3D.moveTo(menu);
 		drawGeometry3D.setCaptionLabel("Draw Geometry3D");
 		drawGeometry3D.plugTo(this);
 
-		controlP5.Textarea autoCalibrationLabel = control.addTextarea("autoCalibrationLabel","Toggle AutoCalibration",2,184,128,16);
+		controlP5.Textarea autoCalibrationLabel = control.addTextarea("autoCalibrationLabel","Toggle AutoCalibration",2,184,178,16);
 		autoCalibrationLabel.moveTo(menu);
 		
-		controlP5.Toggle autoCalibration = control.addToggle("switchAutoCalibration",TherapeuticPresence.autoCalibration,130,180,20,20);
+		controlP5.Toggle autoCalibration = control.addToggle("switchAutoCalibration",TherapeuticPresence.autoCalibration,180,180,20,20);
 		autoCalibration.moveTo(menu);
 		autoCalibration.setLabelVisible(false);
 		autoCalibration.plugTo(this);
 
-		controlP5.Textarea debugOutputLabel = control.addTextarea("debugOutputLabel","Toggle debugOutput",2,204,128,16);
+		controlP5.Textarea debugOutputLabel = control.addTextarea("debugOutputLabel","Toggle debugOutput",2,204,178,16);
 		debugOutputLabel.moveTo(menu);
 		
-		controlP5.Toggle debugOuput = control.addToggle("switchDebugOuput",TherapeuticPresence.debugOutput,130,200,20,20);
+		controlP5.Toggle debugOuput = control.addToggle("switchDebugOuput",TherapeuticPresence.debugOutput,180,200,20,20);
 		debugOuput.moveTo(menu);
 		debugOuput.setLabelVisible(false);
 		debugOuput.plugTo(this);
@@ -203,70 +204,86 @@ public class GuiHud {
 	
 	private void switchMirrorTherapyOff (int theValue) {
 		mainApplet.switchMirrorTherapy(Skeleton.MIRROR_THERAPY_OFF);
+		menu.hide();
 	}
 	
 	private void switchMirrorTherapyLeft (int theValue) {
 		mainApplet.switchMirrorTherapy(Skeleton.MIRROR_THERAPY_LEFT);
+		menu.hide();
 	}
 	
 	private void switchMirrorTherapyRight (int theValue) {
 		mainApplet.switchMirrorTherapy(Skeleton.MIRROR_THERAPY_RIGHT);
+		menu.hide();
 	}
 	
 	private void switchVisualisationDepthMap (int theValue) {
 		mainApplet.setupScene(TherapeuticPresence.BASIC_SCENE3D);
 		mainApplet.setupVisualisation(TherapeuticPresence.DEPTHMAP_VISUALISATION);
+		menu.hide();
 	}
 	
 	private void switchVisualisationSkeletons (int theValue) {
 		mainApplet.setupScene(TherapeuticPresence.BASIC_SCENE3D);
 		mainApplet.setupVisualisation(TherapeuticPresence.STICKFIGURE_VISUALISATION);
+		menu.hide();
 	}
 	
 	private void switchVisualisationTree2D (int theValue) {
 		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
 		mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION);
+		menu.hide();
 	}
 	
 	private void switchVisualisationTree3D (int theValue) {
 		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
 		mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION);
+		menu.hide();
 	}
 	
 	private void switchVisualisationGeometry2D (int theValue) {
 		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
 		mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_2D_VISUALISATION);
+		menu.hide();
 	}
 	
 	private void switchVisualisationGeometry3D (int theValue) {
 		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
 		mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
+		menu.hide();
 	}
 	
 	private void switchAutoCalibration (int theValue) {
 		TherapeuticPresence.autoCalibration = !TherapeuticPresence.autoCalibration;
+		menu.hide();
 	}
 	
 	private void switchDebugOutput (int theValue) {
 		TherapeuticPresence.debugOutput = !TherapeuticPresence.debugOutput;
+		menu.hide();
 	}
 	
 	private void changeFFTGain (float theValue) {
 		AudioManager.gain = theValue;
+		menu.hide();
 	}
 	
 	private void changeMaxDistanceToKinect (float theValue) {
 		TherapeuticPresence.maxDistanceToKinect = theValue;
+		menu.hide();
 	}
 
 	private void changePostureTolerance (float theValue) {
 		mainApplet.changePostureTolerance(theValue);
+		menu.hide();
 	}
 
 	private void changeGestureTolerance (float theValue) {
 		mainApplet.changeGestureTolerance(theValue);
+		menu.hide();
 	}
 	private void changeSmoothingSkeleton (float theValue) {
 		mainApplet.changeSmoothingSkeleton(theValue);
+		menu.hide();
 	}
 }

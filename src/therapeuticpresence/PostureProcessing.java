@@ -11,7 +11,7 @@ public class PostureProcessing {
 	private AbstractVisualisation visualisation;
 
 	public static final float timeHoldShapeToTrigger = 1.7f;
-	public static final float timeBlockTrigger = 5.5f;
+	public static final float timeBlockTrigger = 2.5f;
 	public static short activePosture = Skeleton.NO_POSE;
 	public static short currentGesture = Skeleton.NO_GESTURE;
 	// using counter for now
@@ -39,7 +39,7 @@ public class PostureProcessing {
 	public void updatePosture () {
 		timeSinceLastAction += 1f/mainApplet.frameRate;
 		activePosture = skeleton.getCurrentUpperBodyPosture();
-		currentGesture = skeleton.getLastUpperBodyGesture(100);
+		currentGesture = skeleton.getLastUpperBodyGesture(10);
 		for (int i=0; i<shapeActiveCounters.length; i++) {
 			if (i==activePosture) {
 				shapeActiveCounters[i] += 1f/mainApplet.frameRate;
@@ -54,7 +54,7 @@ public class PostureProcessing {
 			if (activePosture == Skeleton.HANDS_FORWARD_DOWN_POSE) {
 				scene.shapeActiveAlert(shapeActiveCounters[activePosture]);
 			}
-			if (shapeActiveCounters[Skeleton.HANDS_FORWARD_DOWN_POSE] > timeHoldShapeToTrigger) {
+			if (currentGesture == Skeleton.PUSH_GESTURE) {
 				if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
 					mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
 					mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
@@ -67,12 +67,13 @@ public class PostureProcessing {
 				}
 				timeSinceLastAction = 0f;
 			}
-			if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
-				if (currentGesture == Skeleton.PUSH_GESTURE) {
+			if (shapeActiveCounters[Skeleton.HANDS_FORWARD_DOWN_POSE] > timeHoldShapeToTrigger) {
+				if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
 					((GenerativeTree3DVisualisation)visualisation).shakeTree();
 					timeSinceLastAction = 0f;
 				}
 			}
+			
 		}
 	}
 	

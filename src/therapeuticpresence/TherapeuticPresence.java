@@ -50,9 +50,9 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean calculateLocalCoordSys = true; // control for full body tracking
 	public static boolean evaluatePostureAndGesture = true; // control for full body tracking
 	public static boolean recordFlag = true; // set to false for playback
-	public static boolean debugOutput = true;
+	public static boolean debugOutput = false;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
-	public static short defaultVisualisationMethod = TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION;
+	public static short defaultVisualisationMethod = TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
 	public static short currentVisualisationMethod;
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short defaultSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
@@ -232,6 +232,9 @@ public class TherapeuticPresence extends PApplet {
 				nextVisualisation.setup();
 				currentVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 				break;
+		}
+		if (postureProcessing != null) {
+			postureProcessing.setVisualisation(nextVisualisation);
 		}
 	}
 	
