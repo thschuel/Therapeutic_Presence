@@ -233,6 +233,9 @@ public class TherapeuticPresence extends PApplet {
 				currentVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 				break;
 		}
+		if (postureProcessing != null) {
+			postureProcessing.setVisualisation(nextVisualisation);
+		}
 	}
 	
 	// -----------------------------------------------------------------
@@ -301,10 +304,10 @@ public class TherapeuticPresence extends PApplet {
 			skeleton.setPostureTolerance(DEFAULT_POSTURE_TOLERANCE);
 			skeleton.setGestureTolerance(DEFAULT_GESTURE_TOLERANCE);
 			kinect.setSmoothingSkeleton(smoothingSkeleton);
+			postureProcessing = new PostureProcessing(this,skeleton,scene,visualisation);
 			// start default scene and visualisation
 			setupScene(defaultSceneType);
 			setupVisualisation(defaultVisualisationMethod);
-			postureProcessing = new PostureProcessing(this,skeleton,scene,visualisation);
 		}
 	}
 	
