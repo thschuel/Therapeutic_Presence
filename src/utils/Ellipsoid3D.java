@@ -12,20 +12,25 @@ public class Ellipsoid3D {
 	public static final short LINEAR_REGRESSION = 0;
 	public static final short QUADRATIC_REGRESSION = 1;
 	
-	public PVector center = new PVector();
-	public float zOffset = 0f;
-	public float width;
-	public float height;
-	public int strokeColor;
-	public float strokeWeight;
+	private PVector center = new PVector();
+	private float zOffset = 0f;
+	protected float leftX=0;
+	protected float leftY=0;
+	protected float rightX=0;
+	protected float rightY=0;
+	private int strokeColor;
+	private float strokeWeight;
 	public float transparency = MAX_TRANSPARENCY;
 	private short regressionMode = QUADRATIC_REGRESSION;
 	private int framesAlive = 0;
 	private float fadeOutFrames;
 	
-	public Ellipsoid3D(float _width, float _height, int _strokeColor, float _strokeWeight) {
-		width=_width;
-		height=_height;
+	public Ellipsoid3D(PVector _center, float _leftX, float _leftY, float _rightX, float _rightY, int _strokeColor, float _strokeWeight) {
+		center=_center;
+		leftX=_leftX;
+		leftY=_leftY;
+		rightX=_rightX;
+		rightY=_rightY;
 		strokeColor=_strokeColor;
 		strokeWeight=_strokeWeight;
 	}
@@ -38,8 +43,8 @@ public class Ellipsoid3D {
 			_mainApplet.strokeWeight(strokeWeight);
 			_mainApplet.stroke(strokeColor,transparency);
 			_mainApplet.noFill();
-			_mainApplet.ellipseMode(PConstants.CENTER);
-			_mainApplet.ellipse(0,0,width,height);
+			_mainApplet.ellipseMode(PConstants.CORNERS);
+			_mainApplet.ellipse(leftX,leftY,rightX,rightY);
 			_mainApplet.popMatrix();
 			transparency -= regression(fadeOutFrames);
 			if (++framesAlive >= fadeOutFrames) transparency = 0f;

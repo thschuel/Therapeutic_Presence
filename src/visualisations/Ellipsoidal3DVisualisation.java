@@ -10,10 +10,17 @@ import utils.Ellipsoid3D;
 public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width, height;
+	protected float centerX=0;
+	protected float centerY=0;
 	protected float centerZ;
+	protected float leftX=0;
+	protected float leftY=0;
+	protected float rightX=0;
+	protected float rightY=0;
+	protected float fadeInCenterZ=0;
 	protected PVector center = new PVector();
-	protected final float lowerZBoundary = 0.45f*TunnelScene3D.tunnelLength; // to control z position of drawing within a narrow corridor
-	protected final float upperZBoundary = 0.7f*TunnelScene3D.tunnelLength;
+	protected final float lowerZBoundary = 0.3f*TunnelScene3D.tunnelLength; // to control z position of drawing within a narrow corridor
+	protected final float upperZBoundary = 0.85f*TunnelScene3D.tunnelLength;
 	
 	// the ellipse to draw
 	protected ArrayList<Ellipsoid3D> ellipsoids = new ArrayList<Ellipsoid3D>();
@@ -31,7 +38,7 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	}
 	
 	public void setup() {
-		centerZ = PApplet.constrain(skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength,0,TunnelScene3D.tunnelLength);
+		centerZ = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
 		width = TunnelScene3D.getTunnelWidthAt(centerZ);
 		height = TunnelScene3D.getTunnelHeightAt(centerZ);
 		// coordinates based on canvas size
@@ -40,10 +47,16 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	
 	public void updateCanvasCoordinates () {
 		// center.z reacts to position of user with delay
-		centerZ = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
+		float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
+		centerZ += (mappedDistance-centerZ)/delay;
 		width = TunnelScene3D.getTunnelWidthAt(centerZ);
 		height = TunnelScene3D.getTunnelHeightAt(centerZ);
-	    center.set(0,0,centerZ);
+		PVector torso = skeleton.getJoint(Skeleton.TORSO);
+		float mappedTorsoX = PApplet.constrain(torso.x,-width/2,width/2);
+		float mappedTorsoY = PApplet.constrain(torso.y,-width/2,width/2);
+		centerX += (mappedTorsoX-centerX)/delay;
+		centerY += (mappedTorsoX-centerY)/delay;
+	    center.set(centerX,centerY,centerZ);
 	}
 	
 	public void draw () {
@@ -57,6 +70,20 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	}
 	
 	public boolean fadeIn () {
+		if (skeleton.isUpdated() && audioManager.isUpdated()) {
+			// center.z reacts to position of user with delay
+			fadeInCenterZ+=skeleton.distanceToKinect()/mainApplet.frameRate;
+			float mappedDistance = PApplet.map(fadeInCenterZ,0,TherapeuticPresence.maxDistanceToKinect,0,upperZBoundary);
+			centerZ += (mappedDistance-centerZ)/delay;
+			width = TunnelScene3D.getTunnelWidthAt(centerZ);
+			height = TunnelScene3D.getTunnelHeightAt(centerZ);
+			center.set(0,0,centerZ);
+			
+			updateEllipsoids();
+			for (int i=0; i<ellipsoids.size(); i++) {
+				ellipsoids.get(i).draw(mainApplet);
+			}
+		}
 		return true;
 	}
 	
@@ -79,8 +106,16 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	}
 	
 	private void updateEllipsoids () {
-		float sizeX = (PVector.sub(skeleton.getJoint(Skeleton.LEFT_HAND),skeleton.getJoint(Skeleton.RIGHT_HAND))).mag();
-		float sizeY = (PVector.sub(skeleton.getJoint(Skeleton.LEFT_HAND),skeleton.getJoint(Skeleton.TORSO))).mag();
+		PVector lHand = skeleton.getJoint(Skeleton.LEFT_HAND);
+		PVector rHand = skeleton.getJoint(Skeleton.RIGHT_HAND);
+		float mappedLeftX = PApplet.constrain(lHand.x,-width/2,0);
+		float mappedLeftY = PApplet.constrain(lHand.y,-height/2,0);
+		float mappedRightX = PApplet.constrain(rHand.x,0,width/2);
+		float mappedRightY = PApplet.constrain(rHand.y,0,height/2);
+		leftX += (mappedLeftX-leftX)/delay;
+		leftY += (mappedLeftY-leftY)/delay;
+		rightX += (mappedRightX-rightX)/delay;
+		rightY += (mappedRightY-rightY)/delay;
 		
 		// use sample data to shift offset
 		float sampleValues[] = new float[11];
@@ -99,10 +134,7 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 				mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,Ellipsoid3D.MAX_TRANSPARENCY);
 				color = mainApplet.color(i,255,255,255);
 				int offset = PApplet.round(j*i*radiation);
-				Ellipsoid3D temp = new Ellipsoid3D(sizeX+offset,sizeY+offset,color,strokeWeight);
-				temp.center.x = 0;
-				temp.center.y = 0;
-				temp.center.z = center.z;
+				Ellipsoid3D temp = new Ellipsoid3D(center,leftX,leftY,rightX,rightY,color,strokeWeight);
 				ellipsoids.add(temp);
 				if (i==0) j=2; // draw dc curve only once
 			}
