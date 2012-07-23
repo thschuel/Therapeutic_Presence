@@ -45,6 +45,7 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	}
 	
 	public void setup() {
+		mainApplet.noLights();
 	}
 	
 	public void updateCanvasCoordinates () {

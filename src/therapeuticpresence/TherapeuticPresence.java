@@ -40,6 +40,8 @@ public class TherapeuticPresence extends PApplet {
 	public static final short GEOMETRY_2D_VISUALISATION = 4;
 	public static final short GEOMETRY_3D_VISUALISATION = 5;
 	public static final short ELLIPSOIDAL_3D_VISUALISATION = 6;
+	public static final short MESH_3D_VISUALISATION = 7;
+	public static final short AGENT_3D_VISUALISATION = 8;
 	public static final short BASIC_SCENE2D = 0;
 	public static final short BASIC_SCENE3D = 1;
 	public static final short TUNNEL_SCENE2D = 2;
@@ -52,7 +54,7 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = false;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
-	public static short defaultVisualisationMethod = TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION;
+	public static short defaultVisualisationMethod = TherapeuticPresence.AGENT_3D_VISUALISATION;
 	public static short currentVisualisationMethod;
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short defaultSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
@@ -225,6 +227,18 @@ public class TherapeuticPresence extends PApplet {
 				nextVisualisation = new Ellipsoidal3DVisualisation(this,skeleton,audioManager);
 				nextVisualisation.setup();
 				currentVisualisationMethod = TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION;
+				break;
+				
+			case TherapeuticPresence.MESH_3D_VISUALISATION:
+				nextVisualisation = new Mesh3DVisualisation(this,skeleton,audioManager);
+				nextVisualisation.setup();
+				currentVisualisationMethod = TherapeuticPresence.MESH_3D_VISUALISATION;
+				break;
+				
+			case TherapeuticPresence.AGENT_3D_VISUALISATION:
+				nextVisualisation = new Agent3DVisualisation(this,skeleton,audioManager);
+				nextVisualisation.setup();
+				currentVisualisationMethod = TherapeuticPresence.AGENT_3D_VISUALISATION;
 				break;
 			
 			default:

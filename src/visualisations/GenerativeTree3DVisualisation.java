@@ -60,6 +60,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	}
 	
 	public void setup() {
+		mainApplet.noLights();
 		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 		strokeColor = mainApplet.color(250,250,250);
 		mainApplet.colorMode(PConstants.HSB,360,100,100,255);
@@ -167,16 +168,16 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		if (!TherapeuticPresence.mirrorKinect) {
 			// trees react to body posture with a delay
 			curlLeftLowerArm += (angleRightLowerArm*0.7-curlLeftLowerArm)/delay;		
-			curlLeftUpperArm += (angleRightUpperArm*0.7-curlLeftUpperArm)/delay;
+			curlLeftUpperArm += (angleRightUpperArm*0.5-curlLeftUpperArm)/delay;
 			curlRightLowerArm += (angleLeftLowerArm*0.7-curlRightLowerArm)/delay;
-			curlRightUpperArm += (angleLeftUpperArm*0.7-curlRightUpperArm)/delay;		
+			curlRightUpperArm += (angleLeftUpperArm*0.5-curlRightUpperArm)/delay;		
 			orientationTree += (orientationSkeleton*0.8-orientationTree)/delay;
 		} else {
 			// trees react to body posture with a delay
 			curlLeftLowerArm += (angleLeftLowerArm*0.7-curlLeftLowerArm)/delay;
-			curlLeftUpperArm += (angleLeftUpperArm*0.7-curlLeftUpperArm)/delay;
+			curlLeftUpperArm += (angleLeftUpperArm*0.5-curlLeftUpperArm)/delay;
 			curlRightLowerArm += (angleRightLowerArm*0.7-curlRightLowerArm)/delay;		
-			curlRightUpperArm += (angleRightUpperArm*0.7-curlRightUpperArm)/delay;	
+			curlRightUpperArm += (angleRightUpperArm*0.5-curlRightUpperArm)/delay;	
 			orientationTree += (-orientationSkeleton*0.8-orientationTree)/delay;
 		}
 	}
@@ -213,13 +214,10 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	}
 	
 	private void drawLeafs () {
-//		mainApplet.stroke(0,0,0);
-//		mainApplet.strokeWeight(1);
 		mainApplet.noStroke();
 		mainApplet.pushMatrix();
 		mainApplet.rotateY(PConstants.PI);
 		mainApplet.rotateZ(PConstants.PI);
-		//mainApplet.translate(0,0,-TunnelScene3D.tunnelLength);
 		if (leafsFallDown && leafsFalling != null) {
 			// draw falling leafs
 			for (int i=0; i<leafsFalling.size(); i++) {
@@ -236,7 +234,6 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 				angle += mainApplet.random(-1f,1f)*PApplet.radians(30);
 				mainApplet.rotateZ(angle+1.5f*PConstants.PI); // transfer to angle between 0 and 2PI with regard to the positive y axis
 				leafsRotationZFalling.set(i,angle);
-				mainApplet.translate(0,leafHeight/2);
 				mainApplet.ellipse(0,0,leafWidth,leafHeight);
 				mainApplet.popMatrix();
 			}
@@ -252,7 +249,6 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			float angle = leafsRotationZ.get(i);
 			mainApplet.rotateZ(angle+1.5f*PConstants.PI); // transfer to angle between 0 and 2PI with regard to the positive y axis
 			mainApplet.rotateZ(audioManager.getMeanSampleAt(PApplet.round(i*sampleStepSize)));
-			mainApplet.translate(0,leafHeight/2);
 			mainApplet.ellipse(0,0,leafWidth,leafHeight);
 			mainApplet.popMatrix();
 		}

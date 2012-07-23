@@ -50,7 +50,7 @@ public class TunnelScene3D extends BasicScene3D {
 		textureWallsHor = mainApplet.loadImage("../data/textureTunnelCrossline.png");
 		textureWallsImg = new PImage(textureWallsVer.width,textureWallsVer.height);
 		textureWalls = mainApplet.createGraphics(textureWallsVer.width,textureWallsVer.height,PConstants.P2D);
-		offsetTunnelEffectMax = (textureWalls.height+textureWallsHor.height)/horizontalLines;
+		offsetTunnelEffectMax = (textureWalls.height+textureWallsHor.height)/horizontalLines; 
 	}
 	
 	public void reset () {

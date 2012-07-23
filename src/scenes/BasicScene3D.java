@@ -40,6 +40,7 @@ public class BasicScene3D extends AbstractScene {
 		mainApplet.rotateY(rotY);
 		mainApplet.rotateZ(rotZ);
 		mainApplet.translate(translateX,translateY,translateZ);
+		mainApplet.noLights();
 		// fade out alert
 		activeTime -= alertFadeOutTime/mainApplet.frameRate;
 		if (activeTime<0f) activeTime=0f;
