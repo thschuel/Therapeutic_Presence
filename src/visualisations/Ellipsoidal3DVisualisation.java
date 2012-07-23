@@ -10,8 +10,10 @@ import utils.Ellipsoid3D;
 public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width, height;
-	protected float centerz;
+	protected float centerZ;
 	protected PVector center = new PVector();
+	protected final float lowerZBoundary = 0.45f*TunnelScene3D.tunnelLength; // to control z position of drawing within a narrow corridor
+	protected final float upperZBoundary = 0.7f*TunnelScene3D.tunnelLength;
 	
 	// the ellipse to draw
 	protected ArrayList<Ellipsoid3D> ellipsoids = new ArrayList<Ellipsoid3D>();
@@ -29,20 +31,19 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	}
 	
 	public void setup() {
-		centerz = PApplet.constrain(skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength,0,TunnelScene3D.tunnelLength);
-		width = TunnelScene3D.getTunnelWidthAt(centerz);
-		height = TunnelScene3D.getTunnelHeightAt(centerz);
+		centerZ = PApplet.constrain(skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength,0,TunnelScene3D.tunnelLength);
+		width = TunnelScene3D.getTunnelWidthAt(centerZ);
+		height = TunnelScene3D.getTunnelHeightAt(centerZ);
 		// coordinates based on canvas size
 		updateCanvasCoordinates();
 	}
 	
 	public void updateCanvasCoordinates () {
 		// center.z reacts to position of user with delay
-		centerz += (skeleton.distanceToKinect()/TherapeuticPresence.maxDistanceToKinect*TunnelScene3D.tunnelLength-centerz)/delay;
-		centerz = PApplet.constrain(centerz,0,TunnelScene3D.tunnelLength);
-	    center.set(0,0,centerz);
-		width = TunnelScene3D.getTunnelWidthAt(centerz);
-		height = TunnelScene3D.getTunnelHeightAt(centerz);
+		centerZ = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
+		width = TunnelScene3D.getTunnelWidthAt(centerZ);
+		height = TunnelScene3D.getTunnelHeightAt(centerZ);
+	    center.set(0,0,centerZ);
 	}
 	
 	public void draw () {
@@ -59,7 +60,7 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 		return true;
 	}
 	
-	// Fade out method is used to blend between visualisations. it should be over in 20 frames!!!
+	// Fade out method is used to blend between visualisations.
 	public boolean fadeOut () {
 		// clean up bezierCurves ArrayList
 		for (int i=0;i<ellipsoids.size();i++) {
@@ -78,7 +79,7 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	}
 	
 	private void updateEllipsoids () {
-		float sizeX = (PVector.sub(skeleton.getJoint(Skeleton.LEFT_ELBOW),skeleton.getJoint(Skeleton.RIGHT_ELBOW))).mag();
+		float sizeX = (PVector.sub(skeleton.getJoint(Skeleton.LEFT_HAND),skeleton.getJoint(Skeleton.RIGHT_HAND))).mag();
 		float sizeY = (PVector.sub(skeleton.getJoint(Skeleton.LEFT_HAND),skeleton.getJoint(Skeleton.TORSO))).mag();
 		
 		// use sample data to shift offset

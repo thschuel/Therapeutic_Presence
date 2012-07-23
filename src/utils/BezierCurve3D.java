@@ -25,7 +25,6 @@ public class BezierCurve3D {
 	private final float strokeWeightGrowth = 1.2f;
 	
 	public float zOffset = 0f;
-	public float centerZ = 0f;
 	
 	private int color;
 	public float transparency = MAX_TRANSPARENCY;
@@ -64,7 +63,6 @@ public class BezierCurve3D {
 			transparency -= regression(fadeOutFrames);
 			if (++framesAlive >= fadeOutFrames) transparency = 0f;
 			zOffset += TunnelScene3D.tunnelLength/_mainApplet.frameRate*FADE_OUT_SECONDS;
-			centerZ=controlPoints[controlPointsCounter/2].z;
 		}
 	}
 	
