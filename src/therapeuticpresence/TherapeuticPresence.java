@@ -305,9 +305,9 @@ public class TherapeuticPresence extends PApplet {
 			skeleton.setGestureTolerance(DEFAULT_GESTURE_TOLERANCE);
 			kinect.setSmoothingSkeleton(smoothingSkeleton);
 			// start default scene and visualisation
+			postureProcessing = new PostureProcessing(this,skeleton,scene,visualisation);
 			setupScene(defaultSceneType);
 			setupVisualisation(defaultVisualisationMethod);
-			postureProcessing = new PostureProcessing(this,skeleton,scene,visualisation);
 		}
 	}
 	
@@ -330,13 +330,15 @@ public class TherapeuticPresence extends PApplet {
 	
 	// call back for guihud
 	public void switchMirrorTherapy (short _mirrorTherapy) {
-		if (_mirrorTherapy >= Skeleton.MIRROR_THERAPY_OFF && _mirrorTherapy <= Skeleton.MIRROR_THERAPY_RIGHT) 
+		if (_mirrorTherapy >= Skeleton.MIRROR_THERAPY_OFF && _mirrorTherapy <= Skeleton.MIRROR_THERAPY_RIGHT) {
 			mirrorTherapy = _mirrorTherapy;
-		else
+		} else {
 			mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
+		}
 		
-		if (skeleton != null) 
+		if (skeleton != null) {
 			skeleton.setMirrorTherapy(mirrorTherapy);
+		}
 	}
 	
 	public void changePostureTolerance (float _postureTolerance) {
