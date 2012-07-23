@@ -134,7 +134,7 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 				mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,Ellipsoid3D.MAX_TRANSPARENCY);
 				color = mainApplet.color(i,255,255,255);
 				int offset = PApplet.round(j*i*radiation);
-				Ellipsoid3D temp = new Ellipsoid3D(center,leftX,leftY,rightX,rightY,color,strokeWeight);
+				Ellipsoid3D temp = new Ellipsoid3D(center,leftX-offset,leftY-offset,rightX+offset,rightY+offset,color,strokeWeight);
 				ellipsoids.add(temp);
 				if (i==0) j=2; // draw dc curve only once
 			}
