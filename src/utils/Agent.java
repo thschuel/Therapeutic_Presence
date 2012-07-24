@@ -24,20 +24,24 @@ import processing.core.PVector;
 
 public class Agent {
 
-	boolean isOutside = false;
-	PVector p;
-	float offset, offsetVelocity, stepSize, angleY, angleZ;
-	Ribbon3D ribbon;
-	int col;
-	float strokeW;
-	PApplet mainApplet;
+	private boolean isOutside = false;
+	private PVector p;
+	private float stepSize;
+	private Ribbon3D ribbon;
+	private int col;
+	private float strokeW;
+	private float minStroke = 1;
+	private float maxStroke = 3;
+	private float startX, startY, startAngle;
+	private PApplet mainApplet;
 
-	public Agent(PApplet _mainApplet) {
+	public Agent(PApplet _mainApplet, float _startX, float _startY, float _startAngle) {
 	    mainApplet=_mainApplet;
+	    startX=_startX;
+	    startY=_startY;
+	    startAngle=_startAngle;
 		p = new PVector(0, 0, 0);
-	    setRandomPostition();
-	    offset = 10000;
-	    offsetVelocity = 0.05f;
+	    setToStartPostition();
 	    stepSize = mainApplet.random(5, 20);
 	    // how many points has the ribbon
 	    ribbon = new Ribbon3D(p, (int)mainApplet.random(50, 150));
@@ -50,24 +54,21 @@ public class Agent {
 	    strokeW = mainApplet.random(1.0f);
 	}
 
-	public void update1(float left, float right, float width, float height){ 
-	    angleY = left;//mainApplet.noise(p.x/left, p.y/right, p.z/950) * 20; 
-	    angleZ = right;//mainApplet.noise(p.x/left+offset, p.y/right, p.z/950) * 20; 
-
+	public void update1(float angleY, float angleZ, float width, float height){ 
 	    /* convert polar to cartesian coordinates
 	     stepSize is distance of the point to the last point
 	     angleY is the angle for rotation around y-axis
 	     angleZ is the angle for rotation around z-axis
 	     */
-	    p.x += PApplet.cos(angleZ) * PApplet.cos(angleY) * stepSize;
-	    p.y += PApplet.sin(angleZ) * stepSize;
-	    p.z += PApplet.cos(angleZ) * PApplet.sin(angleY) * stepSize;
+	    p.x += PApplet.cos(startAngle+angleZ) * PApplet.cos(startAngle+angleY) * stepSize;
+	    p.y += PApplet.sin(startAngle+angleZ) * stepSize;
+	    p.z += PApplet.cos(startAngle+angleZ) * PApplet.sin(startAngle+angleY) * stepSize;
 
     	// boundingbox
     	if (p.x<-width/2 || p.x>width/2 ||
     		p.y<-height/2 || p.y>height/2 ||
       		p.z<-400 || p.z>400) {
-    		setRandomPostition();
+    		setToStartPostition();
       		isOutside = true;
     	}
 
@@ -75,55 +76,15 @@ public class Agent {
     	ribbon.update(p,isOutside);
     	isOutside = false;
   	}
-	
-	public void update2(float left, float right, float width, float height){ 
-	    angleY = left; 
-	    angleZ = right; 
-
-	    p.x += PApplet.cos(angleZ) * PApplet.cos(angleY) * stepSize;
-	    p.y += PApplet.sin(angleZ) * stepSize;
-	    p.z += PApplet.cos(angleZ) * PApplet.sin(angleY) * stepSize;
-
-	    // boundingbox wrap
-	    if(p.x<-width/2) {
-	      p.x=width/2;
-	      isOutside = true;
-	    }
-	    if(p.x>width/2) {
-	      p.x=-width/2;
-	      isOutside = true;
-	    }
-	    if(p.y<-height/2) {
-	      p.y=height/2;
-	      isOutside = true;
-	    }  
-	    if(p.y>height/2) {
-	      p.y=-height/2;
-	      isOutside = true;
-	    }
-	    if(p.z<-400) {
-	      p.z=400;
-	      isOutside = true;
-	    }
-	    if(p.z>400) {
-	      p.z=-400;
-	      isOutside = true;
-	    }
-
-	    // create ribbons
-	    ribbon.update(p,isOutside);
-	    isOutside = false;
-	    offset += offsetVelocity;
-	  }
 
   	public void draw() {
-  		ribbon.drawMeshRibbon(mainApplet,col,PApplet.map(strokeW,0,1,1,12));
-  		//ribbon.drawLineRibbon(col,map(strokeW,0,1,minStroke,maxStroke));
+  		//ribbon.drawMeshRibbon(mainApplet,col,PApplet.map(strokeW,0,1,1,12));
+  		ribbon.drawLineRibbon(mainApplet,col,PApplet.map(strokeW,0,1,minStroke,maxStroke));
   	}
 
-	private void setRandomPostition() {
-	    p.x=mainApplet.random(-600,600);
-	    p.y=mainApplet.random(-400,400);
-	    p.z=mainApplet.random(-400,400);
+	private void setToStartPostition() {
+	    p.x=startX;
+	    p.y=startY;
+	    p.z=0;
 	}
 }

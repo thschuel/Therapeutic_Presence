@@ -29,9 +29,8 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	// these values are used for drawing the audioresponsive circles
 	protected final float delay = 8f;
 	protected final int radiation = 30;
-	protected final float scaleDC = 2f;
-	protected final float scaleAC = 13f;
-	protected final float strokeWeight = 1.7f;
+	protected final float scaleDC = 6f;
+	protected final float scaleAC = 40f;
 	
 	public Ellipsoidal3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton,_audioManager);
@@ -39,7 +38,6 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	}
 	
 	public void setup() {
-		mainApplet.noLights();
 	}
 	
 	public void updateCanvasCoordinates () {

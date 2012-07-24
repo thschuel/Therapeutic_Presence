@@ -39,16 +39,26 @@ public class Ellipsoid3D {
 	public void draw (TherapeuticPresence _mainApplet) {
 		if (transparency > 0) {
 			fadeOutFrames = _mainApplet.frameRate*FADE_OUT_SECONDS;
-			_mainApplet.pushMatrix();
-			_mainApplet.translate(center.x,center.y,center.z-zOffset);
-			_mainApplet.rotateY(orientation);
+			_mainApplet.pushStyle();
 			_mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,Ellipsoid3D.MAX_TRANSPARENCY);
 			_mainApplet.strokeWeight(strokeWeight);
 			_mainApplet.stroke(strokeColor,transparency);
 			_mainApplet.noFill();
 			_mainApplet.ellipseMode(PConstants.CORNERS);
+			_mainApplet.pushMatrix();
+			_mainApplet.translate(center.x,center.y,center.z);
+			_mainApplet.rotateY(orientation);
+			_mainApplet.rotateX(PConstants.HALF_PI);
+			_mainApplet.pushMatrix();
+			_mainApplet.translate(0,0,-zOffset);
 			_mainApplet.ellipse(leftX,leftY,rightX,rightY);
 			_mainApplet.popMatrix();
+			_mainApplet.pushMatrix();
+			_mainApplet.translate(0,0,zOffset);
+			_mainApplet.ellipse(leftX,leftY,rightX,rightY);
+			_mainApplet.popMatrix();
+			_mainApplet.popMatrix();
+			_mainApplet.popStyle();
 			transparency -= regression(fadeOutFrames);
 			if (++framesAlive >= fadeOutFrames) transparency = 0f;
 			zOffset += TunnelScene3D.tunnelLength/_mainApplet.frameRate*FADE_OUT_SECONDS;

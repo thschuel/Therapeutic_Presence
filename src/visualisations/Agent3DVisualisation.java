@@ -38,7 +38,12 @@ public class Agent3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	
 	public void setup() {
 		mainApplet.colorMode(PConstants.HSB,360,100,100);
-		for(int i=0; i<agents.length; i++) agents[i]=new Agent(mainApplet);
+		for(int i=0; i<agents.length; i++) {
+			float angle = PConstants.TWO_PI*(i/agents.length);
+			float x = PApplet.cos(angle)*20;
+			float y = PApplet.sin(angle)*20;
+			agents[i]=new Agent(mainApplet,x,y,angle);
+		}
 	}
 	
 	public void updateCanvasCoordinates () {
@@ -62,11 +67,6 @@ public class Agent3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	
 	public void draw () {
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
-			mainApplet.lightSpecular(230, 230, 230); 
-			mainApplet.directionalLight(200f, 200f, 200f, 0.5f, 0.5f, -1f); 
-			mainApplet.specular(mainApplet.color(200)); 
-			mainApplet.shininess(5.0f);
-
 			float left = PVector.angleBetween(skeleton.getLeftUpperArm(),skeleton.getOrientationY());
 			float right = PVector.angleBetween(skeleton.getRightUpperArm(),skeleton.getOrientationY());
 			
@@ -76,18 +76,21 @@ public class Agent3DVisualisation extends AbstractSkeletonAudioVisualisation {
 			updateCanvasCoordinates();
 			
 			mainApplet.pushStyle();
+			mainApplet.lightSpecular(230, 230, 230); 
+			mainApplet.directionalLight(200f, 200f, 200f, 0.5f, 0.5f, -1f); 
+			mainApplet.specular(mainApplet.color(200)); 
+			mainApplet.shininess(5.0f);
 			mainApplet.pushMatrix();
 			// ------ set view ------
 			mainApplet.translate(center.x,center.y,center.z); 
 			mainApplet.rotateY(orientation); 
 			// ------ update and draw agents ------
 			for(int i=0; i<agents.length; i++) {
-			    agents[i].update2(left,right,width+100,height+100); 
+			    agents[i].update1(left,right,width+100,height+100); 
 			    agents[i].draw();
 			}
 			mainApplet.popMatrix();
 			mainApplet.popStyle();
-			mainApplet.noLights();
 		}
 	}
 	

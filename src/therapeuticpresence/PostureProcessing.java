@@ -66,6 +66,9 @@ public class PostureProcessing {
 					mainApplet.setupVisualisation(TherapeuticPresence.MESH_3D_VISUALISATION);
 				}  else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.MESH_3D_VISUALISATION) {
 					mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+					mainApplet.setupVisualisation(TherapeuticPresence.AGENT_3D_VISUALISATION);
+				}  else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.AGENT_3D_VISUALISATION) {
+					mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
 					mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION);
 				}
 				timeSinceLastAction = 0f;

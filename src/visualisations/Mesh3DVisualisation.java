@@ -25,7 +25,7 @@ public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	protected final float upperZBoundary = 0.85f*TunnelScene3D.tunnelLength;
 	
 	// the ellipse to draw
-	protected Mesh mesh;
+	protected MyMesh mesh;
 	
 	// these values are used for drawing the audioresponsive circles
 	protected final float delay = 8f;
@@ -40,6 +40,10 @@ public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	}
 	
 	public void setup() {
+		mesh = new MyMesh(mainApplet);
+		mesh.setUCount(100);
+		mesh.setVCount(100);
+		mesh.setColorRange(100, 192, 50, 80, 30, 50, 100);
 	}
 	
 	public void updateCanvasCoordinates () {
@@ -62,13 +66,7 @@ public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	}
 	
 	public void draw () {
-		if (skeleton.isUpdated() && audioManager.isUpdated()) {
-
-			mainApplet.lightSpecular(230, 230, 230); 
-			mainApplet.directionalLight(200f, 200f, 200f, 0.5f, 0.5f, -1f); 
-			mainApplet.specular(mainApplet.color(200)); 
-			mainApplet.shininess(5.0f);
-			
+		if (skeleton.isUpdated() && audioManager.isUpdated()) {			
 			// center.z reacts to position of user with delay
 			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
 			centerZ += (mappedDistance-centerZ)/delay;
@@ -76,6 +74,10 @@ public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
 			updateMesh();
 			// rotate tree according to body rotation
 			mainApplet.pushStyle();
+			mainApplet.lightSpecular(230, 230, 230); 
+			mainApplet.directionalLight(200f, 200f, 200f, 0.5f, 0.5f, -1f); 
+			mainApplet.specular(mainApplet.color(200)); 
+			mainApplet.shininess(5.0f);
 			mainApplet.pushMatrix();
 			mainApplet.translate(center.x,center.y,center.z);
 			mainApplet.rotateY(orientation);
@@ -107,8 +109,10 @@ public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
 			sampleValues[i] = audioManager.getMeanSampleAt((int)(i*audioManager.getBufferSize()/11))*1.5f;
 		}
 
-		mesh = new Mesh(mainApplet,Mesh.FIGURE8TORUS,20,20,0,2f*left,0,2f*right);
-		mesh.setColorRange(100, 192, 50, 80, 30, 50, 100);
+	    // recalculate points and draw mesh
+		mesh.setParam(1, left/PConstants.PI);
+	    mesh.setParam(2, right/PConstants.PI);
+	    mesh.update();
 		
 		/*
 		// add BezierCurves to Array. based on the calculated coordinates and the FFT values
@@ -133,4 +137,20 @@ public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
 		return TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION;
 	}
 
+}
+
+class MyMesh extends Mesh {
+	public MyMesh (PApplet _mainApplet) {
+		super(_mainApplet);
+	}
+	public PVector calculatePoints(float u, float v) {
+	    PVector p1 = calculateSteinbachScrew(u, v);
+	    PVector p2 = calculateBow(u, v);
+	    
+	    float x = lerp(p1.x, p2.x, params[1]);
+	    float y = lerp(p1.y, p2.y, params[1]);
+	    float z = lerp(p1.z, p2.z, params[1]);
+
+	    return new PVector(x, y, z);
+	}
 }
