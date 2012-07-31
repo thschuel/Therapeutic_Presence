@@ -46,6 +46,7 @@ public class TherapeuticPresence extends PApplet {
 	public static final short BASIC_SCENE3D = 1;
 	public static final short TUNNEL_SCENE2D = 2;
 	public static final short TUNNEL_SCENE3D = 3;
+	public static final short LIQUID_SCENE3D = 4;
 
 	// --- static setup variables ---
 	public static boolean fullBodyTracking = true; // control for full body tracking
@@ -53,16 +54,18 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean evaluatePostureAndGesture = true; // control for full body tracking
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = false;
-	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
-	public static short defaultVisualisationMethod = TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION;
-	public static short currentVisualisationMethod;
+	public static boolean demo=true;
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
+	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 	public static short defaultSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
+	public static short defaultVisualisationMethod = TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
+	public static short currentVisualisationMethod;
 	public static short currentSceneType;
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
-	public static float maxDistanceToKinect = 2500f; // in mm 
+	public static float maxDistanceToKinect = 2500f; // in mm, is used for scaling the visuals
+	public static final float cameraEyeZ = 5000f; // in mm, visuals are sensitive to this!
 	public static final float DEFAULT_POSTURE_TOLERANCE = 0.5f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
 	public static final float DEFAULT_GESTURE_TOLERANCE = 0.7f;
@@ -98,7 +101,7 @@ public class TherapeuticPresence extends PApplet {
 		  
 		// start the audio interface
 		audioManager = new AudioManager(this);
-		audioManager.setup();
+		audioManager.setup("../data/moan.mp3");
 		audioManager.start();
 		
 		// setup Scene
@@ -169,6 +172,17 @@ public class TherapeuticPresence extends PApplet {
 					scene = new TunnelScene3D(this,color(0,0,0),audioManager);
 					scene.reset();
 					currentSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
+				} else {
+					setupScene(TherapeuticPresence.BASIC_SCENE3D);
+					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
+				}
+				break;
+				
+			case TherapeuticPresence.LIQUID_SCENE3D:
+				if (audioManager != null) {
+					scene = new LiquidScene3D(this,color(0,0,0),audioManager);
+					scene.reset();
+					currentSceneType = TherapeuticPresence.LIQUID_SCENE3D;
 				} else {
 					setupScene(TherapeuticPresence.BASIC_SCENE3D);
 					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
@@ -271,15 +285,20 @@ public class TherapeuticPresence extends PApplet {
 		
 		// -------- drawing --------------------------------
 		if (scene != null) {
+			pushStyle();
 			scene.reset();
+			popStyle();
 		}
 		
 		if (lastVisualisation != null) {
+			pushStyle();
 			if (lastVisualisation.fadeOut()) { // true when visualisation has done fade out
 				lastVisualisation = null;
 			}
+			popStyle();
 		}
 		if (nextVisualisation != null) {
+			pushStyle();
 			if (nextVisualisation.fadeIn()) { // true when visualisation has done fade in
 				visualisation = nextVisualisation;
 				if (postureProcessing != null) {
@@ -287,13 +306,18 @@ public class TherapeuticPresence extends PApplet {
 				}
 				nextVisualisation = null;
 			}
+			popStyle();
 		}
 		if (visualisation != null) { 
+			pushStyle();
 			visualisation.draw();
+			popStyle();
 		}
 		
 		if (guiHud != null) {
+			pushStyle();
 			guiHud.draw();
+			popStyle();
 		}
 
 	}
@@ -476,48 +500,28 @@ public class TherapeuticPresence extends PApplet {
 		if (scene.sceneIs3D()) {
 			switch (key) {
 				case 'w':
-					((BasicScene3D)scene).translateZ -= 100.0f;
+					((BasicScene3D)scene).cameraZ -= 100.0f;
 					break;
 					
 				case 'W':
-					((BasicScene3D)scene).translateY -= 100.0f;
+					((BasicScene3D)scene).cameraY -= 100.0f;
 					break;
 					
 				case 'a':
-					((BasicScene3D)scene).translateX += 100.0f;
+					((BasicScene3D)scene).cameraX += 100.0f;
 					break;
 					
 				case 's':
-					((BasicScene3D)scene).translateZ += 100.0f;
+					((BasicScene3D)scene).cameraZ += 100.0f;
 					break;
 					
 				case 'S':
-					((BasicScene3D)scene).translateY += 100.0f;
+					((BasicScene3D)scene).cameraY += 100.0f;
 					break;
 					
 				case 'd':
-					((BasicScene3D)scene).translateX -= 100.0f;
+					((BasicScene3D)scene).cameraX -= 100.0f;
 					break;
-			}
-			switch(keyCode) {
-		    	case LEFT:
-		    		((BasicScene3D)scene).rotY += 100.0f;
-		    		break;
-		    	case RIGHT:
-		    		((BasicScene3D)scene).rotY -= 100.0f;
-		    		break;
-		    	case UP:
-	    			if(keyEvent.isShiftDown())
-	    				((BasicScene3D)scene).rotZ += 100.0f;
-	    			else
-	    				((BasicScene3D)scene).rotX += 100.0f;
-		    		break;
-		    	case DOWN:
-	    			if(keyEvent.isShiftDown())
-	    				((BasicScene3D)scene).rotZ -= 100.0f;
-	    			else
-	    				((BasicScene3D)scene).rotX -= 100.0f;
-	    			break;
 			}
 		}
 	}

@@ -11,7 +11,9 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width, height;
 	protected float centerX=0;
+	protected float startTorsoX=0;
 	protected float centerY=0;
+	protected float startTorsoY=0;
 	protected float centerZ;
 	protected float leftX=0;
 	protected float leftY=0;
@@ -38,23 +40,26 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	}
 	
 	public void setup() {
+		PVector torso = skeleton.getJoint(Skeleton.TORSO);
+		startTorsoX=torso.x;
+		startTorsoY=torso.y;
 	}
 	
 	public void updateCanvasCoordinates () {
 		width = TunnelScene3D.getTunnelWidthAt(centerZ);
 		height = TunnelScene3D.getTunnelHeightAt(centerZ);
 		PVector torso = skeleton.getJoint(Skeleton.TORSO);
-		float mappedTorsoX = PApplet.constrain(torso.x,-width/2,width/2);
-		float mappedTorsoY = PApplet.constrain(torso.y,-height/2,height/2);
+		float mappedTorsoX = PApplet.constrain(torso.x-startTorsoX,-width/2,width/2);
+		float mappedTorsoY = PApplet.constrain(torso.y-startTorsoY,-height/2,height/2);
 		centerX += (mappedTorsoX-centerX)/delay;
 		centerY += (mappedTorsoY-centerY)/delay;
 	    center.set(centerX,centerY,centerZ);
-		float orientationSkeleton = PVector.angleBetween(new PVector(0,0,1),skeleton.getOrientationX()) - PConstants.HALF_PI;
+		float orientationSkeleton = PVector.angleBetween(new PVector(0,-1,0),skeleton.getOrientationY()) - PConstants.HALF_PI;
 		// TODO: this is a hack. find solution for changing mirror kinect on the fly
 		if (!TherapeuticPresence.mirrorKinect) {
-			orientation += (orientationSkeleton*0.8-orientation)/delay;
+			orientation += (orientationSkeleton*0.3-orientation)/delay;
 		} else {
-			orientation += (-orientationSkeleton*0.8-orientation)/delay;
+			orientation += (-orientationSkeleton*0.3-orientation)/delay;
 		}
 			
 	}
@@ -66,7 +71,6 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 			centerZ += (mappedDistance-centerZ)/delay;
 			updateCanvasCoordinates();
 			updateEllipsoids();
-			// rotate tree according to body rotation
 			for (int i=0; i<ellipsoids.size(); i++) {
 				ellipsoids.get(i).draw(mainApplet);
 			}
@@ -80,7 +84,6 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 			float mappedDistance = PApplet.map(fadeInCenterZ,0,TherapeuticPresence.maxDistanceToKinect,0,upperZBoundary);
 			centerZ += (mappedDistance-centerZ)/delay;
 			updateCanvasCoordinates();
-			center.set(0,0,center.z);
 			updateEllipsoids();
 			for (int i=0; i<ellipsoids.size(); i++) {
 				ellipsoids.get(i).draw(mainApplet);

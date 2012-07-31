@@ -12,7 +12,9 @@ public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width, height;
 	protected float centerX=0;
+	protected float startTorsoX=0;
 	protected float centerY=0;
+	protected float startTorsoY=0;
 	protected float centerZ;
 	protected float leftX=0;
 	protected float leftY=0;
@@ -40,18 +42,23 @@ public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	}
 	
 	public void setup() {
+		mainApplet.pushStyle();
 		mesh = new MyMesh(mainApplet);
 		mesh.setUCount(100);
 		mesh.setVCount(100);
 		mesh.setColorRange(100, 192, 50, 80, 30, 50, 100);
+		PVector torso = skeleton.getJoint(Skeleton.TORSO);
+		startTorsoX=torso.x;
+		startTorsoY=torso.y;
+		mainApplet.popStyle();
 	}
 	
 	public void updateCanvasCoordinates () {
 		width = TunnelScene3D.getTunnelWidthAt(centerZ);
 		height = TunnelScene3D.getTunnelHeightAt(centerZ);
 		PVector torso = skeleton.getJoint(Skeleton.TORSO);
-		float mappedTorsoX = PApplet.constrain(torso.x,-width/2,width/2);
-		float mappedTorsoY = PApplet.constrain(torso.y,-height/2,height/2);
+		float mappedTorsoX = PApplet.constrain(torso.x-startTorsoX,-width/2,width/2);
+		float mappedTorsoY = PApplet.constrain(torso.y-startTorsoY,-height/2,height/2);
 		centerX += (mappedTorsoX-centerX)/delay;
 		centerY += (mappedTorsoY-centerY)/delay;
 	    center.set(centerX,centerY,centerZ);
@@ -80,8 +87,8 @@ public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
 			mainApplet.shininess(5.0f);
 			mainApplet.pushMatrix();
 			mainApplet.translate(center.x,center.y,center.z);
-			mainApplet.rotateY(orientation);
-			mainApplet.scale(100);
+			mainApplet.rotateY(PConstants.HALF_PI+orientation);
+			mainApplet.scale(160);
 			mainApplet.noStroke();
 			mainApplet.fill(0);
 			mesh.draw();

@@ -13,7 +13,9 @@ public class Agent3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width, height;
 	protected float centerX=0;
+	protected float startTorsoX=0;
 	protected float centerY=0;
+	protected float startTorsoY=0;
 	protected float centerZ=0;
 	protected float fadeInCenterZ=0;
 	protected PVector center = new PVector();
@@ -39,19 +41,22 @@ public class Agent3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	public void setup() {
 		mainApplet.colorMode(PConstants.HSB,360,100,100);
 		for(int i=0; i<agents.length; i++) {
-			float angle = PConstants.TWO_PI*(i/agents.length);
-			float x = PApplet.cos(angle)*20;
-			float y = PApplet.sin(angle)*20;
+			float angle = PConstants.TWO_PI*((float)i/agents.length);
+			float x = PApplet.cos(angle)*150;
+			float y = PApplet.sin(angle)*150;
 			agents[i]=new Agent(mainApplet,x,y,angle);
 		}
+		PVector torso = skeleton.getJoint(Skeleton.TORSO);
+		startTorsoX=torso.x;
+		startTorsoY=torso.y;
 	}
 	
 	public void updateCanvasCoordinates () {
 		width = TunnelScene3D.getTunnelWidthAt(centerZ);
 		height = TunnelScene3D.getTunnelHeightAt(centerZ);
 		PVector torso = skeleton.getJoint(Skeleton.TORSO);
-		float mappedTorsoX = PApplet.constrain(torso.x,-width/2,width/2);
-		float mappedTorsoY = PApplet.constrain(torso.y,-height/2,height/2);
+		float mappedTorsoX = PApplet.constrain(torso.x-startTorsoX,-width/2,width/2);
+		float mappedTorsoY = PApplet.constrain(torso.y-startTorsoY,-height/2,height/2);
 		centerX += (mappedTorsoX-centerX)/delay;
 		centerY += (mappedTorsoY-centerY)/delay;
 	    center.set(centerX,centerY,centerZ);
@@ -69,6 +74,10 @@ public class Agent3DVisualisation extends AbstractSkeletonAudioVisualisation {
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
 			float left = PVector.angleBetween(skeleton.getLeftUpperArm(),skeleton.getOrientationY());
 			float right = PVector.angleBetween(skeleton.getRightUpperArm(),skeleton.getOrientationY());
+			left -= PConstants.HALF_PI; // shift to -half_pi .. half_pi
+			right -= PConstants.HALF_PI;
+			left *= 0.8; // scale down
+			right *= 0.8; // scale down
 			
 			// center.z reacts to position of user with delay
 			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);

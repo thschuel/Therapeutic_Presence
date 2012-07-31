@@ -1,5 +1,6 @@
 package utils;
 import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PVector;
 
 
@@ -45,7 +46,7 @@ public class Agent {
 	    stepSize = mainApplet.random(5, 20);
 	    // how many points has the ribbon
 	    ribbon = new Ribbon3D(p, (int)mainApplet.random(50, 150));
-	
+	    mainApplet.colorMode(PConstants.HSB,360,100,100,100);
 	    float r = mainApplet.random(1.0f);
 	    if (r < 0.4) col = mainApplet.color(mainApplet.random(190,200),mainApplet.random(80,100),mainApplet.random(50,70));
 	    else if (r < 0.5) col = mainApplet.color(52,100,mainApplet.random(50,80));
@@ -60,9 +61,9 @@ public class Agent {
 	     angleY is the angle for rotation around y-axis
 	     angleZ is the angle for rotation around z-axis
 	     */
-	    p.x += PApplet.cos(startAngle+angleZ) * PApplet.cos(startAngle+angleY) * stepSize;
-	    p.y += PApplet.sin(startAngle+angleZ) * stepSize;
-	    p.z += PApplet.cos(startAngle+angleZ) * PApplet.sin(startAngle+angleY) * stepSize;
+	    p.x += PApplet.cos(startAngle) * PApplet.cos(angleZ) */* PApplet.cos(angleY) */ stepSize;
+	    p.y += PApplet.sin(startAngle) * PApplet.sin(angleZ) */* PApplet.sin(angleY) */ stepSize;
+	    p.z += PApplet.cos(angleZ) * PApplet.sin(angleY) * stepSize;
 
     	// boundingbox
     	if (p.x<-width/2 || p.x>width/2 ||
@@ -79,7 +80,7 @@ public class Agent {
 
   	public void draw() {
   		//ribbon.drawMeshRibbon(mainApplet,col,PApplet.map(strokeW,0,1,1,12));
-  		ribbon.drawLineRibbon(mainApplet,col,PApplet.map(strokeW,0,1,minStroke,maxStroke));
+  		ribbon.drawMeshRibbon(mainApplet,col,PApplet.map(strokeW,0,1,minStroke,maxStroke));
   	}
 
 	private void setToStartPostition() {

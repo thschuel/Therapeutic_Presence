@@ -55,21 +55,34 @@ public class PostureProcessing {
 				scene.shapeActiveAlert(shapeActiveCounters[activePosture]);
 			}
 			if (currentGesture == Skeleton.PUSH_GESTURE) {
-				if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
-					mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
-					mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
-				} else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GEOMETRY_3D_VISUALISATION) {
-					mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
-					mainApplet.setupVisualisation(TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION);
-				}  else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION) {
-					mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
-					mainApplet.setupVisualisation(TherapeuticPresence.MESH_3D_VISUALISATION);
-				}  else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.MESH_3D_VISUALISATION) {
-					mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
-					mainApplet.setupVisualisation(TherapeuticPresence.AGENT_3D_VISUALISATION);
-				}  else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.AGENT_3D_VISUALISATION) {
-					mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
-					mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION);
+				if (TherapeuticPresence.demo) {
+					if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
+						mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+						mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
+					} else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GEOMETRY_3D_VISUALISATION) {
+						mainApplet.setupScene(TherapeuticPresence.LIQUID_SCENE3D);
+						mainApplet.setupVisualisation(TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION);
+					}  else {
+						mainApplet.setupScene(TherapeuticPresence.LIQUID_SCENE3D);
+						mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION);
+					}
+				} else {
+					if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
+						mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+						mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
+					} else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GEOMETRY_3D_VISUALISATION) {
+						mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+						mainApplet.setupVisualisation(TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION);
+					}  else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION) {
+						mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+						mainApplet.setupVisualisation(TherapeuticPresence.MESH_3D_VISUALISATION);
+					}  else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.MESH_3D_VISUALISATION) {
+						mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+						mainApplet.setupVisualisation(TherapeuticPresence.AGENT_3D_VISUALISATION);
+					}  else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.AGENT_3D_VISUALISATION) {
+						mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+						mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION);
+					}
 				}
 				timeSinceLastAction = 0f;
 			}

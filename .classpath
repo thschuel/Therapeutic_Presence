@@ -53,5 +53,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/user/shapes3d/shapes3d.jar"/>
 	<classpathentry kind="lib" path="lib/user/therapeuticskeleton/therapeuticskeleton.jar"/>
+	<classpathentry kind="lib" path="lib/user/PeasyCam/peasycam.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

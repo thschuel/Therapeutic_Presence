@@ -2,6 +2,7 @@ package therapeuticpresence;
 
 import java.text.DecimalFormat;
 
+import peasy.PeasyCam;
 import processing.core.*;
 import controlP5.*;
 import processing.opengl.*;
@@ -29,6 +30,7 @@ public class GuiHud {
 		control = new ControlP5(mainApplet);
 		g3 = (PGraphics3D)_mainApplet.g;
 		
+		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 		createMenu();
 		menu.hide();
 		menuButton = control.addButton("toggleMenu",1,0,0,150,20);
@@ -45,6 +47,16 @@ public class GuiHud {
 		PMatrix3D currentCamMatrix = new PMatrix3D(g3.camera); 
 		// reset camera to draw HUD
 		g3.camera();
+		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
+		mainApplet.noLights();
+		updateDisplay();
+	    // draw the HUD
+		control.draw();   
+		// set camera back to old position
+		g3.camera = currentCamMatrix;
+	}
+	
+	private void updateDisplay () {
 	    // update fps Text
 		String shapeString = "";
 		switch (PostureProcessing.activePosture) {
@@ -61,17 +73,13 @@ public class GuiHud {
 		}
 	    fps.setText("pG "+Skeleton.pushGestureStartCycle+" g "+PostureProcessing.currentGesture+" shape: "+shapeString+" fps: "+PApplet.round(mainApplet.frameRate));
 	    // toggle debug output
-	    if (!TherapeuticPresence.debugOutput) {
+	    if (!TherapeuticPresence.debugOutput || TherapeuticPresence.demo) {
 			guiMessages.hide();
 			info.hide();
 		} else {
 			guiMessages.show();
 			info.show();
 		}
-	    // draw the HUD
-		control.draw();   
-		// set camera back to old position
-		g3.camera = currentCamMatrix;
 	}
 	
 	public void sendGuiMessage (String s) {
@@ -149,13 +157,13 @@ public class GuiHud {
 		drawGeometry3D.setCaptionLabel("Draw Geometry3D");
 		drawGeometry3D.plugTo(this);
 
-		controlP5.Textarea autoCalibrationLabel = control.addTextarea("autoCalibrationLabel","Toggle AutoCalibration",2,184,178,16);
-		autoCalibrationLabel.moveTo(menu);
+		controlP5.Textarea demoLabel = control.addTextarea("demoLabel","Toggle Demo",2,184,178,16);
+		demoLabel.moveTo(menu);
 		
-		controlP5.Toggle autoCalibration = control.addToggle("switchAutoCalibration",TherapeuticPresence.autoCalibration,180,180,20,20);
-		autoCalibration.moveTo(menu);
-		autoCalibration.setLabelVisible(false);
-		autoCalibration.plugTo(this);
+		controlP5.Toggle demo = control.addToggle("switchDemo",TherapeuticPresence.demo,180,180,20,20);
+		demo.moveTo(menu);
+		demo.setLabelVisible(false);
+		demo.plugTo(this);
 
 		controlP5.Textarea debugOutputLabel = control.addTextarea("debugOutputLabel","Toggle debugOutput",2,204,178,16);
 		debugOutputLabel.moveTo(menu);
@@ -229,9 +237,9 @@ public class GuiHud {
 		menu.hide();
 	}
 	
-	private void switchVisualisationTree2D (int theValue) {
-		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
-		mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION);
+	private void switchVisualisationGeometry3D (int theValue) {
+		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+		mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
 		menu.hide();
 	}
 	
@@ -241,49 +249,42 @@ public class GuiHud {
 		menu.hide();
 	}
 	
+	private void switchVisualisationTree2D (int theValue) {
+		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
+		mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION);
+		menu.hide();
+	}
+	
 	private void switchVisualisationGeometry2D (int theValue) {
 		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
 		mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_2D_VISUALISATION);
 		menu.hide();
 	}
 	
-	private void switchVisualisationGeometry3D (int theValue) {
-		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
-		mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
-		menu.hide();
-	}
-	
-	private void switchAutoCalibration (int theValue) {
-		TherapeuticPresence.autoCalibration = !TherapeuticPresence.autoCalibration;
-		menu.hide();
+	private void switchDemo (int theValue) {
+		TherapeuticPresence.demo = !TherapeuticPresence.demo;
 	}
 	
 	private void switchDebugOutput (int theValue) {
 		TherapeuticPresence.debugOutput = !TherapeuticPresence.debugOutput;
-		menu.hide();
 	}
 	
 	private void changeFFTGain (float theValue) {
 		AudioManager.gain = theValue;
-		menu.hide();
 	}
 	
 	private void changeMaxDistanceToKinect (float theValue) {
 		TherapeuticPresence.maxDistanceToKinect = theValue;
-		menu.hide();
 	}
 
 	private void changePostureTolerance (float theValue) {
 		mainApplet.changePostureTolerance(theValue);
-		menu.hide();
 	}
 
 	private void changeGestureTolerance (float theValue) {
 		mainApplet.changeGestureTolerance(theValue);
-		menu.hide();
 	}
 	private void changeSmoothingSkeleton (float theValue) {
 		mainApplet.changeSmoothingSkeleton(theValue);
-		menu.hide();
 	}
 }

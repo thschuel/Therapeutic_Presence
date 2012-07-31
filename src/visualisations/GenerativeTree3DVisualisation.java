@@ -47,7 +47,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	private float fallDownGravity = 5f;
 	
 	// audio responsive tree
-	protected float initialScale = 2f;
+	protected float initialScale = 2.5f;
 	protected float downScale = 0.9f;
 	protected float transparency = 200;
 	protected float fallingLeafsTransparency = 200;
@@ -196,34 +196,45 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		}
 		leafs.clear();
 		leafsRotationZ.clear();
+
+		// the strokeWeight reacts to the volume of the audio
+		float strokeWeight = audioManager.getMeanFFT(0) * initialScale;
 		
 		// draw trunk of the tree
 		mainApplet.pushMatrix();
 		mainApplet.translate(center.x,-scale*height/8-initialStrokeLength,center.z);
-		mainApplet.stroke(strokeColor,transparency);
-		float strokeWeight = audioManager.getMeanFFT(0) * initialScale;
-		mainApplet.strokeWeight(strokeWeight);
-		mainApplet.line(0,0,0,0,initialStrokeLength,0);
-		mainApplet.translate(0,initialStrokeLength,0);
 		// rotate tree according to body rotation
 		mainApplet.rotateY(orientationTree);
+		
+//		mainApplet.stroke(strokeColor,transparency);
+//		mainApplet.strokeWeight(strokeWeight);
+//		mainApplet.line(0,0,0,0,initialStrokeLength,0);
+		mainApplet.pushStyle();
+		mainApplet.noStroke();
+		mainApplet.fill(strokeColor,transparency);
+		mainApplet.beginShape(PConstants.QUAD_STRIP);
+		mainApplet.vertex(-strokeWeight,0f,0f);
+		mainApplet.vertex(strokeWeight,0f,0f);
+		mainApplet.vertex(-strokeWeight,initialStrokeLength,0f);
+		mainApplet.vertex(strokeWeight,initialStrokeLength,0f);
+		mainApplet.endShape();
+		mainApplet.translate(0,initialStrokeLength,0);
 		// start branching
 		branchCount = branchDepth;
 		branch(initialStrokeLength*downscaleStrokeLength,branchDepth,strokeWeight*downScale);
+		mainApplet.popStyle();
 		mainApplet.popMatrix();
 	}
 	
 	private void drawLeafs () {
 		mainApplet.noStroke();
 		mainApplet.pushMatrix();
-		mainApplet.rotateY(PConstants.PI);
-		mainApplet.rotateZ(PConstants.PI);
 		if (leafsFallDown && leafsFalling != null) {
 			// draw falling leafs
 			for (int i=0; i<leafsFalling.size(); i++) {
 				float rand = mainApplet.random(-1f,1f);
 				PVector leafFalling = leafsFalling.get(i);
-				leafFalling.y+=fallDownGravity+rand*fallDownGravity;
+				leafFalling.y-=fallDownGravity+rand*fallDownGravity;
 				leafFalling.x+=rand*10;
 				leafsFalling.set(i,leafFalling);
 				mainApplet.fill(leafColors[PApplet.round(i*colorsStepSize)],fallingLeafsTransparency);
@@ -248,7 +259,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			mainApplet.rotateY(orientationTree);
 			float angle = leafsRotationZ.get(i);
 			mainApplet.rotateZ(angle+1.5f*PConstants.PI); // transfer to angle between 0 and 2PI with regard to the positive y axis
-			mainApplet.rotateZ(audioManager.getMeanSampleAt(PApplet.round(i*sampleStepSize)));
+			//mainApplet.rotateZ(audioManager.getMeanSampleAt(PApplet.round(i*sampleStepSize)));
 			mainApplet.ellipse(0,0,leafWidth,leafHeight);
 			mainApplet.popMatrix();
 		}
@@ -267,9 +278,15 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			} else {
 				mainApplet.rotateZ(-curlLeftUpperArm); // rotate clockwise
 			}
-			mainApplet.stroke(strokeColor,transparency);
-			mainApplet.strokeWeight(_strokeWeight);
-			mainApplet.line(0,0,0,0,_strokeLength,0);
+//			mainApplet.stroke(strokeColor,transparency);
+//			mainApplet.strokeWeight(_strokeWeight);
+//			mainApplet.line(0,0,0,0,_strokeLength,0);
+			mainApplet.beginShape(PConstants.QUAD_STRIP);
+			mainApplet.vertex(-_strokeWeight,0f,0f);
+			mainApplet.vertex(_strokeWeight,0f,0f);
+			mainApplet.vertex(-_strokeWeight,_strokeLength,0f);
+			mainApplet.vertex(_strokeWeight,_strokeLength,0f);
+			mainApplet.endShape();
 			mainApplet.translate(0,_strokeLength,0);
 		    branch(_strokeLength,_branchDepth,_strokeWeight*downScale);
 		    
@@ -282,9 +299,15 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			} else {
 				mainApplet.rotateZ(curlRightUpperArm); // rotate clockwise
 			}
-			mainApplet.stroke(strokeColor,transparency);
-			mainApplet.strokeWeight(_strokeWeight);
-			mainApplet.line(0,0,0,0,_strokeLength,0);
+//			mainApplet.stroke(strokeColor,transparency);
+//			mainApplet.strokeWeight(_strokeWeight);
+//			mainApplet.line(0,0,0,0,_strokeLength,0);
+			mainApplet.beginShape(PConstants.QUAD_STRIP);
+			mainApplet.vertex(-_strokeWeight,0f,0f);
+			mainApplet.vertex(_strokeWeight,0f,0f);
+			mainApplet.vertex(-_strokeWeight,_strokeLength,0f);
+			mainApplet.vertex(_strokeWeight,_strokeLength,0f);
+			mainApplet.endShape();
 		    mainApplet.translate(0,_strokeLength,0);
 		    branch(_strokeLength,_branchDepth,_strokeWeight*downScale);
 		    
@@ -293,7 +316,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			// store leaf positions to draw them later (for manipulation)
 			mainApplet.pushMatrix();
 			mainApplet.rotateZ(PConstants.HALF_PI*audioManager.getMeanSampleAt(actSampleIndex+=sampleStepSize));
-			PVector leaf = new PVector(mainApplet.modelX(0,0,0),mainApplet.modelY(0,0,0),mainApplet.modelZ(0,0,0)-TunnelScene3D.tunnelLength); 
+			PVector leaf = new PVector(mainApplet.modelX(0,0,0),mainApplet.modelY(0,0,0),mainApplet.modelZ(0,0,0)); 
 			leafs.add(leaf);
 			mainApplet.translate(0,leafHeight,0);
 			// get the orientation of the leafs by looking at the bottom and at the top point

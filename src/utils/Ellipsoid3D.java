@@ -2,6 +2,7 @@ package utils;
 
 import processing.core.*;
 import scenes.TunnelScene3D;
+import shapes3d.Tube;
 import therapeuticpresence.AudioManager;
 import therapeuticpresence.TherapeuticPresence;
 
@@ -14,7 +15,7 @@ public class Ellipsoid3D {
 	
 	private PVector center = new PVector();
 	private float zOffset = 0f;
-	protected float leftX=0;
+	protected float innerRadius=0;
 	protected float leftY=0;
 	protected float rightX=0;
 	protected float rightY=0;
@@ -25,16 +26,18 @@ public class Ellipsoid3D {
 	private short regressionMode = QUADRATIC_REGRESSION;
 	private int framesAlive = 0;
 	private float fadeOutFrames;
+	private Tube theTube;
 	
-	public Ellipsoid3D(PVector _center, float _leftX, float _leftY, float _rightX, float _rightY, float _orientation, int _strokeColor, float _strokeWeight) {
+	public Ellipsoid3D(PVector _center, float _innerRadius, float _outerRadius, float _rightX, float _rightY, float _orientation, int _strokeColor, float _strokeWeight) {
 		center=_center;
-		leftX=_leftX;
-		leftY=_leftY;
+		innerRadius=_innerRadius;
+		leftY=_outerRadius;
 		rightX=_rightX;
 		rightY=_rightY;
 		strokeColor=_strokeColor;
 		strokeWeight=_strokeWeight;
 		orientation=_orientation;
+		//theTube=new Tube();
 	}
 	public void draw (TherapeuticPresence _mainApplet) {
 		if (transparency > 0) {
@@ -47,15 +50,15 @@ public class Ellipsoid3D {
 			_mainApplet.ellipseMode(PConstants.CORNERS);
 			_mainApplet.pushMatrix();
 			_mainApplet.translate(center.x,center.y,center.z);
-			_mainApplet.rotateY(orientation);
+			_mainApplet.rotateX(orientation);
 			_mainApplet.rotateX(PConstants.HALF_PI);
 			_mainApplet.pushMatrix();
 			_mainApplet.translate(0,0,-zOffset);
-			_mainApplet.ellipse(leftX,leftY,rightX,rightY);
+			_mainApplet.ellipse(innerRadius,leftY,rightX,rightY);
 			_mainApplet.popMatrix();
 			_mainApplet.pushMatrix();
 			_mainApplet.translate(0,0,zOffset);
-			_mainApplet.ellipse(leftX,leftY,rightX,rightY);
+			_mainApplet.ellipse(innerRadius,leftY,rightX,rightY);
 			_mainApplet.popMatrix();
 			_mainApplet.popMatrix();
 			_mainApplet.popStyle();

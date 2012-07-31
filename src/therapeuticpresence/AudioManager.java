@@ -14,7 +14,7 @@ public class AudioManager implements AudioListener{
 	protected float[] leftChannelSamples = null;
 	protected float[] rightChannelSamples = null;
 	protected FFT fft; 
-	public static float gain = 0.25f;
+	public static float gain = 0.14f;
 	protected float maxFFT;
 	protected float[] leftFFT = null;
 	protected float[] rightFFT = null;
@@ -26,8 +26,8 @@ public class AudioManager implements AudioListener{
 		minim = new Minim(mainApplet);
 	}
 	
-	public void setup () {
-		audioPlayer = minim.loadFile("../data/moan.mp3",1024);
+	public void setup (String file) {
+		audioPlayer = minim.loadFile(file,1024);
 		audioPlayer.addListener(this);
 		
 	    fft = new FFT(audioPlayer.bufferSize(), audioPlayer.sampleRate());

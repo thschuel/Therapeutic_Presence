@@ -12,12 +12,12 @@ public class BasicScene3D extends AbstractScene {
 	protected final float timeToFullAlert = PostureProcessing.timeHoldShapeToTrigger; // seconds to fully display alert
 	
 	// variables to move through the scene. used only by some visualisations
-	public float translateX = 0.0f;
-	public float translateY = 0.0f;
-	public float translateZ = 0.0f;
-	public float rotX = PApplet.radians(0); 
-	public float rotY = PApplet.radians(0);
-	public float rotZ = PApplet.radians(180);  // by default rotate the hole scene 180deg around the z-axis, the data from openni comes upside down
+	public float cameraX = 0.0f;
+	public float cameraY = 0.0f;
+	public float cameraZ = 0.0f;
+	public float upX = 0.0f; 
+	public float upY = -1.0f; // kinect data comes upside down
+	public float upZ = 0.0f;
 
 	public BasicScene3D (TherapeuticPresence _mainApplet, int _backgroundColor) {
 		super(_mainApplet,_backgroundColor);
@@ -33,13 +33,8 @@ public class BasicScene3D extends AbstractScene {
 		backgroundColor=PApplet.blendColor(defaultBackgroundColor,alertColor,PConstants.BLEND);
 		// reset the scene
 		mainApplet.background(backgroundColor);
-		// set the camera to the position of the kinect, facing towards the scene
-		mainApplet.camera(0,0,0,0,0,1,0,1,0);
-		// rotate the scene: kinect data comes upside down! values can be controlled by user
-		mainApplet.rotateX(rotX);
-		mainApplet.rotateY(rotY);
-		mainApplet.rotateZ(rotZ);
-		mainApplet.translate(translateX,translateY,translateZ);
+		// set the camera to the user specified position, facing towards the origin
+		mainApplet.camera(cameraX,cameraY,cameraZ,0,0,0,upX,upY,upZ);
 		mainApplet.noLights();
 		// fade out alert
 		activeTime -= alertFadeOutTime/mainApplet.frameRate;

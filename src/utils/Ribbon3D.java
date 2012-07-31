@@ -47,6 +47,7 @@ public class Ribbon3D {
 	}
 	
 	public void drawMeshRibbon(PApplet _mainApplet, int theMeshCol, float theWidth) {
+		_mainApplet.pushStyle();
 		// draw the ribbons with meshes
 		_mainApplet.fill(theMeshCol);
 		_mainApplet.noStroke();
@@ -55,7 +56,7 @@ public class Ribbon3D {
 		for(int i=0; i<count-1; i++) {
 			// if the point was wraped -> finish the mesh an start a new one
 			if (isGap[i] == true) {
-				_mainApplet.vertex(p[i].x, p[i].y, p[i].z);
+				//_mainApplet.vertex(p[i].x, p[i].y, p[i].z);
 				_mainApplet.vertex(p[i].x, p[i].y, p[i].z);
 				_mainApplet.endShape();
 				_mainApplet.beginShape(PConstants.QUAD_STRIP);
@@ -72,10 +73,12 @@ public class Ribbon3D {
 
 		}
 		_mainApplet.endShape();
+		_mainApplet.popStyle();
 	}
 	
 	
 	public void drawLineRibbon(PApplet _mainApplet, int theStrokeCol, float theWidth) {
+		_mainApplet.pushStyle();
 		// draw the ribbons with lines
 		_mainApplet.noFill();
 		_mainApplet.strokeWeight(theWidth);
@@ -90,6 +93,7 @@ public class Ribbon3D {
 			} 
 		}
 		_mainApplet.endShape();
+		_mainApplet.popStyle();
 	}
 }
 

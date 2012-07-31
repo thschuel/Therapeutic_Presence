@@ -26,8 +26,8 @@ public class TunnelScene3D extends BasicScene3D {
 	protected int offsetTunnelEffectMax = 0;
 	protected final int horizontalLines = 3;
 	protected int backgroundTintColor = 0;
-	protected int backgroundTintHueMax = 255;
-	protected int backgroundTintHue = 120;
+	protected int backgroundTintHueMax = 360;
+	protected int backgroundTintHue = 207;
 	protected int defaultBackgroundHighlightColor = 0x10ffffff;
 	protected float audioReactionDelay = 12f;
 	protected float fftDCValue=0f;
@@ -37,8 +37,7 @@ public class TunnelScene3D extends BasicScene3D {
 		super (_mainApplet,_backgroundColor);
 		audioManager = _audioManager;
 		// rotate and set up for third person view
-		rotY = PApplet.radians(180);
-		translateZ = -tunnelLength; // negative translation, because translation will be applied after rotation around Y
+		cameraZ = tunnelLength; // negative translation, because translation will be applied after rotation around Y
 		tunnelTube = new Tube(mainApplet,8,60);
 		// set radii of tube
 		tunnelTube.setSize(tunnelWidth/2f,tunnelHeight/2f,(tunnelWidth/2f)/tunnelShrink,(tunnelWidth/2f)/tunnelShrink,tunnelLength);
@@ -64,6 +63,7 @@ public class TunnelScene3D extends BasicScene3D {
 		super.reset();
 		// update texture and draw background
 		updateTexture();
+		tunnelTube.setTexture("../data/smoketex.jpg");
 		tunnelTube.setTexture(textureWalls.get(),10,1);
 		tunnelTube.drawMode(Shape3D.TEXTURE);
 		tunnelTube.draw();
