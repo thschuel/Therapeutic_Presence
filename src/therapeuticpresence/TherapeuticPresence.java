@@ -64,7 +64,7 @@ public class TherapeuticPresence extends PApplet {
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
-	public static float maxDistanceToKinect = 2500f; // in mm, is used for scaling the visuals
+	public static float maxDistanceToKinect = 3500f; // in mm, is used for scaling the visuals
 	public static final float cameraEyeZ = 5000f; // in mm, visuals are sensitive to this!
 	public static final float DEFAULT_POSTURE_TOLERANCE = 0.5f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
@@ -72,6 +72,9 @@ public class TherapeuticPresence extends PApplet {
 	public static float gestureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
 	public static final float DEFAULT_SMOOTHING_SKELETON = 0.8f;
 	public static float smoothingSkeleton = TherapeuticPresence.DEFAULT_SMOOTHING_SKELETON;
+	public static final String[] audioFiles = {"../data/moan.mp3","../data/latin.mp3", "../data/rjd2.mp3"/*, "../data/vivaldi.mp3"*/};
+	public static short initialAudioFile = 0;
+	public static float kinectTilt=PApplet.radians(17.5f);
 	
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
@@ -98,10 +101,9 @@ public class TherapeuticPresence extends PApplet {
 		
 		// establish connection to kinect/openni
 		setupKinect();
-		  
 		// start the audio interface
 		audioManager = new AudioManager(this);
-		audioManager.setup("../data/moan.mp3");
+		audioManager.setup(audioFiles[(int)random(audioFiles.length-0.01f)]);
 		audioManager.start();
 		
 		// setup Scene

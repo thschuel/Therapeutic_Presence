@@ -15,10 +15,16 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	protected float centerY=0;
 	protected float startTorsoY=0;
 	protected float centerZ;
-	protected float leftX=0;
-	protected float leftY=0;
-	protected float rightX=0;
-	protected float rightY=0;
+	protected float angleLeftLower=0;
+	protected float angleRightLower=0;
+	protected float angleLeftUpper=0;
+	protected float angleRightUpper=0;
+	protected float lHandX=0;
+	protected float lHandY=0;
+	protected float lHandZ=0;
+	protected float rHandX=0;
+	protected float rHandY=0;
+	protected float rHandZ=0;
 	protected float fadeInCenterZ=0;
 	protected PVector center = new PVector();
 	private float orientation = 0;
@@ -30,9 +36,9 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	
 	// these values are used for drawing the audioresponsive circles
 	protected final float delay = 8f;
-	protected final int radiation = 30;
-	protected final float scaleDC = 6f;
-	protected final float scaleAC = 40f;
+	protected final float radiation = 80f;
+	protected final float scaleDC = 2f;
+	protected final float scaleAC = 20f;
 	
 	public Ellipsoidal3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton,_audioManager);
@@ -48,19 +54,14 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	public void updateCanvasCoordinates () {
 		width = TunnelScene3D.getTunnelWidthAt(centerZ);
 		height = TunnelScene3D.getTunnelHeightAt(centerZ);
-		PVector torso = skeleton.getJoint(Skeleton.TORSO);
+		PVector torso = skeleton.getJoint(Skeleton.NECK);
 		float mappedTorsoX = PApplet.constrain(torso.x-startTorsoX,-width/2,width/2);
 		float mappedTorsoY = PApplet.constrain(torso.y-startTorsoY,-height/2,height/2);
 		centerX += (mappedTorsoX-centerX)/delay;
 		centerY += (mappedTorsoY-centerY)/delay;
 	    center.set(centerX,centerY,centerZ);
-		float orientationSkeleton = PVector.angleBetween(new PVector(0,-1,0),skeleton.getOrientationY()) - PConstants.HALF_PI;
-		// TODO: this is a hack. find solution for changing mirror kinect on the fly
-		if (!TherapeuticPresence.mirrorKinect) {
-			orientation += (orientationSkeleton*0.3-orientation)/delay;
-		} else {
-			orientation += (-orientationSkeleton*0.3-orientation)/delay;
-		}
+		float orientationSkeleton = PVector.angleBetween(new PVector(0,1,0),skeleton.getOrientationY())-TherapeuticPresence.kinectTilt;
+		orientation += (orientationSkeleton*0.8-orientation)/delay;
 			
 	}
 	
@@ -114,39 +115,53 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	}
 	
 	private void updateEllipsoids () {
-		PVector lHand = skeleton.getJoint(Skeleton.LEFT_HAND);
-		PVector rHand = skeleton.getJoint(Skeleton.RIGHT_HAND);
-		float mappedLeftX = PApplet.constrain(lHand.x,-width/2,0);
-		float mappedLeftY = PApplet.constrain(lHand.y,-height/2,height/2);
-		float mappedRightX = PApplet.constrain(rHand.x,0,width/2);
-		float mappedRightY = PApplet.constrain(rHand.y,-height/2,height/2);
-		leftX += (mappedLeftX-leftX)/delay;
-		leftY += (mappedLeftY-leftY)/delay;
-		rightX += (mappedRightX-rightX)/delay;
-		rightY += (mappedRightY-rightY)/delay;
+		PVector lHand = skeleton.getJointLocalCoordSys(Skeleton.LEFT_HAND);
+		lHand.x = PApplet.map(lHand.x,0,900f,0,width/2);
+		PVector rHand = skeleton.getJointLocalCoordSys(Skeleton.RIGHT_HAND);
+		rHand.x = PApplet.map(rHand.x,-900f,0f,-width/2,0);
+//		PVector lHandrHand = PVector.sub(lHand,rHand);
+		float distanceMapped = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,0f,1f);
+		float angleLeftLowerNew = -skeleton.getAngleLeftLowerArm()*0.1f;
+		float angleRightLowerNew = -skeleton.getAngleRightLowerArm()*0.1f;
+		float angleLeftUpperNew = -skeleton.getAngleLeftUpperArm()*0.9f;
+		float angleRightUpperNew = -skeleton.getAngleRightUpperArm()*0.9f;
+		angleLeftLower += (angleLeftLowerNew-angleLeftLower)/delay;
+		angleRightLower += (angleRightLowerNew-angleRightLower)/delay;
+		angleLeftUpper += (angleLeftUpperNew-angleLeftUpper)/delay;
+		angleRightUpper += (angleRightUpperNew-angleRightUpper)/delay;
+		lHandX += (lHand.x-lHandX)/delay;
+		lHandY += (lHand.y-lHandY)/delay;
+		lHandZ += (lHand.z-lHandZ)/delay;
+		rHandX += (rHand.x-rHandX)/delay;
+		rHandY += (rHand.y-rHandY)/delay;
+		rHandZ += (rHand.z-rHandZ)/delay;
 		
 		// use sample data to shift offset
-		float sampleValues[] = new float[11];
-		for (int i=0; i<11; i++) {
-			sampleValues[i] = audioManager.getMeanSampleAt((int)(i*audioManager.getBufferSize()/11))*1.5f;
-		}
+//		float sampleValues[] = new float[11];
+//		for (int i=0; i<11; i++) {
+//			sampleValues[i] = audioManager.getMeanSampleAt((int)(i*audioManager.getBufferSize()/11))*1.5f;
+//		}
 		
-		// add BezierCurves to Array. based on the calculated coordinates and the FFT values
+		// add Ellipsoids to Array. based on the calculated coordinates and the FFT values
 		for (int i=0; i<AudioManager.bands; i++) {
 			float strokeWeight;
 			int color;
-			for (int j=-1; j<2; j+=2) {
-				if (i==0) strokeWeight = audioManager.getMeanFFT(0)*scaleDC;
-				else if (j==1) strokeWeight = audioManager.getLeftFFT(i)*scaleAC;
-				else strokeWeight = audioManager.getRightFFT(i)*scaleAC;
-				mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,Ellipsoid3D.MAX_TRANSPARENCY);
-				color = mainApplet.color(i,255,255,255);
-				int offset = PApplet.round(j*i*radiation);
-				Ellipsoid3D temp = new Ellipsoid3D(center,leftX-offset,leftY-offset,rightX+offset,rightY+offset,orientation,color,strokeWeight);
-				ellipsoids.add(temp);
-				if (i==0) j=2; // draw dc curve only once
-			}
+			if (i==0) strokeWeight = audioManager.getMeanFFT(0)*scaleDC;
+			else strokeWeight = audioManager.getMeanFFT(i)*scaleAC;
+			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,Ellipsoid3D.MAX_TRANSPARENCY);
+			color = mainApplet.color(i,255,255,Ellipsoid3D.MAX_TRANSPARENCY);
+			float offset = i*radiation;
+			float radius = PApplet.map(angleLeftUpper,0,PConstants.PI,0f,1f)*1500f;//distanceMapped*1500f;
+			Ellipsoid3D temp = new Ellipsoid3D(center,new PVector(lHandX,lHandY,lHandZ),radius+offset,strokeWeight,angleLeftLower,color,audioManager.getMeanFFT(0)/audioManager.getMaxFFT(),true);
+			ellipsoids.add(temp);
+			radius = PApplet.map(angleRightUpper,0,PConstants.PI,0f,1f)*1500f;
+			temp = new Ellipsoid3D(center,new PVector(rHandX,rHandY,rHandZ),radius+offset,strokeWeight,angleRightLower,color,audioManager.getMeanFFT(0)/audioManager.getMaxFFT(),true);
+			ellipsoids.add(temp);
+			//color = mainApplet.color(i,255,255,Ellipsoid3D.MAX_TRANSPARENCY/2f);
+			//temp = new Ellipsoid3D(center,distanceMapped+offset,strokeWeight,orientation,color,0,false);
+			//ellipsoids.add(temp);
 		}
+		
 		
 		// clean up bezierCurves ArrayList
 		for (int i=0;i<ellipsoids.size();i++) {

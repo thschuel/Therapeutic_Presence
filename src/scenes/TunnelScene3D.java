@@ -32,6 +32,10 @@ public class TunnelScene3D extends BasicScene3D {
 	protected float audioReactionDelay = 12f;
 	protected float fftDCValue=0f;
 	protected float fftDCValueDelayed=0f;
+
+	private float angle=0;
+	private float lightPosX=0;
+	private float lightPosY=0;
 	
 	public TunnelScene3D (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
 		super (_mainApplet,_backgroundColor);
@@ -53,6 +57,7 @@ public class TunnelScene3D extends BasicScene3D {
 	}
 	
 	public void reset () {
+		mainApplet.pushStyle();
 		// change colors based on audio stream
 		fftDCValue = audioManager.getMeanFFT(0);
 		fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/audioReactionDelay;
@@ -63,10 +68,22 @@ public class TunnelScene3D extends BasicScene3D {
 		super.reset();
 		// update texture and draw background
 		updateTexture();
+
+		lightPosX = PApplet.cos(PApplet.radians(angle)) * 6000f;
+		lightPosY = PApplet.sin(PApplet.radians(angle)) * 6000f;
+		angle++;
+		
+		mainApplet.lights();
+		mainApplet.ambientLight(backgroundTintHue,92,fftDCValueDelayed);
+		//mainApplet.directionalLight(backgroundTintHue,92,fftDCValueDelayed,lightPosX,lightPosY,6000f);
+		mainApplet.lightSpecular(backgroundTintHue,92,fftDCValueDelayed);
+		mainApplet.specular(backgroundTintColor);
+		mainApplet.shininess(5.0f);
 		tunnelTube.setTexture("../data/smoketex.jpg");
 		tunnelTube.setTexture(textureWalls.get(),10,1);
-		tunnelTube.drawMode(Shape3D.TEXTURE);
+		tunnelTube.drawMode(Shape3D.SOLID|Shape3D.TEXTURE);
 		tunnelTube.draw();
+		mainApplet.popStyle();
 	}
 	
 	public static float getTunnelWidthAt (float _z) {

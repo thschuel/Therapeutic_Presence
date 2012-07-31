@@ -23,6 +23,7 @@ public class BasicScene3D extends AbstractScene {
 		super(_mainApplet,_backgroundColor);
 		mainApplet.colorMode(PConstants.RGB,255,255,255,100);
 		alertColor = mainApplet.color(255,0,0,100);
+		cameraZ=TherapeuticPresence.cameraEyeZ;
 	}
 
 	public void reset () {

@@ -2,77 +2,88 @@ package utils;
 
 import processing.core.*;
 import scenes.TunnelScene3D;
+import shapes3d.Shape3D;
 import shapes3d.Tube;
 import therapeuticpresence.AudioManager;
 import therapeuticpresence.TherapeuticPresence;
 
 public class Ellipsoid3D {
-	public static final int MAX_POINTS = 16;
-	public static final float FADE_OUT_SECONDS = 0.6f;
+	public static final float MAX_STEPS = 36f;
 	public static final float MAX_TRANSPARENCY = 255f;
-	public static final short LINEAR_REGRESSION = 0;
-	public static final short QUADRATIC_REGRESSION = 1;
-	
+
 	private PVector center = new PVector();
+	private PVector pos = new PVector();
 	private float zOffset = 0f;
-	protected float innerRadius=0;
-	protected float leftY=0;
-	protected float rightX=0;
-	protected float rightY=0;
-	protected float orientation=0;
-	private int strokeColor;
-	private float strokeWeight;
+	private float radius;
+	private float height;
+	private float orientation;
+	private float speed;
+	private float FADE_OUT_SECONDS = 0.6f;
+	private int color;
 	public float transparency = MAX_TRANSPARENCY;
-	private short regressionMode = QUADRATIC_REGRESSION;
 	private int framesAlive = 0;
 	private float fadeOutFrames;
-	private Tube theTube;
+	private boolean fadeOut;
 	
-	public Ellipsoid3D(PVector _center, float _innerRadius, float _outerRadius, float _rightX, float _rightY, float _orientation, int _strokeColor, float _strokeWeight) {
+	public Ellipsoid3D(PVector _center, PVector _pos, float _radius, float _height, float _orientation, int _color, float _speed, boolean _fadeOut) {
 		center=_center;
-		innerRadius=_innerRadius;
-		leftY=_outerRadius;
-		rightX=_rightX;
-		rightY=_rightY;
-		strokeColor=_strokeColor;
-		strokeWeight=_strokeWeight;
+		pos=_pos;
+		color=_color;
+		radius=_radius;
+		height=_height;
 		orientation=_orientation;
-		//theTube=new Tube();
+		speed=_speed;
+		fadeOut=_fadeOut;
+		if (!fadeOut) {
+			transparency*=0.5f;
+		}
 	}
-	public void draw (TherapeuticPresence _mainApplet) {
+	public void draw (PApplet _mainApplet) {
 		if (transparency > 0) {
 			fadeOutFrames = _mainApplet.frameRate*FADE_OUT_SECONDS;
 			_mainApplet.pushStyle();
 			_mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,Ellipsoid3D.MAX_TRANSPARENCY);
-			_mainApplet.strokeWeight(strokeWeight);
-			_mainApplet.stroke(strokeColor,transparency);
-			_mainApplet.noFill();
-			_mainApplet.ellipseMode(PConstants.CORNERS);
+			_mainApplet.fill(color,transparency);
+			_mainApplet.noStroke();
 			_mainApplet.pushMatrix();
 			_mainApplet.translate(center.x,center.y,center.z);
+			_mainApplet.translate(pos.x,pos.y,-pos.z);
 			_mainApplet.rotateX(orientation);
-			_mainApplet.rotateX(PConstants.HALF_PI);
 			_mainApplet.pushMatrix();
-			_mainApplet.translate(0,0,-zOffset);
-			_mainApplet.ellipse(innerRadius,leftY,rightX,rightY);
+			_mainApplet.translate(0,zOffset,0);
+			makeEllipsoid(_mainApplet);
 			_mainApplet.popMatrix();
-			_mainApplet.pushMatrix();
-			_mainApplet.translate(0,0,zOffset);
-			_mainApplet.ellipse(innerRadius,leftY,rightX,rightY);
-			_mainApplet.popMatrix();
+			if (zOffset != 0) {
+				_mainApplet.pushMatrix();
+				_mainApplet.translate(0,-zOffset,0);
+				makeEllipsoid(_mainApplet);
+				_mainApplet.popMatrix();
+			}
 			_mainApplet.popMatrix();
 			_mainApplet.popStyle();
-			transparency -= regression(fadeOutFrames);
-			if (++framesAlive >= fadeOutFrames) transparency = 0f;
-			zOffset += TunnelScene3D.tunnelLength/_mainApplet.frameRate*FADE_OUT_SECONDS;
+			
+			if (fadeOut) {
+				transparency -= regression(fadeOutFrames);
+				if (++framesAlive >= fadeOutFrames) transparency = 0f;
+				zOffset += 250;//TunnelScene3D.tunnelLength/_mainApplet.frameRate*FADE_OUT_SECONDS;
+			} else {
+				transparency=0f;
+			}
 		}
 	}
 	
-	private float regression (float frameRate) {
-		if (regressionMode == QUADRATIC_REGRESSION) {
-			return PApplet.pow(transparency/fadeOutFrames,2f);
-		} else {
-			return MAX_TRANSPARENCY/fadeOutFrames;
+	private void makeEllipsoid(PApplet _mainApplet) {
+		_mainApplet.beginShape(PConstants.QUAD_STRIP);
+		for (float angle=0, steps=0; steps<=MAX_STEPS; steps++, angle+=360f/MAX_STEPS ) {
+			float x = PApplet.cos(PApplet.radians(angle))*radius/2f;
+			float z = PApplet.sin(PApplet.radians(angle))*radius/2f;
+			_mainApplet.vertex(x,-height,z);
+			_mainApplet.vertex(x,height,z);
 		}
+		_mainApplet.endShape();
+	}
+	
+	private float regression (float frameRate) {
+		return PApplet.pow(transparency/fadeOutFrames,2f);
 	}
 }
