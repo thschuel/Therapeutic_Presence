@@ -53,6 +53,7 @@ public class TunnelScene3D extends BasicScene3D {
 		textureWallsHor = mainApplet.loadImage("../data/textureTunnelCrossline.png");
 		textureWallsImg = new PImage(textureWallsVer.width,textureWallsVer.height);
 		textureWalls = mainApplet.createGraphics(textureWallsVer.width,textureWallsVer.height,PConstants.P2D);
+//		TODO: test it textureWalls = mainApplet.createGraphics(2*textureWallsVer.width,2*textureWallsVer.height,PConstants.P2D);
 		offsetTunnelEffectMax = (textureWalls.height+textureWallsHor.height)/horizontalLines; 
 	}
 	
@@ -80,6 +81,7 @@ public class TunnelScene3D extends BasicScene3D {
 		mainApplet.specular(backgroundTintColor);
 		mainApplet.shininess(5.0f);
 		//tunnelTube.setTexture("../data/smoketex.jpg");
+		// TODO: test it tunnelTube.setTexture(textureWalls.get(),2,1);
 		tunnelTube.setTexture(textureWalls.get(),10,1);
 		tunnelTube.drawMode(Shape3D.SOLID|Shape3D.TEXTURE);
 		tunnelTube.draw();
@@ -112,10 +114,23 @@ public class TunnelScene3D extends BasicScene3D {
 		}
 		
 		// tint according to audio stream
+
 		textureWalls.beginDraw();
 		textureWalls.tint(backgroundTintColor);
 		textureWalls.image(textureWallsImg,0,0,textureWallsVer.width,textureWallsVer.height,0,0,textureWallsVer.width,textureWallsVer.height);
 		textureWalls.endDraw();
+		//TODO: test ist
+//		int colorCode=30;
+//		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,1,audioManager.getMaxFFT(),100);
+//		textureWalls.beginDraw();
+//		for (int i=0;i<=1;i++) {
+//			for (int j=0;j<=1;j++) {
+//				backgroundTintColor = mainApplet.color(colorCode+=30,1,fftDCValueDelayed,100);
+//				textureWalls.tint(backgroundTintColor);
+//				textureWalls.image(textureWallsImg,i*textureWallsVer.width,j*textureWallsVer.height,textureWallsVer.width,textureWallsVer.height);
+//			}
+//		}
+//		textureWalls.endDraw();
 	}
 	
 }
