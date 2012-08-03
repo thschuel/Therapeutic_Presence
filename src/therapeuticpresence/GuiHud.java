@@ -73,7 +73,7 @@ public class GuiHud {
 		}
 	    fps.setText("pG "+Skeleton.pushGestureStartCycle+" g "+PostureProcessing.currentGesture+" shape: "+shapeString+" fps: "+PApplet.round(mainApplet.frameRate));
 	    // toggle debug output
-	    if (!TherapeuticPresence.debugOutput || TherapeuticPresence.demo) {
+	    if (!TherapeuticPresence.debugOutput) {
 			guiMessages.hide();
 			info.hide();
 		} else {

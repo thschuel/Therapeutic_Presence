@@ -55,7 +55,7 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean evaluatePostureAndGesture = true; // control for full body tracking
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = true;
-	public static boolean demo=false;
+	public static boolean demo=true;
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 	public static short defaultSceneType = TherapeuticPresence.BASIC_SCENE3D;
@@ -213,7 +213,11 @@ public class TherapeuticPresence extends PApplet {
 		// set up next visualisation for fade in
 		switch (_visualisationMethod) {
 			case TherapeuticPresence.STICKFIGURE_VISUALISATION:
-				nextVisualisation = new StickfigureVisualisation(this,kinect,skeleton);
+				if (lastVisualisation.getVisualisationType() == TherapeuticPresence.USER_PIXEL_VISUALISATION)
+					nextVisualisation = new StickfigureVisualisation(this,kinect,skeleton,((UserPixelVisualisation)lastVisualisation).getColor());
+				else
+					nextVisualisation = new StickfigureVisualisation(this,kinect,skeleton);
+						
 				nextVisualisation.setup();
 				currentVisualisationMethod = TherapeuticPresence.STICKFIGURE_VISUALISATION;
 				break;
@@ -487,6 +491,7 @@ public class TherapeuticPresence extends PApplet {
 		kinect.stopPoseDetection(userId); 
 		kinect.requestCalibrationSkeleton(userId, true);
 	}
+	
 	public void onEndPose(String pose,int userId) {
 		debugMessage("onEndPose: End pose "+pose+" identified for user " + userId);
 	}
@@ -494,18 +499,27 @@ public class TherapeuticPresence extends PApplet {
 	public void onExitUser(int userId) {
 		int[] userList = kinect.getUsers();
 		// try to transfer skeleton to another user in the scene
-		if (skeleton != null) {
-			for (int i=0; i<userList.length; i++) {
-				if (userList[i] != userId) { // use the first user in the list who is not the exiting user
-					debugMessage("onExitUser: "+userId+". Trying to transfer calibration to user "+userList[i]);
-					activeUserId=userList[i];
-					skeleton=null; // TODO: try out this one
-					kinect.startTrackingSkeleton(userList[i]);
-					this.newSkeletonFound(userList[i]);
-					return;
+		if (skeleton != null && skeleton.getUserId() == userId) {
+			if (kinect.saveCalibrationDataSkeleton(userId,1)) { // save calibration data of skeleton to slot 1
+				for (int i=0; i<userList.length; i++) {
+					if (userList[i] != userId) { // use the first user in the list who is not the exiting user
+						debugMessage("onExitUser: "+userId+". Trying to transfer calibration to user "+userList[i]);
+						if (kinect.loadCalibrationDataSkeleton(userList[i],1)) { // load calibration data from slot 1 for user i
+							activeUserId=userList[i];
+							kinect.startTrackingSkeleton(userList[i]);
+//							this.newSkeletonFound(userList[i]);
+							debugMessage("onExitUser: "+userId+". Calibration successfully transferred.");
+							return;
+						} else {
+							debugMessage("onExitUser: "+userId+". Could not load calibration data from slot 1.");
+						}
+					}
 				}
+				// reaching this point means there is no other user in the scene
+			} else {
+				debugMessage("onExitUser: "+userId+". Could not save calibration data to slot 1.");
 			}
-			debugMessage("onExitUser: "+userId+". No other user in the scene");
+			debugMessage("onExitUser: "+userId+". No other user in the scene.");
 		}
 	}
 	

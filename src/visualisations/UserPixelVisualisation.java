@@ -21,6 +21,10 @@ public class UserPixelVisualisation extends AbstractVisualisation {
 		mainApplet.colorMode(PConstants.HSB,360,100,100,100);
 		color=mainApplet.color(mainApplet.random(360),100,100,100);
 	}
+	
+	public int getColor () {
+		return color;
+	}
 
 	public void draw() {
 

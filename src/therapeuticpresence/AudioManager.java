@@ -14,7 +14,7 @@ public class AudioManager implements AudioListener{
 	protected float[] leftChannelSamples = null;
 	protected float[] rightChannelSamples = null;
 	protected FFT fft; 
-	public static float gain = 0.14f;
+	public static float gain = 0.12f;
 	protected float maxFFT;
 	protected float[] leftFFT = null;
 	protected float[] rightFFT = null;

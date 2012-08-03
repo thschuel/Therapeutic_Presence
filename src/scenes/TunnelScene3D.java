@@ -79,7 +79,7 @@ public class TunnelScene3D extends BasicScene3D {
 		mainApplet.lightSpecular(backgroundTintHue,92,fftDCValueDelayed);
 		mainApplet.specular(backgroundTintColor);
 		mainApplet.shininess(5.0f);
-		tunnelTube.setTexture("../data/smoketex.jpg");
+		//tunnelTube.setTexture("../data/smoketex.jpg");
 		tunnelTube.setTexture(textureWalls.get(),10,1);
 		tunnelTube.drawMode(Shape3D.SOLID|Shape3D.TEXTURE);
 		tunnelTube.draw();
