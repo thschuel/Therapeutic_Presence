@@ -25,9 +25,9 @@ public class DepthMapVisualisation extends AbstractVisualisation {
 		int w = kinect.depthWidth();
 		int stepSize = 3;  // to speed up the drawing, draw every third point
 		int index;
-
+		
 		mainApplet.colorMode(PConstants.RGB,255,255,255,100);
-		mainApplet.stroke(70,70,70); 
+		mainApplet.stroke(255,255,255); 
 		for(int y=0; y<h; y+=stepSize) {
 			for(int x=0; x<w; x+=stepSize) {
 				index=x+y*w;

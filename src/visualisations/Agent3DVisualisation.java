@@ -57,27 +57,33 @@ public class Agent3DVisualisation extends AbstractSkeletonAudioVisualisation {
 		PVector torso = skeleton.getJoint(Skeleton.TORSO);
 		float mappedTorsoX = PApplet.constrain(torso.x-startTorsoX,-width/2,width/2);
 		float mappedTorsoY = PApplet.constrain(torso.y-startTorsoY,-height/2,height/2);
-		centerX += (mappedTorsoX-centerX)/delay;
-		centerY += (mappedTorsoY-centerY)/delay;
+		centerX =0;//+= (mappedTorsoX-centerX)/delay;
+		centerY =0;//+= (mappedTorsoY-centerY)/delay;
 	    center.set(centerX,centerY,centerZ);
 		float orientationSkeleton = PVector.angleBetween(new PVector(0,0,1),skeleton.getOrientationX()) - PConstants.HALF_PI;
 		// TODO: this is a hack. find solution for changing mirror kinect on the fly
 		if (!TherapeuticPresence.mirrorKinect) {
-			orientation += (orientationSkeleton*0.8-orientation)/delay;
+			orientation += (orientationSkeleton*0.4-orientation)/delay;
 		} else {
-			orientation += (-orientationSkeleton*0.8-orientation)/delay;
+			orientation += (-orientationSkeleton*0.4-orientation)/delay;
 		}
 			
 	}
 	
 	public void draw () {
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
-			float left = PVector.angleBetween(skeleton.getLeftUpperArm(),skeleton.getOrientationY());
-			float right = PVector.angleBetween(skeleton.getRightUpperArm(),skeleton.getOrientationY());
-			left -= PConstants.HALF_PI; // shift to -half_pi .. half_pi
-			right -= PConstants.HALF_PI;
-			left *= 0.8; // scale down
-			right *= 0.8; // scale down
+			float leftToY = PVector.angleBetween(skeleton.getLeftUpperArm(),skeleton.getOrientationY());
+			float rightToY = PVector.angleBetween(skeleton.getRightUpperArm(),skeleton.getOrientationY());
+			float leftToZ = PVector.angleBetween(skeleton.getLeftUpperArm(),skeleton.getOrientationZ());
+			float rightToZ = PVector.angleBetween(skeleton.getRightUpperArm(),skeleton.getOrientationZ());
+			leftToY -= PConstants.HALF_PI; // shift to -half_pi .. half_pi
+			rightToY -= PConstants.HALF_PI;
+			leftToY *= 0.4; // scale down
+			rightToY *= 0.4; // scale down
+			leftToZ -= PConstants.HALF_PI; // shift to -half_pi .. half_pi
+			rightToZ -= PConstants.HALF_PI;
+			leftToZ *= 0.4; // scale down
+			rightToZ *= 0.4; // scale down
 			
 			// center.z reacts to position of user with delay
 			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
@@ -95,7 +101,7 @@ public class Agent3DVisualisation extends AbstractSkeletonAudioVisualisation {
 			mainApplet.rotateY(orientation); 
 			// ------ update and draw agents ------
 			for(int i=0; i<agents.length; i++) {
-			    agents[i].update1(left,right,width+100,height+100); 
+			    agents[i].update1(leftToY,rightToY,leftToZ,rightToZ,width+100,height+100); 
 			    agents[i].draw();
 			}
 			mainApplet.popMatrix();

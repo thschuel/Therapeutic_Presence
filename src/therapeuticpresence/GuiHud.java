@@ -137,10 +137,10 @@ public class GuiHud {
 		drawSkeletons.setCaptionLabel("Draw Skeletons");
 		drawSkeletons.plugTo(this);
 
-		controlP5.Button drawTree2D = control.addButton("switchVisualisationTree2D",TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION,0,100,200,20);
-		drawTree2D.moveTo(menu);
-		drawTree2D.setCaptionLabel("Draw Tree 2D");
-		drawTree2D.plugTo(this);
+		controlP5.Button drawEllipsoid3D = control.addButton("switchVisualisationEllipsoid3D",TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION,0,100,200,20);
+		drawEllipsoid3D.moveTo(menu);
+		drawEllipsoid3D.setCaptionLabel("Draw Ellipsoid 3D");
+		drawEllipsoid3D.plugTo(this);
 
 		controlP5.Button drawTree3D = control.addButton("switchVisualisationTree3D",TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION,0,120,200,20);
 		drawTree3D.moveTo(menu);
@@ -244,14 +244,14 @@ public class GuiHud {
 	}
 	
 	private void switchVisualisationTree3D (int theValue) {
-		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+		mainApplet.setupScene(TherapeuticPresence.LIQUID_SCENE3D);
 		mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION);
 		menu.hide();
 	}
 	
-	private void switchVisualisationTree2D (int theValue) {
-		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE2D);
-		mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION);
+	private void switchVisualisationEllipsoid3D (int theValue) {
+		mainApplet.setupScene(TherapeuticPresence.LIQUID_SCENE3D);
+		mainApplet.setupVisualisation(TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION);
 		menu.hide();
 	}
 	

@@ -71,7 +71,7 @@ public class PostureProcessing {
 						mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
 						mainApplet.setupVisualisation(TherapeuticPresence.GEOMETRY_3D_VISUALISATION);
 					} else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GEOMETRY_3D_VISUALISATION) {
-						mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+						mainApplet.setupScene(TherapeuticPresence.LIQUID_SCENE3D);
 						mainApplet.setupVisualisation(TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION);
 					}  else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION) {
 						mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
@@ -80,6 +80,9 @@ public class PostureProcessing {
 						mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
 						mainApplet.setupVisualisation(TherapeuticPresence.AGENT_3D_VISUALISATION);
 					}  else if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.AGENT_3D_VISUALISATION) {
+						mainApplet.setupScene(TherapeuticPresence.BASIC_SCENE3D);
+						mainApplet.setupVisualisation(TherapeuticPresence.STICKFIGURE_VISUALISATION);
+					}  else {
 						mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
 						mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION);
 					}

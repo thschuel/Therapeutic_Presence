@@ -1,5 +1,6 @@
 package visualisations;
 
+import SimpleOpenNI.SimpleOpenNI;
 import processing.core.*;
 import therapeuticskeleton.Skeleton;
 import therapeuticpresence.TherapeuticPresence;
@@ -9,12 +10,18 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 	private int strokeColor = 0;
 	private int jointColor = 0;
 	private int mirrorPlaneColor = 0;
+	private int pixelColor=0;
+	private float transparency=0;
 	private float lengthJointOrientations = 0f;
 	private float radiusJoints = 0f;
+	private float scale = 1f;
+	private float strokeWeight = 2f;
+	private SimpleOpenNI kinect;
 	
-	public StickfigureVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton) {
+	public StickfigureVisualisation (TherapeuticPresence _mainApplet, SimpleOpenNI _kinect, Skeleton _skeleton) {
 		super(_mainApplet, _skeleton);
 		mainApplet.setMirrorKinect(true);
+		kinect=_kinect;
 	}
 	
 	public void setup() {
@@ -23,23 +30,70 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		jointColor = mainApplet.color(0,0,255);
 		mirrorPlaneColor = mainApplet.color(100,100,100);
 		lengthJointOrientations = 100f;
-		radiusJoints = 20f;
+		radiusJoints = 11f;
+		mainApplet.colorMode(PConstants.HSB,360,100,100,100);
+		pixelColor=mainApplet.color(mainApplet.random(360),100,100,100);
 	}
 
-	public void draw() {
-		drawStickfigure();
-		drawJoints(true);
-		drawMirrorPlane();
-		drawLocalCoordinateSystem();
+	public boolean fadeIn () {
+		if (transparency >= 255) {
+			return true;
+		} else {
+			transparency+=10f;
+			drawUserPixels();
+			drawStickfigure(false);
+			return false;
+		}
 	}
 	
-	private void drawStickfigure () {
+	public boolean fadeOut() {
+		transparency-=0.3f;
+		if (scale<1.5f) scale+=0.01f;
+		if (strokeWeight<15f) strokeWeight+=0.5f;
+		if (transparency<=0) return true;
+		drawStickfigure(true);
+		return false;
+	}
+	
+	public void draw() {
+		drawUserPixels();
+		drawStickfigure(false);
+		drawJoints(false);
+		drawMirrorPlane();
+		//drawLocalCoordinateSystem();
+	}
+	
+	private void drawUserPixels () {
+		int[] userPixels=kinect.getUsersPixels(SimpleOpenNI.USERS_ALL);
+		if(userPixels != null) {
+			PVector[] realWorldDepthMap = kinect.depthMapRealWorld();
+			int h = kinect.depthHeight();
+			int w = kinect.depthWidth();
+			int stepSize = 3;  // to speed up the drawing, draw every third point
+			int index;
+			
+			mainApplet.stroke(pixelColor); 
+			for(int y=0; y<h; y+=stepSize) {
+				for(int x=0; x<w; x+=stepSize) {
+					index=x+y*w;
+					if(userPixels[index] == skeleton.getUserId()) { 
+						// draw the projected point
+						mainApplet.point(realWorldDepthMap[index].x,realWorldDepthMap[index].y,realWorldDepthMap[index].z);
+					}
+				} 
+			}
+		}
+	}
+	
+	private void drawStickfigure (boolean drawActiveLimbsOnly) {
 		
-		drawLineBetweenJoints(Skeleton.HEAD,Skeleton.NECK);
-		drawLineBetweenJoints(Skeleton.NECK,Skeleton.LEFT_SHOULDER);
-		drawLineBetweenJoints(Skeleton.NECK,Skeleton.RIGHT_SHOULDER);
-		drawLineBetweenJoints(Skeleton.LEFT_SHOULDER,Skeleton.TORSO);
-		drawLineBetweenJoints(Skeleton.RIGHT_SHOULDER,Skeleton.TORSO);
+		if (!drawActiveLimbsOnly) {
+			drawLineBetweenJoints(Skeleton.HEAD,Skeleton.NECK);
+			drawLineBetweenJoints(Skeleton.NECK,Skeleton.LEFT_SHOULDER);
+			drawLineBetweenJoints(Skeleton.NECK,Skeleton.RIGHT_SHOULDER);
+			drawLineBetweenJoints(Skeleton.LEFT_SHOULDER,Skeleton.TORSO);
+			drawLineBetweenJoints(Skeleton.RIGHT_SHOULDER,Skeleton.TORSO);
+		}
 
 		drawLineBetweenJoints(Skeleton.LEFT_SHOULDER,Skeleton.LEFT_ELBOW);
 		drawLineBetweenJoints(Skeleton.LEFT_ELBOW,Skeleton.LEFT_HAND);
@@ -60,9 +114,9 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 	private void drawLineBetweenJoints (short jointType1, short jointType2) {
 		PVector joint1 = skeleton.getJoint(jointType1);
 		PVector joint2 = skeleton.getJoint(jointType2);
-		float meanConfidence = (skeleton.getConfidenceJoint(jointType1)+skeleton.getConfidenceJoint(jointType2)) / 2.0f;
 		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
-		mainApplet.stroke(strokeColor,55+meanConfidence*200);
+		mainApplet.stroke(strokeColor,transparency);
+		mainApplet.strokeWeight(strokeWeight);
 		mainApplet.line(joint1.x,joint1.y,joint1.z,joint2.x,joint2.y,joint2.z);
 	}
 	

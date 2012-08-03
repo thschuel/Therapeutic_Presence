@@ -35,7 +35,7 @@ public class LiquidScene3D extends BasicScene3D {
 		ellipsoid.setRadius(10000f,10000f,1000f);
 		ellipsoid.moveTo(0,0,-1000f);
 		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,100,100,100);
-		ellipsoid.fill(mainApplet.color(207,92,100,50));
+		ellipsoid.fill(mainApplet.color(207,92,100,100));
 		ellipsoid.drawMode(Shape3D.SOLID|Shape3D.TEXTURE);
 	}
 	
@@ -44,7 +44,7 @@ public class LiquidScene3D extends BasicScene3D {
 		// change colors based on audio stream
 		fftDCValue = audioManager.getMeanFFT(0);
 		fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/audioReactionDelay;
-		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,100,audioManager.getMaxFFT(),100);
+		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,100,audioManager.getMaxFFT()/3f,100);
 		backgroundTintColor = mainApplet.color(backgroundTintHue,100,fftDCValueDelayed,100);
 		defaultBackgroundColor = PApplet.blendColor(backgroundTintColor,defaultBackgroundHighlightColor,PConstants.BLEND);
 		backgroundTintColor = PApplet.blendColor(backgroundTintColor,alertColor,PConstants.BLEND);

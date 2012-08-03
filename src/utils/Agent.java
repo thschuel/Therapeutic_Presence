@@ -31,8 +31,8 @@ public class Agent {
 	private Ribbon3D ribbon;
 	private int col;
 	private float strokeW;
-	private float minStroke = 1;
-	private float maxStroke = 3;
+	private float minStroke = 8;
+	private float maxStroke = 14;
 	private float startX, startY, startAngle;
 	private PApplet mainApplet;
 
@@ -55,15 +55,15 @@ public class Agent {
 	    strokeW = mainApplet.random(1.0f);
 	}
 
-	public void update1(float angleY, float angleZ, float width, float height){ 
+	public void update1(float angleLeftToY, float angleRightToY, float angleLeftToZ, float angleRightToZ, float width, float height){ 
 	    /* convert polar to cartesian coordinates
 	     stepSize is distance of the point to the last point
 	     angleY is the angle for rotation around y-axis
 	     angleZ is the angle for rotation around z-axis
 	     */
-	    p.x += PApplet.cos(startAngle) * PApplet.cos(angleZ) */* PApplet.cos(angleY) */ stepSize;
-	    p.y += PApplet.sin(startAngle) * PApplet.sin(angleZ) */* PApplet.sin(angleY) */ stepSize;
-	    p.z += PApplet.cos(angleZ) * PApplet.sin(angleY) * stepSize;
+	    p.x += PApplet.cos(startAngle) * PApplet.cos(angleRightToY) */* PApplet.cos(angleY) */ stepSize;
+	    p.y += PApplet.sin(startAngle) * PApplet.sin(angleRightToY) */* PApplet.sin(angleY) */ stepSize;
+	    p.z += PApplet.cos(angleLeftToZ) * PApplet.sin(angleRightToZ) * stepSize;
 
     	// boundingbox
     	if (p.x<-width/2 || p.x>width/2 ||

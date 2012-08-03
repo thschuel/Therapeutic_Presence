@@ -42,6 +42,7 @@ public class TherapeuticPresence extends PApplet {
 	public static final short ELLIPSOIDAL_3D_VISUALISATION = 6;
 	public static final short MESH_3D_VISUALISATION = 7;
 	public static final short AGENT_3D_VISUALISATION = 8;
+	public static final short USER_PIXEL_VISUALISATION = 9;
 	public static final short BASIC_SCENE2D = 0;
 	public static final short BASIC_SCENE3D = 1;
 	public static final short TUNNEL_SCENE2D = 2;
@@ -49,16 +50,16 @@ public class TherapeuticPresence extends PApplet {
 	public static final short LIQUID_SCENE3D = 4;
 
 	// --- static setup variables ---
-	public static boolean fullBodyTracking = true; // control for full body tracking
+	public static boolean fullBodyTracking = false; // control for full body tracking
 	public static boolean calculateLocalCoordSys = true; // control for full body tracking
 	public static boolean evaluatePostureAndGesture = true; // control for full body tracking
 	public static boolean recordFlag = true; // set to false for playback
-	public static boolean debugOutput = false;
-	public static boolean demo=true;
+	public static boolean debugOutput = true;
+	public static boolean demo=false;
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
-	public static short defaultSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
-	public static short defaultVisualisationMethod = TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
+	public static short defaultSceneType = TherapeuticPresence.BASIC_SCENE3D;
+	public static short defaultVisualisationMethod = TherapeuticPresence.STICKFIGURE_VISUALISATION;
 	public static short currentVisualisationMethod;
 	public static short currentSceneType;
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
@@ -75,6 +76,8 @@ public class TherapeuticPresence extends PApplet {
 	public static final String[] audioFiles = {"../data/moan.mp3","../data/latin.mp3", "../data/rjd2.mp3"/*, "../data/vivaldi.mp3"*/};
 	public static short initialAudioFile = 0;
 	public static float kinectTilt=PApplet.radians(17.5f);
+	
+	private int activeUserId = -1;
 	
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
@@ -210,7 +213,7 @@ public class TherapeuticPresence extends PApplet {
 		// set up next visualisation for fade in
 		switch (_visualisationMethod) {
 			case TherapeuticPresence.STICKFIGURE_VISUALISATION:
-				nextVisualisation = new StickfigureVisualisation(this,skeleton);
+				nextVisualisation = new StickfigureVisualisation(this,kinect,skeleton);
 				nextVisualisation.setup();
 				currentVisualisationMethod = TherapeuticPresence.STICKFIGURE_VISUALISATION;
 				break;
@@ -255,6 +258,17 @@ public class TherapeuticPresence extends PApplet {
 				nextVisualisation = new Agent3DVisualisation(this,skeleton,audioManager);
 				nextVisualisation.setup();
 				currentVisualisationMethod = TherapeuticPresence.AGENT_3D_VISUALISATION;
+				break;
+				
+			case TherapeuticPresence.USER_PIXEL_VISUALISATION: // this is only for switching to this visualisation when skeleton is already tracked!
+				if (skeleton != null) {
+					nextVisualisation = new UserPixelVisualisation(this,kinect,skeleton.getUserId());
+					nextVisualisation.setup();
+				} else {
+					nextVisualisation = new UserPixelVisualisation(this,kinect,activeUserId);
+					nextVisualisation.setup();
+				}
+				currentVisualisationMethod = TherapeuticPresence.USER_PIXEL_VISUALISATION;
 				break;
 			
 			default:
@@ -321,7 +335,6 @@ public class TherapeuticPresence extends PApplet {
 			guiHud.draw();
 			popStyle();
 		}
-
 	}
 	
 	public void debugMessage (String _message) {
@@ -338,7 +351,7 @@ public class TherapeuticPresence extends PApplet {
 			debugMessage("newSkeletonFound: User id "+_userId+" outside range. Maximum users: "+TherapeuticPresence.MAX_USERS);
 		} else {
 			if (skeleton != null ) {
-				debugMessage("Skeleton of user "+skeleton.getUserId()+" replaced with skeleton of user "+_userId+"!");
+				debugMessage("Trying to replace skeleton of user "+skeleton.getUserId()+" with skeleton of user "+_userId+"!");
 			}
 			skeleton = new Skeleton(kinect,_userId,fullBodyTracking,calculateLocalCoordSys,evaluatePostureAndGesture,mirrorTherapy);
 			skeleton.setPostureTolerance(DEFAULT_POSTURE_TOLERANCE);
@@ -365,6 +378,19 @@ public class TherapeuticPresence extends PApplet {
 				if(TherapeuticPresence.autoCalibration) kinect.requestCalibrationSkeleton(users[0],true);
 				else kinect.startPoseDetection("Psi",users[0]);
 			}
+		}
+	}
+	
+	// is used on keyboard input to restart user tracking
+	private void resetKinect () {
+		int[] userList = kinect.getUsers();
+		if (userList != null) {
+			kinect.close();
+			kinect = null;
+			skeleton = null;
+			setupKinect();
+			setupScene(initialSceneType);
+			setupVisualisation(initialVisualisationMethod);
 		}
 	}
 	
@@ -418,46 +444,82 @@ public class TherapeuticPresence extends PApplet {
 	// -----------------------------------------------------------------
 	// SimpleOpenNI user events
 	public void onNewUser(int userId) {
-		debugMessage("New User "+userId+" entered the scene.");
+		debugMessage("onNewUser: New User "+userId+" entered the scene.");
 		if (skeleton == null) {
-			debugMessage("  start pose detection");
+			debugMessage("onNewUser:   start pose detection");
+			activeUserId = userId;
+			setupVisualisation(TherapeuticPresence.USER_PIXEL_VISUALISATION);
 			if(TherapeuticPresence.autoCalibration) kinect.requestCalibrationSkeleton(userId,true);
 			else kinect.startPoseDetection("Psi",userId);
 		} else {
-			debugMessage("  no pose detection, skeleton is already tracked");
-			kinect.startTrackingSkeleton(skeleton.getUserId());
+			debugMessage("onNewUser:   no pose detection, skeleton is already tracked");
+			//kinect.startTrackingSkeleton(skeleton.getUserId());
 		}
 	}
 	public void onLostUser(int userId) {
-		debugMessage("onLostUser - userId: " + userId);
+		debugMessage("onLostUser: Lost User " + userId);
 		if (userId == skeleton.getUserId()) {
+			debugMessage("onLostUser:   stop tracking user");
 			this.skeletonLost(userId);
+			activeUserId= -1;
 		}
 	}
 	public void onStartCalibration(int userId) {
-		debugMessage("onStartCalibration - userId: " + userId);
+		debugMessage("onStartCalibration: Starting to calibrate user " + userId);
 	}
 	public void onEndCalibration(int userId, boolean successfull) {
-		debugMessage("onEndCalibration - userId: " + userId + ", successfull: " + successfull);
+		debugMessage("onEndCalibration: Ending calibration for user " + userId);
 		if (successfull) { 
-			debugMessage("  User calibrated !!!");
+			debugMessage("onEndCalibration:   user calibrated successfully");
+			activeUserId=userId;
 			kinect.startTrackingSkeleton(userId); 
 			//kinect.update(); // one update loop before going on with calculations prevents kinect to be in an unstable state
 			this.newSkeletonFound(userId);
 		} else { 
-			debugMessage("  Failed to calibrate user !!!");
-			debugMessage("  Start pose detection");
+			debugMessage("onEndCalibration:   failed to calibrate user");
+			debugMessage("onEndCalibration:   start pose detection");
 			kinect.startPoseDetection("Psi",userId);
 		}
 	}
 	public void onStartPose(String pose,int userId) {
-		debugMessage("onStartdPose - userId: " + userId + ", pose: " + pose);
-		debugMessage(" stop pose detection");
+		debugMessage("onStartPose: Start pose "+pose+" identified for user" + userId);
+		debugMessage("onStartPose:   stopping pose detection and requesting calibration");
 		kinect.stopPoseDetection(userId); 
 		kinect.requestCalibrationSkeleton(userId, true);
 	}
 	public void onEndPose(String pose,int userId) {
-		debugMessage("onEndPose - userId: " + userId + ", pose: " + pose);
+		debugMessage("onEndPose: End pose "+pose+" identified for user " + userId);
+	}
+	
+	public void onExitUser(int userId) {
+		int[] userList = kinect.getUsers();
+		// try to transfer skeleton to another user in the scene
+		if (skeleton != null) {
+			for (int i=0; i<userList.length; i++) {
+				if (userList[i] != userId) { // use the first user in the list who is not the exiting user
+					debugMessage("onExitUser: "+userId+". Trying to transfer calibration to user "+userList[i]);
+					activeUserId=userList[i];
+					skeleton=null; // TODO: try out this one
+					kinect.startTrackingSkeleton(userList[i]);
+					this.newSkeletonFound(userList[i]);
+					return;
+				}
+			}
+			debugMessage("onExitUser: "+userId+". No other user in the scene");
+		}
+	}
+	
+	public void onReEnterUser(int userId) {
+		// if another skeleton is tracked, don't transfer the skeleton 
+//		if (skeleton==null) {
+//			int[] userList = kinect.getUsers();
+//			for (int i=0; i<userList.length; i++) {
+//				if (userList[i] == userId) {
+//					kinect.startTrackingSkeleton(userList[i]);
+//					this.newSkeletonFound(userList[i]);
+//				}
+//			}
+//		}
 	}
 
 	// Keyboard events
@@ -466,7 +528,7 @@ public class TherapeuticPresence extends PApplet {
 		  	// save user calibration data
 			case 'o':
 		  		if(skeleton != null && kinect.isTrackingSkeleton(skeleton.getUserId())){
-		  			if(kinect.saveCalibrationDataSkeleton(skeleton.getUserId(),"../data/calibration"+skeleton.getUserId()+".skel"))
+		  			if(kinect.saveCalibrationDataSkeleton(skeleton.getUserId(),"calibration"+skeleton.getUserId()+".skel"))
 	  					debugMessage("Saved current calibration for user "+skeleton.getUserId()+" to file.");      
 	  				else
 	  					debugMessage("Can't save calibration for user "+skeleton.getUserId()+" to file.");
@@ -480,7 +542,7 @@ public class TherapeuticPresence extends PApplet {
 		  		IntVector userList = new IntVector();
 		  		kinect.getUsers(userList);
 		  		if (userList.size() > 0) {
-			  		if(kinect.loadCalibrationDataSkeleton(userList.get(0),"../data/calibration"+userList.get(0)+".skel")) {
+			  		if(kinect.loadCalibrationDataSkeleton(userList.get(0),"calibration"+userList.get(0)+".skel")) {
 		  				kinect.startTrackingSkeleton(userList.get(0));
 		  				kinect.stopPoseDetection(userList.get(0));
 		  				this.newSkeletonFound(userList.get(0));

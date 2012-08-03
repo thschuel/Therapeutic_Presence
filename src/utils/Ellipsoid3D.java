@@ -18,7 +18,7 @@ public class Ellipsoid3D {
 	private float height;
 	private float orientation;
 	private float speed;
-	private float FADE_OUT_SECONDS = 0.6f;
+	private float FADE_OUT_SECONDS = 0.7f;
 	private int color;
 	public float transparency = MAX_TRANSPARENCY;
 	private int framesAlive = 0;
@@ -84,6 +84,6 @@ public class Ellipsoid3D {
 	}
 	
 	private float regression (float frameRate) {
-		return PApplet.pow(transparency/fadeOutFrames,2f);
+		return PApplet.pow(transparency/fadeOutFrames,1.9f);
 	}
 }
