@@ -56,7 +56,9 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = true;
 	public static boolean demo=true;
-	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
+	public static boolean transferSkeleton=true;
+	public static boolean constantFrameRate = true;
+	public static short initialSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 	public static short defaultSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short defaultVisualisationMethod = TherapeuticPresence.STICKFIGURE_VISUALISATION;
@@ -65,7 +67,7 @@ public class TherapeuticPresence extends PApplet {
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
-	public static float maxDistanceToKinect = 3500f; // in mm, is used for scaling the visuals
+	public static float maxDistanceToKinect = 3200f; // in mm, is used for scaling the visuals
 	public static final float cameraEyeZ = 5000f; // in mm, visuals are sensitive to this!
 	public static final float DEFAULT_POSTURE_TOLERANCE = 0.5f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
@@ -76,8 +78,11 @@ public class TherapeuticPresence extends PApplet {
 	public static final String[] audioFiles = {"../data/moan.mp3","../data/latin.mp3", "../data/rjd2.mp3"/*, "../data/vivaldi.mp3"*/};
 	public static short initialAudioFile = 0;
 	public static float kinectTilt=PApplet.radians(17.5f);
+	public static PVector centerOfSkeletonDetectionSpace = new PVector(0,0,maxDistanceToKinect/2f); // calibrate skeleton only for users in a defined centered space. used for stability when more users are in the scene
+	public static float radiusOfSkeletonDetectionSpace = 500f;
 	
 	private int activeUserId = -1;
+	private boolean skeletonDetectionStarted = false;
 	
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
@@ -101,7 +106,9 @@ public class TherapeuticPresence extends PApplet {
 	// -----------------------------------------------------------------
 	public void setup() {		
 		size(screenWidth-16,screenHeight-128,OPENGL);
-		
+		if (constantFrameRate) {
+			frameRate(25f);
+		}
 		// establish connection to kinect/openni
 		setupKinect();
 		// start the audio interface
@@ -292,6 +299,9 @@ public class TherapeuticPresence extends PApplet {
 		if (kinect != null) {
 			kinect.update();
 		}
+		if (!skeletonDetectionStarted && skeleton == null) { // start skeleton detection in draw method to enable CoM detection 
+			userDetection();
+		}
 		if (skeleton != null && kinect.isTrackingSkeleton(skeleton.getUserId())) {
 			skeleton.update();
 		}
@@ -348,6 +358,28 @@ public class TherapeuticPresence extends PApplet {
 
 	
 	// -----------------------------------------------------------------
+	private void userDetection () {
+		PVector userCoM = new PVector();
+		int[] users = kinect.getUsers();
+		for (int i=0; i<users.length; i++) {
+			if (kinect.getCoM(users[i], userCoM)) {
+				userCoM.y = 0f; // ignore y coordinate
+				if (!skeletonDetectionStarted && PVector.dist(userCoM,centerOfSkeletonDetectionSpace) < radiusOfSkeletonDetectionSpace) {
+					debugMessage("userDetection: user "+users[i]+" inside detection space. Start skeleton detection for user.");
+					skeletonDetectionStarted = true;
+					activeUserId = users[i];
+					setupVisualisation(TherapeuticPresence.USER_PIXEL_VISUALISATION);
+					if(TherapeuticPresence.autoCalibration) {
+						kinect.requestCalibrationSkeleton(users[i],true);
+					} else {
+						kinect.startPoseDetection("Psi",users[i]);
+					}
+				}
+			} else {
+				debugMessage("userDetection: can not get center of mass for user "+users[i]+". Try again next frame.");
+			}
+		}
+	}
 	// is triggered by SimpleOpenNI on "onEndCalibration" and by user on "loadCalibration"
 	// starts tracking of a Skeleton
 	private void newSkeletonFound (int _userId) {
@@ -449,16 +481,7 @@ public class TherapeuticPresence extends PApplet {
 	// SimpleOpenNI user events
 	public void onNewUser(int userId) {
 		debugMessage("onNewUser: New User "+userId+" entered the scene.");
-		if (skeleton == null) {
-			debugMessage("onNewUser:   start pose detection");
-			activeUserId = userId;
-			setupVisualisation(TherapeuticPresence.USER_PIXEL_VISUALISATION);
-			if(TherapeuticPresence.autoCalibration) kinect.requestCalibrationSkeleton(userId,true);
-			else kinect.startPoseDetection("Psi",userId);
-		} else {
-			debugMessage("onNewUser:   no pose detection, skeleton is already tracked");
-			//kinect.startTrackingSkeleton(skeleton.getUserId());
-		}
+		// start skeleton detection in draw method to enable CoM detection
 	}
 	public void onLostUser(int userId) {
 		debugMessage("onLostUser: Lost User " + userId);
@@ -473,6 +496,7 @@ public class TherapeuticPresence extends PApplet {
 	}
 	public void onEndCalibration(int userId, boolean successfull) {
 		debugMessage("onEndCalibration: Ending calibration for user " + userId);
+		skeletonDetectionStarted = false;
 		if (successfull) { 
 			debugMessage("onEndCalibration:   user calibrated successfully");
 			activeUserId=userId;
@@ -481,8 +505,6 @@ public class TherapeuticPresence extends PApplet {
 			this.newSkeletonFound(userId);
 		} else { 
 			debugMessage("onEndCalibration:   failed to calibrate user");
-			debugMessage("onEndCalibration:   start pose detection");
-			kinect.startPoseDetection("Psi",userId);
 		}
 	}
 	public void onStartPose(String pose,int userId) {
@@ -499,7 +521,7 @@ public class TherapeuticPresence extends PApplet {
 	public void onExitUser(int userId) {
 		int[] userList = kinect.getUsers();
 		// try to transfer skeleton to another user in the scene
-		if (skeleton != null && skeleton.getUserId() == userId) {
+		if (transferSkeleton && skeleton != null && skeleton.getUserId() == userId) {
 			if (kinect.saveCalibrationDataSkeleton(userId,1)) { // save calibration data of skeleton to slot 1
 				for (int i=0; i<userList.length; i++) {
 					if (userList[i] != userId) { // use the first user in the list who is not the exiting user
@@ -516,6 +538,7 @@ public class TherapeuticPresence extends PApplet {
 					}
 				}
 				// reaching this point means there is no other user in the scene
+				debugMessage("onExitUser: "+userId+". Could not transfer skeleton. No other user in the scene.");
 			} else {
 				debugMessage("onExitUser: "+userId+". Could not save calibration data to slot 1.");
 			}
@@ -572,35 +595,25 @@ public class TherapeuticPresence extends PApplet {
 			case 'm':
 				setMirrorKinect(!mirrorKinect);
 				break;
+			case 'w':
+				centerOfSkeletonDetectionSpace.z -= 50f;
+				break;
+			case 'a':
+				centerOfSkeletonDetectionSpace.x += 50f;
+				break;
+			case 's':
+				centerOfSkeletonDetectionSpace.z += 50f;
+				break;
+			case 'd':
+				centerOfSkeletonDetectionSpace.x -= 50f;
+				break;
+			case 'e':
+				radiusOfSkeletonDetectionSpace -= 50f;
+				break;
+			case 'r':
+				radiusOfSkeletonDetectionSpace += 50f;
+				break;
 				
-		}
-		
-		if (scene.sceneIs3D()) {
-			switch (key) {
-				case 'w':
-					((BasicScene3D)scene).cameraZ -= 100.0f;
-					break;
-					
-				case 'W':
-					((BasicScene3D)scene).cameraY -= 100.0f;
-					break;
-					
-				case 'a':
-					((BasicScene3D)scene).cameraX += 100.0f;
-					break;
-					
-				case 's':
-					((BasicScene3D)scene).cameraZ += 100.0f;
-					break;
-					
-				case 'S':
-					((BasicScene3D)scene).cameraY += 100.0f;
-					break;
-					
-				case 'd':
-					((BasicScene3D)scene).cameraX -= 100.0f;
-					break;
-			}
 		}
 	}
 	

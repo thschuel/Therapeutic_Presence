@@ -92,15 +92,15 @@ public class GuiHud {
 	private void createInfoAndFPS() {
 		info = control.addTextarea("InfoLabel",
 									"Controls: \n" +
-									"w/s = +/-translateZ \n" +
-									"d/a = +/-translateX \n" +
-									"W/S = +/-translateY \n" +
-									"up/down = +/-rotateX \n" +
-									"left/right = +/-rotateY \n" +
-									"shift+up/+down = +/-rotateZ \n" +
+									"w/a/s/d = pos detection space \n" +
+									"e/r = radius detection space \n" +
 									"o/l = save/load calibration data \n" +
-									"m = toggle mirror kinect data",
-									3,mainApplet.height-200,145,150);
+									"m = toggle mirror kinect data \n"+
+									"\nColor coding: \n"+
+									"green: outside max distance to kinect \n"+
+									"gray: outside skeleton detection space\n"+
+									"white: inside skeleton detection space",
+									3,mainApplet.height-150,500,150);
 		fps = control.addTextarea("fpsArea","",3,mainApplet.height-20,500,50);
 	}
 	

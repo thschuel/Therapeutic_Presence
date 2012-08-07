@@ -12,9 +12,9 @@ public class TunnelScene3D extends BasicScene3D {
 	
 	protected Tube tunnelTube = null;
 	protected PGraphics textureWalls = null;
-	protected PImage textureWallsImg = null;
-	protected PImage textureWallsVer = null;
-	protected PImage textureWallsHor = null;
+//	protected PImage textureWallsImg = null;
+//	protected PImage textureWallsVer = null;
+//	protected PImage textureWallsHor = null;
 	public static float tunnelWidth = 4000f;
 	public static float tunnelHeight = 3000f;
 	public static float tunnelLength = 5000f;
@@ -22,9 +22,13 @@ public class TunnelScene3D extends BasicScene3D {
 	public static float tunnelEntryZ = tunnelLength;
 	
 	// animation of texture, background colors are controlled by audio stream
-	protected int offsetTunnelEffect = 0;
-	protected int offsetTunnelEffectMax = 0;
-	protected final int horizontalLines = 3;
+	protected float offsetTunnelEffect = 0;
+	protected float offsetTunnelEffectMax = 0;
+	protected float animationSpeed = 6f; // seconds
+	protected final int horizontalLines = 2;
+	protected final int verticalLines = 10;
+	protected final int linesHeight = 256;
+	protected final int linesWidth = 64;
 	protected int backgroundTintColor = 0;
 	protected int backgroundTintHueMax = 360;
 	protected int backgroundTintHue = 207;
@@ -32,10 +36,7 @@ public class TunnelScene3D extends BasicScene3D {
 	protected float audioReactionDelay = 12f;
 	protected float fftDCValue=0f;
 	protected float fftDCValueDelayed=0f;
-
-	private float angle=0;
-	private float lightPosX=0;
-	private float lightPosY=0;
+	private int odd=0;
 	
 	public TunnelScene3D (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
 		super (_mainApplet,_backgroundColor);
@@ -48,13 +49,8 @@ public class TunnelScene3D extends BasicScene3D {
 		tunnelTube.rotateBy(-PConstants.PI/2,0,0);
 		tunnelTube.z(tunnelLength/2f-1f);
 		tunnelTube.visible(false,Tube.BOTH_CAP);
-		// basic components for texture animation
-		textureWallsVer = mainApplet.loadImage("../data/textureTunnel.png");
-		textureWallsHor = mainApplet.loadImage("../data/textureTunnelCrossline.png");
-		textureWallsImg = new PImage(textureWallsVer.width,textureWallsVer.height);
-		textureWalls = mainApplet.createGraphics(textureWallsVer.width,textureWallsVer.height,PConstants.P2D);
-//		TODO: test it textureWalls = mainApplet.createGraphics(2*textureWallsVer.width,2*textureWallsVer.height,PConstants.P2D);
-		offsetTunnelEffectMax = (textureWalls.height+textureWallsHor.height)/horizontalLines; 
+		textureWalls = mainApplet.createGraphics(verticalLines*linesWidth,horizontalLines*linesHeight,PConstants.P2D);
+		offsetTunnelEffectMax = linesHeight; 
 	}
 	
 	public void reset () {
@@ -69,20 +65,14 @@ public class TunnelScene3D extends BasicScene3D {
 		super.reset();
 		// update texture and draw background
 		updateTexture();
-
-		lightPosX = PApplet.cos(PApplet.radians(angle)) * 6000f;
-		lightPosY = PApplet.sin(PApplet.radians(angle)) * 6000f;
-		angle++;
 		
 		mainApplet.lights();
 		mainApplet.ambientLight(backgroundTintHue,92,fftDCValueDelayed);
-		//mainApplet.directionalLight(backgroundTintHue,92,fftDCValueDelayed,lightPosX,lightPosY,6000f);
 		mainApplet.lightSpecular(backgroundTintHue,92,fftDCValueDelayed);
 		mainApplet.specular(backgroundTintColor);
 		mainApplet.shininess(5.0f);
 		//tunnelTube.setTexture("../data/smoketex.jpg");
-		// TODO: test it tunnelTube.setTexture(textureWalls.get(),2,1);
-		tunnelTube.setTexture(textureWalls.get(),10,1);
+		tunnelTube.setTexture(textureWalls.get(),1,1);
 		tunnelTube.drawMode(Shape3D.SOLID|Shape3D.TEXTURE);
 		tunnelTube.draw();
 		mainApplet.popStyle();
@@ -104,33 +94,37 @@ public class TunnelScene3D extends BasicScene3D {
 	
 	private void updateTexture () {
 		// animation
-		if (offsetTunnelEffect>0) offsetTunnelEffect--;
-		else offsetTunnelEffect = offsetTunnelEffectMax;
-		
-		// assemble texture
-		textureWallsImg.copy(textureWallsVer,0,0,textureWallsVer.width,textureWallsVer.height,0,0,textureWallsVer.width,textureWallsVer.height);
-		for (int i=0;i<horizontalLines; i++) {
-			textureWallsImg.copy(textureWallsHor,0,0,textureWallsHor.width,textureWallsHor.height,0,i*offsetTunnelEffectMax+offsetTunnelEffect,textureWallsHor.width,textureWallsHor.height);
+		if (offsetTunnelEffect>0) offsetTunnelEffect-=linesHeight/(mainApplet.frameRate*animationSpeed);
+		else { 
+			offsetTunnelEffect = linesHeight-1;
+			odd=(odd+1)%2;
 		}
-		
-		// tint according to audio stream
-
+		// assemble texture
+		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,100,audioManager.getMaxFFT(),100);
+		textureWalls.noStroke();
 		textureWalls.beginDraw();
-		textureWalls.tint(backgroundTintColor);
-		textureWalls.image(textureWallsImg,0,0,textureWallsVer.width,textureWallsVer.height,0,0,textureWallsVer.width,textureWallsVer.height);
+		int colorCode=0;
+		for (int i=0;i<verticalLines;i++) {
+			if (i<verticalLines/2) {
+				colorCode=207;
+			} else {
+				colorCode=20;
+			}
+			for (int j=0; j<horizontalLines;j++) {
+				backgroundTintColor = mainApplet.color(colorCode,80f+((i+j+odd)%2)*20f,fftDCValueDelayed,100);
+				backgroundTintColor = PApplet.blendColor(backgroundTintColor,alertColor,PConstants.BLEND);
+				textureWalls.fill(backgroundTintColor);
+				textureWalls.rect(i*linesWidth,j*linesHeight+PApplet.round(offsetTunnelEffect),linesWidth,linesHeight);
+				
+				if (j==0) {
+					backgroundTintColor = mainApplet.color(colorCode,80f+((i+j+1+odd)%2)*20f,fftDCValueDelayed,100);
+					backgroundTintColor = PApplet.blendColor(backgroundTintColor,alertColor,PConstants.BLEND);
+					textureWalls.fill(backgroundTintColor);
+					textureWalls.rect(i*linesWidth,0,linesWidth,PApplet.round(offsetTunnelEffect));
+				}
+			}
+		}
 		textureWalls.endDraw();
-		//TODO: test ist
-//		int colorCode=30;
-//		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,1,audioManager.getMaxFFT(),100);
-//		textureWalls.beginDraw();
-//		for (int i=0;i<=1;i++) {
-//			for (int j=0;j<=1;j++) {
-//				backgroundTintColor = mainApplet.color(colorCode+=30,1,fftDCValueDelayed,100);
-//				textureWalls.tint(backgroundTintColor);
-//				textureWalls.image(textureWallsImg,i*textureWallsVer.width,j*textureWallsVer.height,textureWallsVer.width,textureWallsVer.height);
-//			}
-//		}
-//		textureWalls.endDraw();
 	}
 	
 }
