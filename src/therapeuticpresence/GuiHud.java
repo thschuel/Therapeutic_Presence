@@ -129,31 +129,31 @@ public class GuiHud {
 		mirrorTherapyRight.moveTo(menu);
 		mirrorTherapyRight.setCaptionLabel("Mirror left");
 		mirrorTherapyRight.plugTo(this);
+
+		controlP5.Button switchScene = control.addButton("switchScene",TherapeuticPresence.TUNNEL_SCENE3D,0,60,200,20);
+		switchScene.moveTo(menu);
+		switchScene.setCaptionLabel("Switch Scenes");
+		switchScene.plugTo(this);
 		
-		controlP5.Button drawDepthMap = control.addButton("switchVisualisationDepthMap",TherapeuticPresence.DEPTHMAP_VISUALISATION,0,60,200,20);
+		controlP5.Button drawDepthMap = control.addButton("switchVisualisationDepthMap",TherapeuticPresence.DEPTHMAP_VISUALISATION,0,80,200,20);
 		drawDepthMap.moveTo(menu);
 		drawDepthMap.setCaptionLabel("Draw DepthMap");
 		drawDepthMap.plugTo(this);
 		
-		controlP5.Button drawSkeletons = control.addButton("switchVisualisationSkeletons",TherapeuticPresence.STICKFIGURE_VISUALISATION,0,80,200,20);
+		controlP5.Button drawSkeletons = control.addButton("switchVisualisationSkeletons",TherapeuticPresence.STICKFIGURE_VISUALISATION,0,100,200,20);
 		drawSkeletons.moveTo(menu);
 		drawSkeletons.setCaptionLabel("Draw Skeletons");
 		drawSkeletons.plugTo(this);
 
-		controlP5.Button drawEllipsoid3D = control.addButton("switchVisualisationEllipsoid3D",TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION,0,100,200,20);
+		controlP5.Button drawEllipsoid3D = control.addButton("switchVisualisationEllipsoid3D",TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION,0,120,200,20);
 		drawEllipsoid3D.moveTo(menu);
 		drawEllipsoid3D.setCaptionLabel("Draw Ellipsoid 3D");
 		drawEllipsoid3D.plugTo(this);
 
-		controlP5.Button drawTree3D = control.addButton("switchVisualisationTree3D",TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION,0,120,200,20);
+		controlP5.Button drawTree3D = control.addButton("switchVisualisationTree3D",TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION,0,140,200,20);
 		drawTree3D.moveTo(menu);
 		drawTree3D.setCaptionLabel("Draw Tree 3D");
 		drawTree3D.plugTo(this);
-
-		controlP5.Button drawAudioSkeletons = control.addButton("switchVisualisationGeometry2D",TherapeuticPresence.GEOMETRY_2D_VISUALISATION,0,140,200,20);
-		drawAudioSkeletons.moveTo(menu);
-		drawAudioSkeletons.setCaptionLabel("Draw Geometry2D");
-		drawAudioSkeletons.plugTo(this);
 
 		controlP5.Button drawGeometry3D = control.addButton("switchVisualisationGeometry3D",TherapeuticPresence.GEOMETRY_3D_VISUALISATION,0,160,200,20);
 		drawGeometry3D.moveTo(menu);
@@ -250,6 +250,15 @@ public class GuiHud {
 	
 	private void switchMirrorTherapyRight (int theValue) {
 		mainApplet.switchMirrorTherapy(Skeleton.MIRROR_THERAPY_RIGHT);
+		menu.hide();
+	}
+
+	private void switchScene (int theValue) {
+		if (TherapeuticPresence.currentSceneType == TherapeuticPresence.TUNNEL_SCENE3D) {
+			mainApplet.setupScene(TherapeuticPresence.LIQUID_SCENE3D);
+		} else {
+			mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE3D);
+		}
 		menu.hide();
 	}
 	

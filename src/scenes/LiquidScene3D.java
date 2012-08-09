@@ -20,6 +20,7 @@ public class LiquidScene3D extends BasicScene3D {
 	protected float fftDCValueDelayed=0f;
 
 	private float angle=0;
+	private float angleThreshold = 45f;
 	private float lightPosX=0;
 	private float lightPosY=0;
 	private Ellipsoid ellipsoid;
@@ -37,6 +38,8 @@ public class LiquidScene3D extends BasicScene3D {
 		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,100,100,100);
 		ellipsoid.fill(mainApplet.color(207,92,100,100));
 		ellipsoid.drawMode(Shape3D.SOLID|Shape3D.TEXTURE);
+		
+		animationSpeed = 2f;
 	}
 	
 	public void reset () {
@@ -50,12 +53,25 @@ public class LiquidScene3D extends BasicScene3D {
 		backgroundTintColor = PApplet.blendColor(backgroundTintColor,alertColor,PConstants.BLEND);
 		super.reset();
   
+		// animation of lighting to elicit symmetric movements
 		lightPosX = PApplet.cos(PApplet.radians(angle)) * 6000f;
 		lightPosY = PApplet.sin(PApplet.radians(angle)) * 6000f;
-		angle++;
-		//mainApplet.ambientLight(10,140,245);
+		if (angle < angleThreshold) {
+			angle+=angleThreshold/(mainApplet.frameRate*animationSpeed);
+			if (angle >= angleThreshold) angleThreshold=-angleThreshold;
+		}
+		if (angle > angleThreshold) {
+			angle-=angleThreshold/(mainApplet.frameRate*animationSpeed);
+			if (angle <= angleThreshold) angleThreshold=-angleThreshold;
+		}
+
+
 		mainApplet.lights();
 		mainApplet.directionalLight(backgroundTintHue,92,fftDCValueDelayed,lightPosX,lightPosY,6000f);
+		mainApplet.spotLight(backgroundTintHue,92,5f,0f,0f,0f,lightPosX,lightPosY,2000f,2f,10f);
+		mainApplet.directionalLight(backgroundTintHue,92,fftDCValueDelayed,-lightPosX,lightPosY,6000f);
+		mainApplet.spotLight(backgroundTintHue,92,5f,0f,0f,0f,-lightPosX,lightPosY,2000f,2f,10f);
+		//mainApplet.directionalLight(backgroundTintHue,92,fftDCValueDelayed,-lightPosX,-lightPosY,6000f);
 		mainApplet.lightSpecular(backgroundTintHue,92,fftDCValueDelayed);
 		mainApplet.specular(backgroundTintColor);
 		mainApplet.shininess(5.0f);

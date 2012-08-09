@@ -51,6 +51,8 @@ public class TunnelScene3D extends BasicScene3D {
 		textureWalls = mainApplet.createGraphics(verticalLines*linesWidth,horizontalLines*linesHeight,PConstants.P2D);
 		textureImg = mainApplet.loadImage("../data/texture.png");
 		offsetTunnelEffectMax = linesHeight; 
+		
+		animationSpeed=6f;
 	}
 	
 	public void reset () {

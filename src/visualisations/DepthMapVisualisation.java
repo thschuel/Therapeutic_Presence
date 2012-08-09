@@ -47,7 +47,7 @@ public class DepthMapVisualisation extends AbstractVisualisation {
 		mainApplet.stroke(200,10,10,30);
 		mainApplet.noFill();
 		mainApplet.strokeWeight(6f);
-		float tubeHeight = 1300f;
+		float tubeHeight = 800f;
 		PVector center = TherapeuticPresence.centerOfSkeletonDetectionSpace;
 		float radius = TherapeuticPresence.radiusOfSkeletonDetectionSpace;
 		mainApplet.pushMatrix();
