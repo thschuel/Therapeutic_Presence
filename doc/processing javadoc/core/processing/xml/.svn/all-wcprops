@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/7913/trunk/processing/build/javadoc/core/processing/xml
+END
+XMLWriter.html
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/7367/trunk/processing/build/javadoc/core/processing/xml/XMLWriter.html
+END
+StdXMLReader.html
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/6700/trunk/processing/build/javadoc/core/processing/xml/StdXMLReader.html
+END
+XMLException.html
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/6700/trunk/processing/build/javadoc/core/processing/xml/XMLException.html
+END
+XMLEntityResolver.html
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/!svn/ver/6700/trunk/processing/build/javadoc/core/processing/xml/XMLEntityResolver.html
+END
+StdXMLBuilder.html
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/7367/trunk/processing/build/javadoc/core/processing/xml/StdXMLBuilder.html
+END
+package-frame.html
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/6700/trunk/processing/build/javadoc/core/processing/xml/package-frame.html
+END
+XMLValidator.html
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/6700/trunk/processing/build/javadoc/core/processing/xml/XMLValidator.html
+END
+package-summary.html
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/!svn/ver/7367/trunk/processing/build/javadoc/core/processing/xml/package-summary.html
+END
+StdXMLParser.html
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/6700/trunk/processing/build/javadoc/core/processing/xml/StdXMLParser.html
+END
+package-tree.html
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/6700/trunk/processing/build/javadoc/core/processing/xml/package-tree.html
+END
+XMLParseException.html
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/!svn/ver/6700/trunk/processing/build/javadoc/core/processing/xml/XMLParseException.html
+END
+XMLValidationException.html
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/!svn/ver/6700/trunk/processing/build/javadoc/core/processing/xml/XMLValidationException.html
+END
+XMLElement.html
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/7913/trunk/processing/build/javadoc/core/processing/xml/XMLElement.html
+END

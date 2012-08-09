@@ -11,10 +11,6 @@ public class TunnelScene3D extends BasicScene3D {
 	protected AudioManager audioManager = null;
 	
 	protected Tube tunnelTube = null;
-	protected PGraphics textureWalls = null;
-//	protected PImage textureWallsImg = null;
-//	protected PImage textureWallsVer = null;
-//	protected PImage textureWallsHor = null;
 	public static float tunnelWidth = 4000f;
 	public static float tunnelHeight = 3000f;
 	public static float tunnelLength = 5000f;
@@ -22,13 +18,17 @@ public class TunnelScene3D extends BasicScene3D {
 	public static float tunnelEntryZ = tunnelLength;
 	
 	// animation of texture, background colors are controlled by audio stream
+	protected PGraphics textureWalls = null;
+	protected PImage textureImg = null;
 	protected float offsetTunnelEffect = 0;
 	protected float offsetTunnelEffectMax = 0;
-	protected float animationSpeed = 6f; // seconds
 	protected final int horizontalLines = 2;
 	protected final int verticalLines = 10;
 	protected final int linesHeight = 256;
 	protected final int linesWidth = 64;
+	protected int odd=0;
+	
+	// colors
 	protected int backgroundTintColor = 0;
 	protected int backgroundTintHueMax = 360;
 	protected int backgroundTintHue = 207;
@@ -36,7 +36,6 @@ public class TunnelScene3D extends BasicScene3D {
 	protected float audioReactionDelay = 12f;
 	protected float fftDCValue=0f;
 	protected float fftDCValueDelayed=0f;
-	private int odd=0;
 	
 	public TunnelScene3D (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
 		super (_mainApplet,_backgroundColor);
@@ -50,6 +49,7 @@ public class TunnelScene3D extends BasicScene3D {
 		tunnelTube.z(tunnelLength/2f-1f);
 		tunnelTube.visible(false,Tube.BOTH_CAP);
 		textureWalls = mainApplet.createGraphics(verticalLines*linesWidth,horizontalLines*linesHeight,PConstants.P2D);
+		textureImg = mainApplet.loadImage("../data/texture.png");
 		offsetTunnelEffectMax = linesHeight; 
 	}
 	
@@ -58,8 +58,8 @@ public class TunnelScene3D extends BasicScene3D {
 		// change colors based on audio stream
 		fftDCValue = audioManager.getMeanFFT(0);
 		fftDCValueDelayed += (fftDCValue-fftDCValueDelayed)/audioReactionDelay;
-		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,1,audioManager.getMaxFFT(),100);
-		backgroundTintColor = mainApplet.color(backgroundTintHue,1,fftDCValueDelayed,100);
+		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,100,audioManager.getMaxFFT(),100);
+		backgroundTintColor = mainApplet.color(backgroundTintHue,100,fftDCValueDelayed,100);
 		defaultBackgroundColor = PApplet.blendColor(backgroundTintColor,defaultBackgroundHighlightColor,PConstants.BLEND);
 		backgroundTintColor = PApplet.blendColor(backgroundTintColor,alertColor,PConstants.BLEND);
 		super.reset();
@@ -94,32 +94,34 @@ public class TunnelScene3D extends BasicScene3D {
 	
 	private void updateTexture () {
 		// animation
-		if (offsetTunnelEffect>0) offsetTunnelEffect-=linesHeight/(mainApplet.frameRate*animationSpeed);
+		if (offsetTunnelEffect>0) offsetTunnelEffect-=linesHeight/(mainApplet.frameRate*AbstractScene.animationSpeed);
 		else { 
 			offsetTunnelEffect = linesHeight-1;
 			odd=(odd+1)%2;
 		}
 		// assemble texture
-		mainApplet.colorMode(PApplet.HSB,backgroundTintHueMax,100,audioManager.getMaxFFT(),100);
+		textureWalls.colorMode(PConstants.HSB,backgroundTintHueMax,100,audioManager.getMaxFFT(),100);
 		textureWalls.noStroke();
 		textureWalls.beginDraw();
+//		textureWalls.tint(255f,(fftDCValueDelayed/audioManager.getMaxFFT())*255f);
+//		textureWalls.image(textureImg,0,0,textureWalls.width,textureWalls.height);
 		int colorCode=0;
 		for (int i=0;i<verticalLines;i++) {
-			if (i<verticalLines/2) {
+			if (i>=verticalLines/2) {
 				colorCode=207;
 			} else {
 				colorCode=20;
 			}
 			for (int j=0; j<horizontalLines;j++) {
-				backgroundTintColor = mainApplet.color(colorCode,80f+((i+j+odd)%2)*20f,fftDCValueDelayed,100);
+				backgroundTintColor = textureWalls.color(colorCode,80f+((i+j+odd)%2)*20f,fftDCValueDelayed,100);
 				backgroundTintColor = PApplet.blendColor(backgroundTintColor,alertColor,PConstants.BLEND);
-				textureWalls.fill(backgroundTintColor);
+				textureWalls.fill(backgroundTintColor,50f);
 				textureWalls.rect(i*linesWidth,j*linesHeight+PApplet.round(offsetTunnelEffect),linesWidth,linesHeight);
 				
 				if (j==0) {
-					backgroundTintColor = mainApplet.color(colorCode,80f+((i+j+1+odd)%2)*20f,fftDCValueDelayed,100);
+					backgroundTintColor = textureWalls.color(colorCode,80f+((i+j+1+odd)%2)*20f,fftDCValueDelayed,100);
 					backgroundTintColor = PApplet.blendColor(backgroundTintColor,alertColor,PConstants.BLEND);
-					textureWalls.fill(backgroundTintColor);
+					textureWalls.fill(backgroundTintColor,50f);
 					textureWalls.rect(i*linesWidth,0,linesWidth,PApplet.round(offsetTunnelEffect));
 				}
 			}

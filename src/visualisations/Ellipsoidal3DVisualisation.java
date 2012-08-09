@@ -35,7 +35,6 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	protected ArrayList<Ellipsoid3D> ellipsoids = new ArrayList<Ellipsoid3D>();
 	
 	// these values are used for drawing the audioresponsive circles
-	protected final float delay = 8f;
 	protected final float radiation = 80f;
 	protected final float scaleDC = 2f;
 	protected final float scaleAC = 20f;
@@ -49,6 +48,10 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 		PVector torso = skeleton.getJoint(Skeleton.TORSO);
 		startTorsoX=torso.x;
 		startTorsoY=torso.y;
+		angleScale1=0.1f;
+		angleScale2=0.9f;
+		angleScale3=0.8f;
+		movementResponseDelay=8f;
 	}
 	
 	public void updateCanvasCoordinates () {
@@ -57,11 +60,11 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 		PVector torso = skeleton.getJoint(Skeleton.NECK);
 		float mappedTorsoX = PApplet.constrain(torso.x-startTorsoX,-width/2,width/2);
 		float mappedTorsoY = PApplet.constrain(torso.y-startTorsoY,-height/2,height/2);
-		centerX += (mappedTorsoX-centerX)/delay;
-		centerY += (mappedTorsoY-centerY)/delay;
+		centerX += (mappedTorsoX-centerX)/movementResponseDelay;
+		centerY += (mappedTorsoY-centerY)/movementResponseDelay;
 	    center.set(centerX,centerY,centerZ);
 		float orientationSkeleton = PVector.angleBetween(new PVector(0,1,0),skeleton.getOrientationY())-TherapeuticPresence.kinectTilt;
-		orientation += (orientationSkeleton*0.8-orientation)/delay;
+		orientation += (orientationSkeleton*0.8-orientation)/movementResponseDelay;
 			
 	}
 	
@@ -69,7 +72,7 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
 			// center.z reacts to position of user with delay
 			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
-			centerZ += (mappedDistance-centerZ)/delay;
+			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
 			updateCanvasCoordinates();
 			updateEllipsoids();
 			for (int i=0; i<ellipsoids.size(); i++) {
@@ -83,7 +86,7 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 			// center.z reacts to position of user with delay
 			fadeInCenterZ+=skeleton.distanceToKinect()/mainApplet.frameRate;
 			float mappedDistance = PApplet.map(fadeInCenterZ,0,TherapeuticPresence.maxDistanceToKinect,0,upperZBoundary);
-			centerZ += (mappedDistance-centerZ)/delay;
+			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
 			updateCanvasCoordinates();
 			updateEllipsoids();
 			for (int i=0; i<ellipsoids.size(); i++) {
@@ -121,20 +124,20 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 		rHand.x = PApplet.map(rHand.x,-900f,0f,-width/2,0);
 //		PVector lHandrHand = PVector.sub(lHand,rHand);
 		float distanceMapped = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,0f,1f);
-		float angleLeftLowerNew = -skeleton.getAngleLeftLowerArm()*0.1f;
-		float angleRightLowerNew = -skeleton.getAngleRightLowerArm()*0.1f;
-		float angleLeftUpperNew = -skeleton.getAngleLeftUpperArm()*0.9f;
-		float angleRightUpperNew = -skeleton.getAngleRightUpperArm()*0.9f;
-		angleLeftLower += (angleLeftLowerNew-angleLeftLower)/delay;
-		angleRightLower += (angleRightLowerNew-angleRightLower)/delay;
-		angleLeftUpper += (angleLeftUpperNew-angleLeftUpper)/delay;
-		angleRightUpper += (angleRightUpperNew-angleRightUpper)/delay;
-		lHandX += (lHand.x-lHandX)/delay;
-		lHandY += (lHand.y-lHandY)/delay;
-		lHandZ += (lHand.z-lHandZ)/delay;
-		rHandX += (rHand.x-rHandX)/delay;
-		rHandY += (rHand.y-rHandY)/delay;
-		rHandZ += (rHand.z-rHandZ)/delay;
+		float angleLeftLowerNew = -skeleton.getAngleLeftLowerArm()*angleScale1;
+		float angleRightLowerNew = -skeleton.getAngleRightLowerArm()*angleScale1;
+		float angleLeftUpperNew = -skeleton.getAngleLeftUpperArm()*angleScale2;
+		float angleRightUpperNew = -skeleton.getAngleRightUpperArm()*angleScale2;
+		angleLeftLower += (angleLeftLowerNew-angleLeftLower)/movementResponseDelay;
+		angleRightLower += (angleRightLowerNew-angleRightLower)/movementResponseDelay;
+		angleLeftUpper += (angleLeftUpperNew-angleLeftUpper)/movementResponseDelay;
+		angleRightUpper += (angleRightUpperNew-angleRightUpper)/movementResponseDelay;
+		lHandX += (lHand.x-lHandX)/movementResponseDelay;
+		lHandY += (lHand.y-lHandY)/movementResponseDelay;
+		lHandZ += (lHand.z-lHandZ)/movementResponseDelay;
+		rHandX += (rHand.x-rHandX)/movementResponseDelay;
+		rHandY += (rHand.y-rHandY)/movementResponseDelay;
+		rHandZ += (rHand.z-rHandZ)/movementResponseDelay;
 		
 		// use sample data to shift offset
 //		float sampleValues[] = new float[11];

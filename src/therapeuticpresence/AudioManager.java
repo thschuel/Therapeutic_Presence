@@ -30,6 +30,10 @@ public class AudioManager implements AudioListener{
 		audioPlayer = minim.loadFile(file,1024);
 		audioPlayer.addListener(this);
 		
+		if (file.equals("../data/moan.mp3")) {
+			gain = 0.07f;
+		}
+		
 	    fft = new FFT(audioPlayer.bufferSize(), audioPlayer.sampleRate());
 	    maxFFT =  audioPlayer.sampleRate() / audioPlayer.bufferSize() * gain;
 	    fft.window(FFT.HAMMING);

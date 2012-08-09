@@ -54,11 +54,11 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean calculateLocalCoordSys = true; // control for full body tracking
 	public static boolean evaluatePostureAndGesture = true; // control for full body tracking
 	public static boolean recordFlag = true; // set to false for playback
-	public static boolean debugOutput = true;
+	public static boolean debugOutput = false;
 	public static boolean demo=true;
 	public static boolean transferSkeleton=true;
-	public static boolean constantFrameRate = true;
-	public static short initialSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
+	public static boolean constantFrameRate = false;
+	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 	public static short defaultSceneType = TherapeuticPresence.BASIC_SCENE3D;
 	public static short defaultVisualisationMethod = TherapeuticPresence.STICKFIGURE_VISUALISATION;
@@ -67,7 +67,7 @@ public class TherapeuticPresence extends PApplet {
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
-	public static float maxDistanceToKinect = 3200f; // in mm, is used for scaling the visuals
+	public static float maxDistanceToKinect = 3000f; // in mm, is used for scaling the visuals
 	public static final float cameraEyeZ = 5000f; // in mm, visuals are sensitive to this!
 	public static final float DEFAULT_POSTURE_TOLERANCE = 0.5f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;

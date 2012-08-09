@@ -25,9 +25,10 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	private float curlLeftLowerArm = 0;
 	private float curlRightUpperArm = 0;
 	private float curlLeftUpperArm = 0;
+	private float armLeftToX = 0;
+	private float armRightToX = 0;
 	private float orientationTree = 0;
 	private float downscaleStrokeLength = PApplet.sqrt(2)/2.f;
-	private float delay = 20;
 	private int minBranches = 5;
 	private int addBranches = 5;
 	private int branchCount = 0;
@@ -65,6 +66,10 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		strokeColor = mainApplet.color(250,250,250);
 		mainApplet.colorMode(PConstants.HSB,360,100,100,255);
 		leafColors = new int[colorsSize];
+		angleScale1=0.7f;
+		angleScale2=0.9f;
+		angleScale3=0.8f;
+		movementResponseDelay=20f;
 		for (int i=0; i<colorsSize; i++) {
 			leafColors[i] = mainApplet.color(i,100,100);
 		}
@@ -129,7 +134,8 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			getAnglesForBranches();
 			// draw
 			mainApplet.pushStyle();
-			drawTree(minBranches+PApplet.round(addBranches*centerZ/upperZBoundary),centerZ/upperZBoundary,centerZ/upperZBoundary*height/3);
+			float initialStrokeLength = /*(PApplet.abs(armLeftToX)/PConstants.PI)*(PApplet.abs(armRightToX)/PConstants.PI) * */ (centerZ/upperZBoundary*height/3);
+			drawTree(minBranches+PApplet.round(addBranches*centerZ/upperZBoundary),centerZ/upperZBoundary,initialStrokeLength);
 			drawLeafs();
 			mainApplet.popStyle();
 			// prepare for fade out
@@ -149,37 +155,38 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	}
 	
 	private void getAnglesForBranches () {
-//		PVector bodyAxis = skeleton.getOrientationYProjective();
-//		PVector leftUpperArm = PVector.sub(skeleton.getJointProjective(Skeleton.LEFT_ELBOW),skeleton.getJointProjective(Skeleton.LEFT_SHOULDER));
-//		PVector rightUpperArm = PVector.sub(skeleton.getJointProjective(Skeleton.RIGHT_ELBOW),skeleton.getJointProjective(Skeleton.RIGHT_SHOULDER));
-//		PVector leftLowerArm = PVector.sub(skeleton.getJointProjective(Skeleton.LEFT_HAND),skeleton.getJointProjective(Skeleton.LEFT_ELBOW));
-//		PVector rightLowerArm = PVector.sub(skeleton.getJointProjective(Skeleton.RIGHT_HAND),skeleton.getJointProjective(Skeleton.RIGHT_ELBOW));
-//		float angleLeftUpperArm = PVector.angleBetween(leftUpperArm,bodyAxis);
-//		float angleRightUpperArm = PVector.angleBetween(rightUpperArm,bodyAxis);
-//		float angleLeftLowerArm = PVector.angleBetween(leftLowerArm,leftUpperArm);
-//		float angleRightLowerArm =  PVector.angleBetween(rightLowerArm,rightUpperArm);
 		float angleLeftUpperArm = skeleton.angleToLocalYAxis(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER); 
 		float angleRightUpperArm = skeleton.angleToLocalYAxis(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
 		float angleLeftLowerArm = skeleton.angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER,Skeleton.LEFT_HAND,Skeleton.LEFT_ELBOW); 
 		float angleRightLowerArm =  skeleton.angleBetween(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW); 
 		float orientationSkeleton = PVector.angleBetween(new PVector(0,0,1),skeleton.getOrientationX()) - PConstants.HALF_PI;
+
+		// use distance to body plane measure
+//		float angleLeftUpperArmToX = skeleton.angleToLocalXAxis(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER);
+//		float angleRightUpperArmToX = skeleton.angleToLocalXAxis(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
+		// shift to -PI - PI
+//		angleLeftUpperArmToX -= PConstants.HALF_PI;
+//		angleRightUpperArmToX -= PConstants.HALF_PI;
+		
 		
 		// TODO this is a hack. find solution to switch on/off mirroring of kinect
 		if (!TherapeuticPresence.mirrorKinect) {
 			// trees react to body posture with a delay
-			curlLeftLowerArm += (angleRightLowerArm*0.7-curlLeftLowerArm)/delay;		
-			curlLeftUpperArm += (angleRightUpperArm*0.5-curlLeftUpperArm)/delay;
-			curlRightLowerArm += (angleLeftLowerArm*0.7-curlRightLowerArm)/delay;
-			curlRightUpperArm += (angleLeftUpperArm*0.5-curlRightUpperArm)/delay;		
-			orientationTree += (orientationSkeleton*0.8-orientationTree)/delay;
+			curlLeftLowerArm += (angleRightLowerArm*angleScale1-curlLeftLowerArm)/movementResponseDelay;		
+			curlLeftUpperArm += (angleRightUpperArm*angleScale2-curlLeftUpperArm)/movementResponseDelay;
+			curlRightLowerArm += (angleLeftLowerArm*angleScale1-curlRightLowerArm)/movementResponseDelay;
+			curlRightUpperArm += (angleLeftUpperArm*angleScale2-curlRightUpperArm)/movementResponseDelay;		
+			orientationTree += (orientationSkeleton*angleScale3-orientationTree)/movementResponseDelay;
 		} else {
 			// trees react to body posture with a delay
-			curlLeftLowerArm += (angleLeftLowerArm*0.7-curlLeftLowerArm)/delay;
-			curlLeftUpperArm += (angleLeftUpperArm*0.5-curlLeftUpperArm)/delay;
-			curlRightLowerArm += (angleRightLowerArm*0.7-curlRightLowerArm)/delay;		
-			curlRightUpperArm += (angleRightUpperArm*0.5-curlRightUpperArm)/delay;	
-			orientationTree += (-orientationSkeleton*0.8-orientationTree)/delay;
+			curlLeftLowerArm += (angleLeftLowerArm*angleScale1-curlLeftLowerArm)/movementResponseDelay;
+			curlLeftUpperArm += (angleLeftUpperArm*angleScale2-curlLeftUpperArm)/movementResponseDelay;
+			curlRightLowerArm += (angleRightLowerArm*angleScale1-curlRightLowerArm)/movementResponseDelay;		
+			curlRightUpperArm += (angleRightUpperArm*angleScale2-curlRightUpperArm)/movementResponseDelay;	
+			orientationTree += (-orientationSkeleton*angleScale3-orientationTree)/movementResponseDelay;
 		}
+		
+		
 	}
 	
 	private void drawTree(int branchDepth,float scale, float initialStrokeLength) {
@@ -206,9 +213,6 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		// rotate tree according to body rotation
 		mainApplet.rotateY(orientationTree);
 		
-//		mainApplet.stroke(strokeColor,transparency);
-//		mainApplet.strokeWeight(strokeWeight);
-//		mainApplet.line(0,0,0,0,initialStrokeLength,0);
 		mainApplet.pushStyle();
 		mainApplet.noStroke();
 		mainApplet.fill(strokeColor,transparency);
@@ -259,7 +263,6 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			mainApplet.rotateY(orientationTree);
 			float angle = leafsRotationZ.get(i);
 			mainApplet.rotateZ(angle+1.5f*PConstants.PI); // transfer to angle between 0 and 2PI with regard to the positive y axis
-			//mainApplet.rotateZ(audioManager.getMeanSampleAt(PApplet.round(i*sampleStepSize)));
 			mainApplet.ellipse(0,0,leafWidth,leafHeight);
 			mainApplet.popMatrix();
 		}

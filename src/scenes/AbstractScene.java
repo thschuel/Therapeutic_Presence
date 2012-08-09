@@ -6,6 +6,8 @@ public abstract class AbstractScene {
 	protected TherapeuticPresence mainApplet = null;
 	protected int backgroundColor = 0;
 	protected int defaultBackgroundColor;
+
+	public static float animationSpeed = 6f; // seconds
 	
 	public AbstractScene (TherapeuticPresence _mainApplet, int _backgroundColor) {
 		mainApplet = _mainApplet;

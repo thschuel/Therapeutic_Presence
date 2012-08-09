@@ -6,7 +6,10 @@ import peasy.PeasyCam;
 import processing.core.*;
 import controlP5.*;
 import processing.opengl.*;
+import scenes.AbstractScene;
 import therapeuticskeleton.Skeleton;
+import visualisations.AbstractSkeletonAudioVisualisation;
+import visualisations.AbstractSkeletonVisualisation;
 
 public class GuiHud {
 
@@ -108,7 +111,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,200);
-		menu.setBackgroundHeight(320);
+		menu.setBackgroundHeight(420);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -178,7 +181,7 @@ public class GuiHud {
 		fftGain.setCaptionLabel("FFT Gain");
 		fftGain.plugTo(this);
 		
-		controlP5.Slider maxDistanceToKinect = control.addSlider("changeMaxDistanceToKinect",0.0f,4000.0f,TherapeuticPresence.maxDistanceToKinect,0,240,108,20);
+		controlP5.Slider maxDistanceToKinect = control.addSlider("changeMaxDistanceToKinect",0.0f,5000.0f,TherapeuticPresence.maxDistanceToKinect,0,240,108,20);
 		maxDistanceToKinect.moveTo(menu);
 		maxDistanceToKinect.setCaptionLabel("Max dist");
 		maxDistanceToKinect.plugTo(this);
@@ -197,6 +200,31 @@ public class GuiHud {
 		smoothingSkeleton.moveTo(menu);
 		smoothingSkeleton.setCaptionLabel("Skeleton Smoothing");
 		smoothingSkeleton.plugTo(this);
+		
+		controlP5.Slider sceneAnimationSpeed = control.addSlider("changeSceneAnimationSpeed",0.0f,10.0f,AbstractScene.animationSpeed,0,320,108,20);
+		sceneAnimationSpeed.moveTo(menu);
+		sceneAnimationSpeed.setCaptionLabel("Scene Animation Speed");
+		sceneAnimationSpeed.plugTo(this);
+		
+		controlP5.Slider movementResponseDelay = control.addSlider("changeMovementResponseDelay",0.0f,20.0f,AbstractSkeletonAudioVisualisation.movementResponseDelay,0,340,108,20);
+		movementResponseDelay.moveTo(menu);
+		movementResponseDelay.setCaptionLabel("Movement Response");
+		movementResponseDelay.plugTo(this);
+		
+		controlP5.Slider angleScale1 = control.addSlider("changeAngleScale1",0.0f,1.0f,AbstractSkeletonVisualisation.angleScale1,0,360,108,20);
+		angleScale1.moveTo(menu);
+		angleScale1.setCaptionLabel("Angle Scale 1");
+		angleScale1.plugTo(this);
+		
+		controlP5.Slider angleScale2 = control.addSlider("changeAngleScale2",0.0f,1.0f,AbstractSkeletonVisualisation.angleScale2,0,380,108,20);
+		angleScale2.moveTo(menu);
+		angleScale2.setCaptionLabel("Angle Scale 2");
+		angleScale2.plugTo(this);
+		
+		controlP5.Slider angleScale3 = control.addSlider("changeAngleScale3",0.0f,1.0f,AbstractSkeletonVisualisation.angleScale3,0,400,108,20);
+		angleScale3.moveTo(menu);
+		angleScale3.setCaptionLabel("Angle Scale 3");
+		angleScale3.plugTo(this);
 	}
 	
 	
@@ -265,7 +293,7 @@ public class GuiHud {
 		TherapeuticPresence.demo = !TherapeuticPresence.demo;
 	}
 	
-	private void switchDebugOutput (int theValue) {
+	private void switchDebugOuput (int theValue) {
 		TherapeuticPresence.debugOutput = !TherapeuticPresence.debugOutput;
 	}
 	
@@ -287,4 +315,20 @@ public class GuiHud {
 	private void changeSmoothingSkeleton (float theValue) {
 		mainApplet.changeSmoothingSkeleton(theValue);
 	}
+	private void changeSceneAnimationSpeed (float theValue) {
+		AbstractScene.animationSpeed = theValue;
+	}
+	private void changeMovementResponseDelay (float theValue) {
+		AbstractSkeletonAudioVisualisation.movementResponseDelay = theValue;
+	}
+	private void changeAngleScale1 (float theValue) {
+		AbstractSkeletonVisualisation.angleScale1 = theValue;
+	}
+	private void changeAngleScale2 (float theValue) {
+		AbstractSkeletonVisualisation.angleScale2 = theValue;
+	}
+	private void changeAngleScale3 (float theValue) {
+		AbstractSkeletonVisualisation.angleScale3 = theValue;
+	}
+	
 }

@@ -33,7 +33,6 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	protected final float upperZBoundary = 0.85f*TunnelScene3D.tunnelLength;
 	
 	// these values are used for drawing the bezier curves
-	protected final float delay = 8f;
 	protected final int radiation = 30;
 	protected final float scaleDC = 1f;
 	protected final float scaleAC = 5f;
@@ -46,6 +45,7 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	
 	public void setup() {
 		mainApplet.noLights();
+		movementResponseDelay=8f;
 	}
 	
 	public void updateCanvasCoordinates () {
@@ -62,23 +62,23 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 		anchorR3.x = center.x+width/8;
 		anchorR2.x = center.x+3*width/8;
 		anchorR1.x = center.x+5*width/8;
-		left1.z += (center.z + skeleton.getJoint(Skeleton.LEFT_HAND).z-skeleton.getJoint(Skeleton.LEFT_SHOULDER).z - left1.z)/delay;
-		left2.z += (center.z + skeleton.getJoint(Skeleton.LEFT_ELBOW).z-skeleton.getJoint(Skeleton.LEFT_SHOULDER).z - left2.z)/delay;
-		right2.z += (center.z + skeleton.getJoint(Skeleton.RIGHT_ELBOW).z-skeleton.getJoint(Skeleton.RIGHT_SHOULDER).z - right2.z)/delay;
-		right1.z += (center.z + skeleton.getJoint(Skeleton.RIGHT_HAND).z-skeleton.getJoint(Skeleton.RIGHT_SHOULDER).z - right1.z)/delay;
-		anchorL1.z += (left1.z - (left2.z-left1.z)/2f - anchorL1.z)/delay;
-		anchorL2.z += (left1.z + (left2.z-left1.z)/2f - anchorL2.z)/delay;
-		anchorL3.z += (left2.z + (center.z-left2.z)/2f - anchorL3.z)/delay;
-		anchorR3.z += (right2.z + (center.z-right2.z)/2f - anchorR3.z)/delay;
-		anchorR2.z += (right1.z + (right2.z-right1.z)/2f - anchorR2.z)/delay;
-		anchorR1.z += (right1.z - (right2.z-right1.z)/2f - anchorR1.z)/delay;
+		left1.z += (center.z + skeleton.getJoint(Skeleton.LEFT_HAND).z-skeleton.getJoint(Skeleton.LEFT_SHOULDER).z - left1.z)/movementResponseDelay;
+		left2.z += (center.z + skeleton.getJoint(Skeleton.LEFT_ELBOW).z-skeleton.getJoint(Skeleton.LEFT_SHOULDER).z - left2.z)/movementResponseDelay;
+		right2.z += (center.z + skeleton.getJoint(Skeleton.RIGHT_ELBOW).z-skeleton.getJoint(Skeleton.RIGHT_SHOULDER).z - right2.z)/movementResponseDelay;
+		right1.z += (center.z + skeleton.getJoint(Skeleton.RIGHT_HAND).z-skeleton.getJoint(Skeleton.RIGHT_SHOULDER).z - right1.z)/movementResponseDelay;
+		anchorL1.z += (left1.z - (left2.z-left1.z)/2f - anchorL1.z)/movementResponseDelay;
+		anchorL2.z += (left1.z + (left2.z-left1.z)/2f - anchorL2.z)/movementResponseDelay;
+		anchorL3.z += (left2.z + (center.z-left2.z)/2f - anchorL3.z)/movementResponseDelay;
+		anchorR3.z += (right2.z + (center.z-right2.z)/2f - anchorR3.z)/movementResponseDelay;
+		anchorR2.z += (right1.z + (right2.z-right1.z)/2f - anchorR2.z)/movementResponseDelay;
+		anchorR1.z += (right1.z - (right2.z-right1.z)/2f - anchorR1.z)/movementResponseDelay;
 	}
 	
 	public void draw () {
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
 			// center.z reacts to position of user with delay
 			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
-			centerZ += (mappedDistance-centerZ)/delay;
+			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
 			updateCanvasCoordinates();
 			updateBezierCurves();
 			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
@@ -94,7 +94,7 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 			// center.z reacts to position of user with delay
 			fadeInCenterZ+=skeleton.distanceToKinect()/mainApplet.frameRate;
 			float mappedDistance = PApplet.map(fadeInCenterZ,0,TherapeuticPresence.maxDistanceToKinect,0,upperZBoundary);
-			centerZ += (mappedDistance-centerZ)/delay;
+			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
 			updateCanvasCoordinates();
 			updateBezierCurves();
 			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
@@ -164,10 +164,10 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 		right1YNew = PApplet.constrain(right1YNew,center.y-height/2,center.y+height/2);
 
 		// update coordinates with delay
-		left2.y += (left2YNew-left2.y)/delay;
-		right2.y += (right2YNew-right2.y)/delay;
-		left1.y += (left1YNew-left1.y)/delay;
-		right1.y += (right1YNew-right1.y)/delay;
+		left2.y += (left2YNew-left2.y)/movementResponseDelay;
+		right2.y += (right2YNew-right2.y)/movementResponseDelay;
+		left1.y += (left1YNew-left1.y)/movementResponseDelay;
+		right1.y += (right1YNew-right1.y)/movementResponseDelay;
 		// update anchorpoints based on controlpoints
 		anchorL1.y = left1.y + ((left2.y-left1.y)/2);
 		anchorL2.y = left1.y + ((left2.y-left1.y)/2);
