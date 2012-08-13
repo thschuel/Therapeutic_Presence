@@ -81,6 +81,7 @@ public class TherapeuticPresence extends PApplet {
 	public static float kinectTilt=PApplet.radians(kinectTiltDegree);
 	public static PVector centerOfSkeletonDetectionSpace = new PVector(0,0,maxDistanceToKinect/2f); // calibrate skeleton only for users in a defined centered space. used for stability when more users are in the scene
 	public static float radiusOfSkeletonDetectionSpace = 500f;
+	public static boolean structuredTaskMode = false;
 	
 	private int activeUserId = -1;
 	private boolean skeletonDetectionStarted = false;
@@ -102,6 +103,8 @@ public class TherapeuticPresence extends PApplet {
 	protected AudioManager audioManager = null;
 	// posture processing for skeleton interface
 	protected PostureProcessing postureProcessing = null;
+	// task manager for structured therapy
+	protected TherapyTaskManager taskManager = null;
 	
 	
 	// -----------------------------------------------------------------
@@ -294,6 +297,41 @@ public class TherapeuticPresence extends PApplet {
 		}
 	}
 	
+	public void toggleVisualisations () {
+		if (demo) {
+			if (currentVisualisationMethod == GEOMETRY_3D_VISUALISATION) {
+				setupScene(LIQUID_SCENE3D);
+				setupVisualisation(GENERATIVE_TREE_3D_VISUALISATION);
+			} else if (currentVisualisationMethod == GENERATIVE_TREE_3D_VISUALISATION) {
+				setupScene(LIQUID_SCENE3D);
+				setupVisualisation(ELLIPSOIDAL_3D_VISUALISATION);
+			}  else {
+				setupScene(TUNNEL_SCENE3D);
+				setupVisualisation(GEOMETRY_3D_VISUALISATION);
+			}
+		} else {
+			if (currentVisualisationMethod == GEOMETRY_3D_VISUALISATION) {
+				setupScene(LIQUID_SCENE3D);
+				setupVisualisation(GENERATIVE_TREE_3D_VISUALISATION);
+			} else if (currentVisualisationMethod == GENERATIVE_TREE_3D_VISUALISATION) {
+				setupScene(LIQUID_SCENE3D);
+				setupVisualisation(ELLIPSOIDAL_3D_VISUALISATION);
+			}  else if (currentVisualisationMethod == ELLIPSOIDAL_3D_VISUALISATION) {
+//				setupScene(TUNNEL_SCENE3D);
+//				setupVisualisation(MESH_3D_VISUALISATION);
+//			}  else if (currentVisualisationMethod == MESH_3D_VISUALISATION) {
+				setupScene(TUNNEL_SCENE3D);
+				setupVisualisation(AGENT_3D_VISUALISATION);
+			}  else if (currentVisualisationMethod == AGENT_3D_VISUALISATION) {
+				setupScene(BASIC_SCENE3D);
+				setupVisualisation(STICKFIGURE_VISUALISATION);
+			}  else {
+				setupScene(TUNNEL_SCENE3D);
+				setupVisualisation(GEOMETRY_3D_VISUALISATION);
+			}
+		}
+	}
+	
 	// -----------------------------------------------------------------
 	public void draw() {
 		// -------- update status --------------------------
@@ -355,6 +393,11 @@ public class TherapeuticPresence extends PApplet {
 	public void debugMessage (String _message) {
 		guiHud.sendGuiMessage(_message);
 		println(_message);
+	}
+	
+	public void updateScore (int _score) {
+		guiHud.updateScore(_score);
+		println("Score: "+_score);
 	}
 
 	
@@ -481,6 +524,20 @@ public class TherapeuticPresence extends PApplet {
 	public void changeKinectTilt (float _kinectTiltDegree) {
 		kinectTiltDegree = _kinectTiltDegree;
 		kinectTilt = PApplet.radians(kinectTiltDegree);
+	}
+	
+	public void switchStructuredTaskMode () {
+		if (taskManager == null && postureProcessing != null) {
+			// switch on
+			structuredTaskMode = true;
+			taskManager = new TherapyTaskManager(this);
+			postureProcessing.setTaskManager(taskManager);
+		} else if (taskManager != null && postureProcessing != null) {
+			// switch off
+			structuredTaskMode = false;
+			taskManager = null;
+			postureProcessing.removeTaskManager();
+		}
 	}
 	
 	// -----------------------------------------------------------------
