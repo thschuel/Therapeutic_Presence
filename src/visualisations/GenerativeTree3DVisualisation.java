@@ -66,8 +66,8 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		strokeColor = mainApplet.color(250,250,250);
 		mainApplet.colorMode(PConstants.HSB,360,100,100,255);
 		leafColors = new int[colorsSize];
-		angleScale1=0.7f;
-		angleScale2=0.9f;
+		angleScale1=0.6f;
+		angleScale2=0.7f;
 		angleScale3=0.8f;
 		movementResponseDelay=20f;
 		for (int i=0; i<colorsSize; i++) {

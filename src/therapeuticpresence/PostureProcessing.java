@@ -9,6 +9,7 @@ public class PostureProcessing {
 	private TherapeuticPresence mainApplet;
 	private AbstractScene scene;
 	private AbstractVisualisation visualisation;
+	private TherapyTaskManager taskManager = null;
 
 	public static final float timeHoldShapeToTrigger = 1.7f;
 	public static final float timeBlockTrigger = 2.5f;

@@ -111,7 +111,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,200);
-		menu.setBackgroundHeight(420);
+		menu.setBackgroundHeight(440);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -225,6 +225,11 @@ public class GuiHud {
 		angleScale3.moveTo(menu);
 		angleScale3.setCaptionLabel("Angle Scale 3");
 		angleScale3.plugTo(this);
+		
+		controlP5.Slider kinectTiltDegree = control.addSlider("changeKinectTilt",-45f,45f,TherapeuticPresence.kinectTiltDegree,0,420,108,20);
+		kinectTiltDegree.moveTo(menu);
+		kinectTiltDegree.setCaptionLabel("Kinect Tilt");
+		kinectTiltDegree.plugTo(this);
 	}
 	
 	
@@ -339,5 +344,9 @@ public class GuiHud {
 	private void changeAngleScale3 (float theValue) {
 		AbstractSkeletonVisualisation.angleScale3 = theValue;
 	}
+	private void changeKinectTilt (float theValue) {
+		mainApplet.changeKinectTilt(theValue);
+	}
+	
 	
 }

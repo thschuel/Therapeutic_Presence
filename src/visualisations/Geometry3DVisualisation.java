@@ -48,6 +48,7 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 		movementResponseDelay=8f;
 	}
 	
+	// TODO: change calculation so that higher degree of freedom of movements is possible
 	public void updateCanvasCoordinates () {
 	    center.set(0,0,centerZ);
 		width = TunnelScene3D.getTunnelWidthAt(centerZ);

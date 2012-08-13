@@ -67,17 +67,18 @@ public class TherapeuticPresence extends PApplet {
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
-	public static float maxDistanceToKinect = 3000f; // in mm, is used for scaling the visuals
+	public static float maxDistanceToKinect = 4000f; // in mm, is used for scaling the visuals
 	public static final float cameraEyeZ = 5000f; // in mm, visuals are sensitive to this!
 	public static final float DEFAULT_POSTURE_TOLERANCE = 0.5f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
-	public static final float DEFAULT_GESTURE_TOLERANCE = 0.7f;
-	public static float gestureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
+	public static final float DEFAULT_GESTURE_TOLERANCE = 0.1f;
+	public static float gestureTolerance = TherapeuticPresence.DEFAULT_GESTURE_TOLERANCE;
 	public static final float DEFAULT_SMOOTHING_SKELETON = 0.8f;
 	public static float smoothingSkeleton = TherapeuticPresence.DEFAULT_SMOOTHING_SKELETON;
 	public static final String[] audioFiles = {"../data/moan.mp3","../data/latin.mp3", "../data/rjd2.mp3"/*, "../data/vivaldi.mp3"*/};
 	public static short initialAudioFile = 0;
-	public static float kinectTilt=PApplet.radians(17.5f);
+	public static float kinectTiltDegree = 0f;
+	public static float kinectTilt=PApplet.radians(kinectTiltDegree);
 	public static PVector centerOfSkeletonDetectionSpace = new PVector(0,0,maxDistanceToKinect/2f); // calibrate skeleton only for users in a defined centered space. used for stability when more users are in the scene
 	public static float radiusOfSkeletonDetectionSpace = 500f;
 	
@@ -475,6 +476,11 @@ public class TherapeuticPresence extends PApplet {
 			smoothingSkeleton = DEFAULT_SMOOTHING_SKELETON;
 			kinect.setSmoothingSkeleton(smoothingSkeleton);
 		}
+	}
+	
+	public void changeKinectTilt (float _kinectTiltDegree) {
+		kinectTiltDegree = _kinectTiltDegree;
+		kinectTilt = PApplet.radians(kinectTiltDegree);
 	}
 	
 	// -----------------------------------------------------------------
