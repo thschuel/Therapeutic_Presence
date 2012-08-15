@@ -1,5 +1,7 @@
 package therapeuticpresence;
 
+import java.util.ArrayList;
+
 import therapeuticskeleton.Skeleton;
 
 public class TherapyTaskManager {
@@ -7,28 +9,41 @@ public class TherapyTaskManager {
 	private TherapeuticPresence mainApplet;
 	
 	// this defines the therapy
-	private short alternatingPostures1 = Skeleton.V_SHAPE;
-	private short alternatingPostures2 = Skeleton.A_SHAPE;
-	private int alternations=10;
+	private ArrayList<Short> alternatingPostures = new ArrayList<Short>();
+	private int alternationsIndex=0;
 	
-	private short lastPosture = Skeleton.NO_POSE;
-	private int alternationsCounter=0;
+	private int roundsToComplete=5;
+	private int roundCounter=0;
 	
 	public TherapyTaskManager (TherapeuticPresence _mainApplet) {
 		mainApplet = _mainApplet;
+		addPostureToAlternations(Skeleton.V_SHAPE);
+		addPostureToAlternations(Skeleton.A_SHAPE);
+		mainApplet.updateTask(alternatingPostures.get(alternationsIndex));
+		mainApplet.updateScore(roundCounter);
+	}
+	
+	public void addPostureToAlternations (short _posture) {
+		alternatingPostures.add(_posture);
+	}
+	public void resetAlternatingPostures () {
+		alternatingPostures.clear();
 	}
 	
 	public void notifyPostureChange(short _posture) {
-		if (_posture != lastPosture) {
-			if (_posture == alternatingPostures1 || _posture == alternatingPostures2) {
-				lastPosture = _posture;
-				mainApplet.updateScore(++alternationsCounter);
+		if (alternatingPostures.size() >= 2) {
+			if (_posture == alternatingPostures.get(alternationsIndex)) {
+				// correct posture detected, switch to next in array
+				if (++alternationsIndex >= alternatingPostures.size()) { 
+					mainApplet.updateScore(++roundCounter);
+					alternationsIndex=0;
+				}
+				mainApplet.updateTask(alternatingPostures.get(alternationsIndex));
 			}
 		}
-		if (alternationsCounter == alternations) {
+		if (roundCounter == roundsToComplete) {
 			mainApplet.toggleVisualisations();
-			alternationsCounter=0;
-			mainApplet.updateScore(alternationsCounter);
+			roundCounter=0;
 		}
 	}
 }

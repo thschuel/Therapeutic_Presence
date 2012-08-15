@@ -24,6 +24,7 @@ public class GuiHud {
 	private Textarea info;
 	private Textarea fps;
 	private Textarea score;
+	private Textarea task;
 	private Textarea guiMessages;
 
 	public DecimalFormat df = new DecimalFormat("0.00");
@@ -84,8 +85,10 @@ public class GuiHud {
 		}
 	    if (TherapeuticPresence.structuredTaskMode) {
 	    	score.show();
+	    	task.show();
 	    } else {
 	    	score.hide();
+	    	task.hide();
 	    }
 	}
 	
@@ -98,6 +101,10 @@ public class GuiHud {
 	
 	public void updateScore (int _score) {
 		score.setText(""+_score);
+	}	
+	
+	public void updateTask (String _task) {
+		task.setText("Next pose: "+_task);
 	}
 	
 	private void createInfoElements() {
@@ -116,10 +123,14 @@ public class GuiHud {
 		fps = control.addTextarea("fpsArea","",3,mainApplet.height-20,500,50);
 		
 		guiMessages = control.addTextarea("guiMessagesArea","",mainApplet.width-200,10,200,mainApplet.height-20);
-		
+
 		score = control.addTextarea("scoreArea","",mainApplet.width/2-5,20,70,70);
 		score.setFont(mainApplet.createFont("Helvetica",30));
 		score.setText(""+0);
+		
+		task = control.addTextarea("taskArea","",mainApplet.width/2-305,20,300,70);
+		task.setFont(mainApplet.createFont("Helvetica",30));
+		task.setText(""+0);
 	}
 	
 	

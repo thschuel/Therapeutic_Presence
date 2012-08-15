@@ -67,9 +67,9 @@ public class TherapeuticPresence extends PApplet {
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
-	public static float maxDistanceToKinect = 4000f; // in mm, is used for scaling the visuals
+	public static float maxDistanceToKinect = 3500f; // in mm, is used for scaling the visuals
 	public static final float cameraEyeZ = 5000f; // in mm, visuals are sensitive to this!
-	public static final float DEFAULT_POSTURE_TOLERANCE = 0.5f;
+	public static final float DEFAULT_POSTURE_TOLERANCE = 0.7f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
 	public static final float DEFAULT_GESTURE_TOLERANCE = 0.1f;
 	public static float gestureTolerance = TherapeuticPresence.DEFAULT_GESTURE_TOLERANCE;
@@ -398,6 +398,23 @@ public class TherapeuticPresence extends PApplet {
 	public void updateScore (int _score) {
 		guiHud.updateScore(_score);
 		println("Score: "+_score);
+	}
+	
+	public void updateTask (short _task) {
+		String taskString = "";
+		switch (_task) {
+			case Skeleton.V_SHAPE: taskString="V"; break;
+			case Skeleton.A_SHAPE: taskString="A"; break;
+			case Skeleton.U_SHAPE: taskString="U"; break;
+			case Skeleton.N_SHAPE: taskString="N"; break;
+			case Skeleton.M_SHAPE: taskString="M"; break;
+			case Skeleton.W_SHAPE: taskString="W"; break;
+			case Skeleton.O_SHAPE: taskString="O"; break;
+			case Skeleton.I_SHAPE: taskString="I"; break;
+			default: taskString="NO"; break;
+		}
+		guiHud.updateTask(taskString);
+		println("Task: "+taskString);
 	}
 
 	
