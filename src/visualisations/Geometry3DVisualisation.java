@@ -6,7 +6,6 @@ import scenes.TunnelScene3D;
 import therapeuticpresence.*;
 import therapeuticskeleton.Skeleton;
 import utils.BezierCurve3D;
-import utils.Constants;
 
 public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	
@@ -137,21 +136,21 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 		float angleRightLowerArm = skeleton.angleBetween(Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
 		
 		// check for angles not to reach out of quadrants.
-		angleLeftUpperArm = PApplet.constrain(angleLeftUpperArm,Constants.QUARTER_PI,Constants.THREE_QUARTER_PI);
-		angleRightUpperArm = PApplet.constrain(angleRightUpperArm,Constants.QUARTER_PI,Constants.THREE_QUARTER_PI);
-		angleLeftLowerArm = PApplet.constrain(angleLeftLowerArm,0,Constants.HALF_PI-(Constants.THREE_QUARTER_PI-angleLeftUpperArm));
-		angleRightLowerArm = PApplet.constrain(angleRightLowerArm,0,Constants.HALF_PI-(Constants.THREE_QUARTER_PI-angleRightUpperArm));
+		angleLeftUpperArm = PApplet.constrain(angleLeftUpperArm,PConstants.QUARTER_PI,3*PConstants.QUARTER_PI);
+		angleRightUpperArm = PApplet.constrain(angleRightUpperArm,PConstants.QUARTER_PI,3*PConstants.QUARTER_PI);
+		angleLeftLowerArm = PApplet.constrain(angleLeftLowerArm,0,PConstants.HALF_PI-(3*PConstants.QUARTER_PI-angleLeftUpperArm));
+		angleRightLowerArm = PApplet.constrain(angleRightLowerArm,0,PConstants.HALF_PI-(3*PConstants.QUARTER_PI-angleRightUpperArm));
 		
 		// use negative angles because kinect data comes upside down
 		angleLeftLowerArm = -angleLeftLowerArm;
 		angleRightLowerArm = -angleRightLowerArm;
 		
 		// shift angles of upper arms by 90 degree to use calculations in polar coordinates
-		angleLeftUpperArm = (angleLeftUpperArm+Constants.HALF_PI)%Constants.PI;
-		angleRightUpperArm = (angleRightUpperArm+Constants.HALF_PI)%Constants.PI;
+		angleLeftUpperArm = (angleLeftUpperArm+PConstants.HALF_PI)%PConstants.PI;
+		angleRightUpperArm = (angleRightUpperArm+PConstants.HALF_PI)%PConstants.PI;
 		// shift angles of lower arms by angles of upper arms to use calculations in polar coordinates
-		angleLeftLowerArm = (angleLeftLowerArm+angleLeftUpperArm)%Constants.PI;
-		angleRightLowerArm = (angleRightLowerArm+angleRightUpperArm)%Constants.PI;
+		angleLeftLowerArm = (angleLeftLowerArm+angleLeftUpperArm)%PConstants.PI;
+		angleRightLowerArm = (angleRightLowerArm+angleRightUpperArm)%PConstants.PI;
 		
 		// actual coordinates
 		float left2YNew = center.y+(left2.x-center.x)*PApplet.sin(angleLeftUpperArm)/PApplet.cos(angleLeftUpperArm);
