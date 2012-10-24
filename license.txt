@@ -1,4 +1,3 @@
-/*
 Copyright (c) 2012, Thomas Schueler, http://www.thomasschueler.de
 All rights reserved.
 
@@ -23,21 +22,3 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
-package visualisations;
-
-import therapeuticskeleton.Skeleton;
-import therapeuticpresence.TherapeuticPresence;
-
-public abstract class AbstractSkeletonVisualisation extends AbstractVisualisation {
-	protected Skeleton skeleton = null;
-	public static float angleScale1 = 0.7f;
-	public static float angleScale2 = 0.9f;
-	public static float angleScale3 = 0.8f;
-	
-	public AbstractSkeletonVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton) {
-		super(_mainApplet);
-		skeleton = _skeleton;
-	}
-}
