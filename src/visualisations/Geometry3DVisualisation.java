@@ -75,7 +75,8 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	}
 	
 	// TODO: change calculation so that higher degree of freedom of movements is possible
-	public void updateCanvasCoordinates () {
+	// use polar coordinates? r = width/2, angle = angle of arm
+	private void updateCanvasCoordinates () {
 	    center.set(0,0,centerZ);
 		width = TunnelScene3D.getTunnelWidthAt(centerZ);
 		height = TunnelScene3D.getTunnelHeightAt(centerZ);
@@ -99,61 +100,6 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 		anchorR3.z += (right2.z + (center.z-right2.z)/2f - anchorR3.z)/movementResponseDelay;
 		anchorR2.z += (right1.z + (right2.z-right1.z)/2f - anchorR2.z)/movementResponseDelay;
 		anchorR1.z += (right1.z - (right2.z-right1.z)/2f - anchorR1.z)/movementResponseDelay;
-	}
-	
-	public void draw () {
-		if (skeleton.isUpdated() && audioManager.isUpdated()) {
-			// center.z reacts to position of user with delay
-			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
-			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
-			updateCanvasCoordinates();
-			updateBezierCurves();
-			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
-			mainApplet.strokeWeight(strokeWeight);
-			for (int i=0; i<bezierCurves.size(); i++) {
-				bezierCurves.get(i).draw(mainApplet);
-			}
-		}
-	}
-	
-	public boolean fadeIn () {
-		if (skeleton.isUpdated() && audioManager.isUpdated()) {
-			// center.z reacts to position of user with delay
-			fadeInCenterZ+=skeleton.distanceToKinect()/mainApplet.frameRate;
-			float mappedDistance = PApplet.map(fadeInCenterZ,0,TherapeuticPresence.maxDistanceToKinect,0,upperZBoundary);
-			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
-			updateCanvasCoordinates();
-			updateBezierCurves();
-			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
-			mainApplet.strokeWeight(strokeWeight);
-			for (int i=0; i<bezierCurves.size(); i++) {
-				bezierCurves.get(i).draw(mainApplet);
-			}
-			if (fadeInCenterZ >= skeleton.distanceToKinect()) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	// Fade out method is used to blend between visualisations.
-	public boolean fadeOut () {
-		// clean up bezierCurves ArrayList
-		for (int i=0;i<bezierCurves.size();i++) {
-			if (bezierCurves.get(i).transparency <= 0) {
-				bezierCurves.remove(i--);
-			}
-		}
-		if (bezierCurves.size() == 0) {
-			return true;
-		} else {
-			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
-			mainApplet.strokeWeight(strokeWeight);
-			for (int i=0; i<bezierCurves.size(); i++) {
-				bezierCurves.get(i).draw(mainApplet);
-			}
-			return false;
-		}
 	}
 	
 	private void updateBezierCurves () {
@@ -241,6 +187,61 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 			if (bezierCurves.get(i).transparency <= 0) {
 				bezierCurves.remove(i--);
 			}
+		}
+	}
+	
+	public void draw () {
+		if (skeleton.isUpdated() && audioManager.isUpdated()) {
+			// center.z reacts to position of user with delay
+			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
+			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
+			updateCanvasCoordinates();
+			updateBezierCurves();
+			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
+			mainApplet.strokeWeight(strokeWeight);
+			for (int i=0; i<bezierCurves.size(); i++) {
+				bezierCurves.get(i).draw(mainApplet);
+			}
+		}
+	}
+	
+	public boolean fadeIn () {
+		if (skeleton.isUpdated() && audioManager.isUpdated()) {
+			// center.z reacts to position of user with delay
+			fadeInCenterZ+=skeleton.distanceToKinect()/mainApplet.frameRate;
+			float mappedDistance = PApplet.map(fadeInCenterZ,0,TherapeuticPresence.maxDistanceToKinect,0,upperZBoundary);
+			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
+			updateCanvasCoordinates();
+			updateBezierCurves();
+			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
+			mainApplet.strokeWeight(strokeWeight);
+			for (int i=0; i<bezierCurves.size(); i++) {
+				bezierCurves.get(i).draw(mainApplet);
+			}
+			if (fadeInCenterZ >= skeleton.distanceToKinect()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	// Fade out method is used to blend between visualisations.
+	public boolean fadeOut () {
+		// clean up bezierCurves ArrayList
+		for (int i=0;i<bezierCurves.size();i++) {
+			if (bezierCurves.get(i).transparency <= 0) {
+				bezierCurves.remove(i--);
+			}
+		}
+		if (bezierCurves.size() == 0) {
+			return true;
+		} else {
+			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
+			mainApplet.strokeWeight(strokeWeight);
+			for (int i=0; i<bezierCurves.size(); i++) {
+				bezierCurves.get(i).draw(mainApplet);
+			}
+			return false;
 		}
 	}
 
