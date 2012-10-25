@@ -669,6 +669,10 @@ public class TherapeuticPresence extends PApplet {
 	// Keyboard events
 	public void keyPressed() {
 		switch(key) {
+			case ' ':
+				toggleVisualisations();
+				break;
+		
 		  	// save user calibration data
 			case 'o':
 		  		if(skeleton != null && kinect.isTrackingSkeleton(skeleton.getUserId())){

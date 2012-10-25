@@ -75,11 +75,13 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	}
 	
 	// TODO: change calculation so that higher degree of freedom of movements is possible
-	// use polar coordinates? r = width/2, angle = angle of arm
+	// use spherical coordinates? r = width/2, angle1 = angle of arm to body axis, angle2 = angle of arm segment to reference axis in reference plane
 	private void updateCanvasCoordinates () {
 	    center.set(0,0,centerZ);
 		width = TunnelScene3D.getTunnelWidthAt(centerZ);
 		height = TunnelScene3D.getTunnelHeightAt(centerZ);
+		// width/4 == distance between control points
+		// control points +- width/8 == anchor points
 		left1.x = center.x-width/2;
 		left2.x = center.x-width/4;
 		right2.x = center.x+width/4;
@@ -103,16 +105,16 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	}
 	
 	private void updateBezierCurves () {
-		float angleLeftUpperArm = skeleton.angleToYAxis(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER);
-		float angleRightUpperArm = skeleton.angleToYAxis(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
-		float angleLeftLowerArm = skeleton.angleBetween(Skeleton.LEFT_HAND,Skeleton.LEFT_ELBOW,Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER);
-		float angleRightLowerArm = skeleton.angleBetween(Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
+		float angleLeftUpperArm = skeleton.getAngleLeftUpperArm();
+		float angleRightUpperArm = skeleton.getAngleRightUpperArm();
+		float angleLeftLowerArm = skeleton.getAngleLeftLowerArm();
+		float angleRightLowerArm = skeleton.getAngleRightLowerArm();
 		
 		// check for angles not to reach out of quadrants.
 		angleLeftUpperArm = PApplet.constrain(angleLeftUpperArm,PConstants.QUARTER_PI,3*PConstants.QUARTER_PI);
 		angleRightUpperArm = PApplet.constrain(angleRightUpperArm,PConstants.QUARTER_PI,3*PConstants.QUARTER_PI);
-		angleLeftLowerArm = PApplet.constrain(angleLeftLowerArm,0,PConstants.HALF_PI-(3*PConstants.QUARTER_PI-angleLeftUpperArm));
-		angleRightLowerArm = PApplet.constrain(angleRightLowerArm,0,PConstants.HALF_PI-(3*PConstants.QUARTER_PI-angleRightUpperArm));
+		angleLeftLowerArm = PApplet.constrain(angleLeftLowerArm,0,PApplet.radians(120)*((angleLeftUpperArm-PConstants.QUARTER_PI)/PConstants.HALF_PI));
+		angleRightLowerArm = PApplet.constrain(angleRightLowerArm,0,PApplet.radians(120)*((angleRightUpperArm-PConstants.QUARTER_PI)/PConstants.HALF_PI));
 		
 		// use negative angles because kinect data comes upside down
 		angleLeftLowerArm = -angleLeftLowerArm;
