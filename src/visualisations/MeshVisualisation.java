@@ -31,11 +31,11 @@ import generativedesign.*;
 
 import java.util.ArrayList;
 import processing.core.*;
-import scenes.TunnelScene3D;
+import scenes.TunnelScene;
 import therapeuticpresence.*;
 import therapeuticskeleton.Skeleton;
 
-public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
+public class MeshVisualisation extends AbstractSkeletonAudioVisualisation {
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width, height;
 	protected float centerX=0;
@@ -50,22 +50,21 @@ public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	protected float fadeInCenterZ=0;
 	protected PVector center = new PVector();
 	private float orientation = 0;
-	protected final float lowerZBoundary = 0.3f*TunnelScene3D.tunnelLength; // to control z position of drawing within a narrow corridor
-	protected final float upperZBoundary = 0.85f*TunnelScene3D.tunnelLength;
+	protected final float lowerZBoundary = 0.3f*TunnelScene.tunnelLength; // to control z position of drawing within a narrow corridor
+	protected final float upperZBoundary = 0.85f*TunnelScene.tunnelLength;
 	
-	// the ellipse to draw
+	// the mesh to draw
 	protected MyMesh mesh;
 	
-	// these values are used for drawing the audioresponsive circles
+	// these values are used for audioresponsiveness
 	protected final float delay = 8f;
 	protected final int radiation = 30;
 	protected final float scaleDC = 2f;
 	protected final float scaleAC = 13f;
 	protected final float strokeWeight = 1.7f;
 	
-	public Mesh3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
+	public MeshVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton,_audioManager);
-		mainApplet.setMirrorKinect(false);
 	}
 	
 	public void setup() {
@@ -81,8 +80,8 @@ public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	}
 	
 	public void updateCanvasCoordinates () {
-		width = TunnelScene3D.getTunnelWidthAt(centerZ);
-		height = TunnelScene3D.getTunnelHeightAt(centerZ);
+		width = TunnelScene.getTunnelWidthAt(centerZ);
+		height = TunnelScene.getTunnelHeightAt(centerZ);
 		PVector torso = skeleton.getJoint(Skeleton.TORSO);
 		float mappedTorsoX = PApplet.constrain(torso.x-startTorsoX,-width/2,width/2);
 		float mappedTorsoY = PApplet.constrain(torso.y-startTorsoY,-height/2,height/2);
@@ -168,7 +167,7 @@ public class Mesh3DVisualisation extends AbstractSkeletonAudioVisualisation {
 	}
 
 	public short getVisualisationType() {
-		return TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION;
+		return TherapeuticPresence.ELLIPSOIDAL_VISUALISATION;
 	}
 
 }

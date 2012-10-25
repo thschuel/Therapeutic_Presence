@@ -34,7 +34,7 @@ import processing.core.PImage;
 import therapeuticpresence.*;
 import shapes3d.*;
 
-public class TunnelScene3D extends BasicScene3D {
+public class TunnelScene extends BasicScene {
 	protected AudioManager audioManager = null;
 	
 	protected Tube tunnelTube = null;
@@ -64,7 +64,7 @@ public class TunnelScene3D extends BasicScene3D {
 	protected float fftDCValue=0f;
 	protected float fftDCValueDelayed=0f;
 	
-	public TunnelScene3D (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
+	public TunnelScene (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
 		super (_mainApplet,_backgroundColor);
 		audioManager = _audioManager;
 		// rotate and set up for third person view

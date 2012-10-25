@@ -35,7 +35,7 @@ import therapeuticpresence.*;
 import utils.GridSolver;
 import shapes3d.*;
 
-public class LiquidScene3D extends BasicScene3D {
+public class LiquidScene extends BasicScene {
 	protected AudioManager audioManager = null;
 	
 	protected int backgroundTintColor = 0;
@@ -52,7 +52,7 @@ public class LiquidScene3D extends BasicScene3D {
 	private float lightPosY=0;
 	private Ellipsoid ellipsoid;
 	
-	public LiquidScene3D (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
+	public LiquidScene (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
 		super (_mainApplet,_backgroundColor);
 		audioManager = _audioManager;
 		// set up for third person view
@@ -107,6 +107,6 @@ public class LiquidScene3D extends BasicScene3D {
 	}
 
 	public short getSceneType() {
-		return TherapeuticPresence.LIQUID_SCENE3D;
+		return TherapeuticPresence.LIQUID_SCENE;
 	}
 }

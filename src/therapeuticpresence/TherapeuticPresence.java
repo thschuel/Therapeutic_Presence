@@ -62,19 +62,15 @@ public class TherapeuticPresence extends PApplet {
 	public static final short MAX_USERS = 4;
 	public static final short DEPTHMAP_VISUALISATION = 0;
 	public static final short STICKFIGURE_VISUALISATION = 1;
-	public static final short GENERATIVE_TREE_2D_VISUALISATION = 2;
-	public static final short GENERATIVE_TREE_3D_VISUALISATION = 3;
-	public static final short GEOMETRY_2D_VISUALISATION = 4;
-	public static final short GEOMETRY_3D_VISUALISATION = 5;
-	public static final short ELLIPSOIDAL_3D_VISUALISATION = 6;
-	public static final short MESH_3D_VISUALISATION = 7;
-	public static final short AGENT_3D_VISUALISATION = 8;
-	public static final short USER_PIXEL_VISUALISATION = 9;
-	public static final short BASIC_SCENE2D = 0;
-	public static final short BASIC_SCENE3D = 1;
-	public static final short TUNNEL_SCENE2D = 2;
-	public static final short TUNNEL_SCENE3D = 3;
-	public static final short LIQUID_SCENE3D = 4;
+	public static final short GENERATIVE_TREE_VISUALISATION = 2;
+	public static final short WAVEFORM_VISUALISATION = 3;
+	public static final short ELLIPSOIDAL_VISUALISATION = 4;
+	public static final short MESH_VISUALISATION = 5;
+	public static final short AGENT_VISUALISATION = 6;
+	public static final short USER_PIXEL_VISUALISATION = 7;
+	public static final short BASIC_SCENE = 0;
+	public static final short TUNNEL_SCENE = 1;
+	public static final short LIQUID_SCENE = 2;
 
 	// --- static setup variables ---
 	public static boolean fullBodyTracking = false; // control for full body tracking
@@ -85,9 +81,9 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean demo=true;
 	public static boolean transferSkeleton=true;
 	public static boolean constantFrameRate = false;
-	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE3D;
+	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
-	public static short defaultSceneType = TherapeuticPresence.BASIC_SCENE3D;
+	public static short defaultSceneType = TherapeuticPresence.BASIC_SCENE;
 	public static short defaultVisualisationMethod = TherapeuticPresence.STICKFIGURE_VISUALISATION;
 	public static short currentVisualisationMethod;
 	public static short currentSceneType;
@@ -178,64 +174,36 @@ public class TherapeuticPresence extends PApplet {
 			}
 		}
 	}
-
-	public void setMirrorKinect (boolean _mirrorKinect) {
-//		if (skeleton != null) {
-//			kinect.stopTrackingSkeleton(skeleton.userId);
-//		}
-//		mirrorKinect = _mirrorKinect;
-//		kinect.setMirror(mirrorKinect);
-//		kinect.update();
-//		if (skeleton != null) {
-//			kinect.startTrackingSkeleton(skeleton.userId);
-//		}
-	}
 	
 	public void setupScene (short _sceneType) {
 		switch (_sceneType) {
-			case TherapeuticPresence.BASIC_SCENE2D:
-				scene = new BasicScene2D(this,color(0,0,0));
-				scene.reset();
-				currentSceneType = TherapeuticPresence.BASIC_SCENE2D;
-				break;
 				
-			case TherapeuticPresence.TUNNEL_SCENE2D:
+			case TherapeuticPresence.TUNNEL_SCENE:
 				if (audioManager != null) {
-					scene = new TunnelScene2D(this,color(0,0,0),audioManager);
+					scene = new TunnelScene(this,color(0,0,0),audioManager);
 					scene.reset();
-					currentSceneType = TherapeuticPresence.TUNNEL_SCENE2D;
+					currentSceneType = TherapeuticPresence.TUNNEL_SCENE;
 				} else {
-					setupScene(TherapeuticPresence.BASIC_SCENE2D);
+					setupScene(TherapeuticPresence.BASIC_SCENE);
 					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
 				}
 				break;
 				
-			case TherapeuticPresence.TUNNEL_SCENE3D:
+			case TherapeuticPresence.LIQUID_SCENE:
 				if (audioManager != null) {
-					scene = new TunnelScene3D(this,color(0,0,0),audioManager);
+					scene = new LiquidScene(this,color(0,0,0),audioManager);
 					scene.reset();
-					currentSceneType = TherapeuticPresence.TUNNEL_SCENE3D;
+					currentSceneType = TherapeuticPresence.LIQUID_SCENE;
 				} else {
-					setupScene(TherapeuticPresence.BASIC_SCENE3D);
-					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
-				}
-				break;
-				
-			case TherapeuticPresence.LIQUID_SCENE3D:
-				if (audioManager != null) {
-					scene = new LiquidScene3D(this,color(0,0,0),audioManager);
-					scene.reset();
-					currentSceneType = TherapeuticPresence.LIQUID_SCENE3D;
-				} else {
-					setupScene(TherapeuticPresence.BASIC_SCENE3D);
+					setupScene(TherapeuticPresence.BASIC_SCENE);
 					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
 				}
 				break;
 			
 			default:
-				scene = new BasicScene3D(this,color(0,0,0));
+				scene = new BasicScene(this,color(0,0,0));
 				scene.reset();
-				currentSceneType = TherapeuticPresence.BASIC_SCENE3D;
+				currentSceneType = TherapeuticPresence.BASIC_SCENE;
 				break;
 		}
 		if (postureProcessing != null) {
@@ -260,46 +228,34 @@ public class TherapeuticPresence extends PApplet {
 				currentVisualisationMethod = TherapeuticPresence.STICKFIGURE_VISUALISATION;
 				break;
 				
-			case TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION:
-				nextVisualisation = new GenerativeTree2DVisualisation(this,skeleton,audioManager);
+			case TherapeuticPresence.GENERATIVE_TREE_VISUALISATION:
+				nextVisualisation = new GenerativeTreeVisualisation(this,skeleton,audioManager);
 				nextVisualisation.setup();
-				currentVisualisationMethod = TherapeuticPresence.GENERATIVE_TREE_2D_VISUALISATION;
+				currentVisualisationMethod = TherapeuticPresence.GENERATIVE_TREE_VISUALISATION;
 				break;
 				
-			case TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION:
-				nextVisualisation = new GenerativeTree3DVisualisation(this,skeleton,audioManager);
+			case TherapeuticPresence.WAVEFORM_VISUALISATION:
+				nextVisualisation = new WaveformVisualisation(this,skeleton,audioManager);
 				nextVisualisation.setup();
-				currentVisualisationMethod = TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION;
+				currentVisualisationMethod = TherapeuticPresence.WAVEFORM_VISUALISATION;
 				break;
 				
-			case TherapeuticPresence.GEOMETRY_2D_VISUALISATION:
-				nextVisualisation = new Geometry2DVisualisation(this,skeleton,audioManager);
+			case TherapeuticPresence.ELLIPSOIDAL_VISUALISATION:
+				nextVisualisation = new EllipsoidalVisualisation(this,skeleton,audioManager);
 				nextVisualisation.setup();
-				currentVisualisationMethod = TherapeuticPresence.GEOMETRY_2D_VISUALISATION;
+				currentVisualisationMethod = TherapeuticPresence.ELLIPSOIDAL_VISUALISATION;
 				break;
 				
-			case TherapeuticPresence.GEOMETRY_3D_VISUALISATION:
-				nextVisualisation = new Geometry3DVisualisation(this,skeleton,audioManager);
+			case TherapeuticPresence.MESH_VISUALISATION:
+				nextVisualisation = new MeshVisualisation(this,skeleton,audioManager);
 				nextVisualisation.setup();
-				currentVisualisationMethod = TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
+				currentVisualisationMethod = TherapeuticPresence.MESH_VISUALISATION;
 				break;
 				
-			case TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION:
-				nextVisualisation = new Ellipsoidal3DVisualisation(this,skeleton,audioManager);
+			case TherapeuticPresence.AGENT_VISUALISATION:
+				nextVisualisation = new AgentVisualisation(this,skeleton,audioManager);
 				nextVisualisation.setup();
-				currentVisualisationMethod = TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION;
-				break;
-				
-			case TherapeuticPresence.MESH_3D_VISUALISATION:
-				nextVisualisation = new Mesh3DVisualisation(this,skeleton,audioManager);
-				nextVisualisation.setup();
-				currentVisualisationMethod = TherapeuticPresence.MESH_3D_VISUALISATION;
-				break;
-				
-			case TherapeuticPresence.AGENT_3D_VISUALISATION:
-				nextVisualisation = new Agent3DVisualisation(this,skeleton,audioManager);
-				nextVisualisation.setup();
-				currentVisualisationMethod = TherapeuticPresence.AGENT_3D_VISUALISATION;
+				currentVisualisationMethod = TherapeuticPresence.AGENT_VISUALISATION;
 				break;
 				
 			case TherapeuticPresence.USER_PIXEL_VISUALISATION: // this is only for switching to this visualisation when skeleton is already tracked!
@@ -326,35 +282,35 @@ public class TherapeuticPresence extends PApplet {
 	
 	public void toggleVisualisations () {
 		if (demo) {
-			if (currentVisualisationMethod == GEOMETRY_3D_VISUALISATION) {
-				setupScene(LIQUID_SCENE3D);
-				setupVisualisation(GENERATIVE_TREE_3D_VISUALISATION);
-			} else if (currentVisualisationMethod == GENERATIVE_TREE_3D_VISUALISATION) {
-				setupScene(LIQUID_SCENE3D);
-				setupVisualisation(ELLIPSOIDAL_3D_VISUALISATION);
+			if (currentVisualisationMethod == WAVEFORM_VISUALISATION) {
+				setupScene(LIQUID_SCENE);
+				setupVisualisation(GENERATIVE_TREE_VISUALISATION);
+			} else if (currentVisualisationMethod == GENERATIVE_TREE_VISUALISATION) {
+				setupScene(LIQUID_SCENE);
+				setupVisualisation(ELLIPSOIDAL_VISUALISATION);
 			}  else {
-				setupScene(TUNNEL_SCENE3D);
-				setupVisualisation(GEOMETRY_3D_VISUALISATION);
+				setupScene(TUNNEL_SCENE);
+				setupVisualisation(WAVEFORM_VISUALISATION);
 			}
 		} else {
-			if (currentVisualisationMethod == GEOMETRY_3D_VISUALISATION) {
-				setupScene(LIQUID_SCENE3D);
-				setupVisualisation(GENERATIVE_TREE_3D_VISUALISATION);
-			} else if (currentVisualisationMethod == GENERATIVE_TREE_3D_VISUALISATION) {
-				setupScene(LIQUID_SCENE3D);
-				setupVisualisation(ELLIPSOIDAL_3D_VISUALISATION);
-			}  else if (currentVisualisationMethod == ELLIPSOIDAL_3D_VISUALISATION) {
+			if (currentVisualisationMethod == WAVEFORM_VISUALISATION) {
+				setupScene(LIQUID_SCENE);
+				setupVisualisation(GENERATIVE_TREE_VISUALISATION);
+			} else if (currentVisualisationMethod == GENERATIVE_TREE_VISUALISATION) {
+				setupScene(LIQUID_SCENE);
+				setupVisualisation(ELLIPSOIDAL_VISUALISATION);
+			}  else if (currentVisualisationMethod == ELLIPSOIDAL_VISUALISATION) {
 //				setupScene(TUNNEL_SCENE3D);
 //				setupVisualisation(MESH_3D_VISUALISATION);
 //			}  else if (currentVisualisationMethod == MESH_3D_VISUALISATION) {
-				setupScene(TUNNEL_SCENE3D);
-				setupVisualisation(AGENT_3D_VISUALISATION);
-			}  else if (currentVisualisationMethod == AGENT_3D_VISUALISATION) {
-				setupScene(BASIC_SCENE3D);
+				setupScene(TUNNEL_SCENE);
+				setupVisualisation(AGENT_VISUALISATION);
+			}  else if (currentVisualisationMethod == AGENT_VISUALISATION) {
+				setupScene(BASIC_SCENE);
 				setupVisualisation(STICKFIGURE_VISUALISATION);
 			}  else {
-				setupScene(TUNNEL_SCENE3D);
-				setupVisualisation(GEOMETRY_3D_VISUALISATION);
+				setupScene(TUNNEL_SCENE);
+				setupVisualisation(WAVEFORM_VISUALISATION);
 			}
 		}
 	}
@@ -702,10 +658,6 @@ public class TherapeuticPresence extends PApplet {
 		  			debugMessage("No calibration data loaded. You need at least one active user!");
 		  		}
 			    break;
-			    
-			case 'm':
-				setMirrorKinect(!mirrorKinect);
-				break;
 			case 'w':
 				centerOfSkeletonDetectionSpace.z -= 50f;
 				break;

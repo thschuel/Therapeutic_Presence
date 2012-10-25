@@ -55,7 +55,7 @@ public class Agent {
 	private boolean isOutside = false;
 	private PVector p;
 	private float stepSize;
-	private Ribbon3D ribbon;
+	private Ribbon ribbon;
 	private int col;
 	private float strokeW;
 	private float minStroke = 8;
@@ -72,7 +72,7 @@ public class Agent {
 	    setToStartPostition();
 	    stepSize = mainApplet.random(5, 20);
 	    // how many points has the ribbon
-	    ribbon = new Ribbon3D(p, (int)mainApplet.random(50, 150));
+	    ribbon = new Ribbon(p, (int)mainApplet.random(50, 150));
 	    mainApplet.colorMode(PConstants.HSB,360,100,100,100);
 	    float r = mainApplet.random(1.0f);
 	    if (r < 0.4) col = mainApplet.color(mainApplet.random(190,200),mainApplet.random(80,100),mainApplet.random(50,70));

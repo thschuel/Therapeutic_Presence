@@ -48,12 +48,12 @@ package utils;
 import processing.core.*;
 
 
-public class Ribbon3D {
+public class Ribbon {
 	private int count; // how many points has the ribbon
 	private PVector[] p;
 	private boolean[] isGap;
 	
-	public Ribbon3D (PVector theP, int theCount) {
+	public Ribbon (PVector theP, int theCount) {
 		count = theCount; 
 		p = new PVector[count];
 		isGap = new boolean[count];

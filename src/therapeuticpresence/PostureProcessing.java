@@ -113,8 +113,8 @@ public class PostureProcessing {
 				timeSinceLastAction = 0f;
 			}
 			if (shapeActiveCounters[Skeleton.HANDS_FORWARD_DOWN_POSE] > timeHoldShapeToTrigger) {
-				if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION) {
-					((GenerativeTree3DVisualisation)visualisation).shakeTree();
+				if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_VISUALISATION) {
+					((GenerativeTreeVisualisation)visualisation).shakeTree();
 					timeSinceLastAction = 0f;
 				}
 			}

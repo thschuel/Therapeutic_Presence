@@ -39,7 +39,6 @@ public class UserPixelVisualisation extends AbstractVisualisation {
 	
 	public UserPixelVisualisation (TherapeuticPresence _mainApplet, SimpleOpenNI _kinect, int _userId) {
 		super(_mainApplet);
-		mainApplet.setMirrorKinect(true);
 		kinect = _kinect;
 		userId = _userId;
 	}

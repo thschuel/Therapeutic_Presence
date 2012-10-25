@@ -47,7 +47,6 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 	
 	public StickfigureVisualisation (TherapeuticPresence _mainApplet, SimpleOpenNI _kinect, Skeleton _skeleton) {
 		super(_mainApplet, _skeleton);
-		mainApplet.setMirrorKinect(true);
 		kinect=_kinect;
 		mainApplet.colorMode(PConstants.HSB,360,100,100,100);
 		pixelColor=mainApplet.color(mainApplet.random(360),100,100,100);
@@ -55,7 +54,6 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 	
 	public StickfigureVisualisation (TherapeuticPresence _mainApplet, SimpleOpenNI _kinect, Skeleton _skeleton, int _pixelColor) {
 		super(_mainApplet, _skeleton);
-		mainApplet.setMirrorKinect(true);
 		kinect=_kinect;
 		pixelColor=_pixelColor;
 	}

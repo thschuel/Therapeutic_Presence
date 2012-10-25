@@ -30,10 +30,10 @@ package utils;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PVector;
-import scenes.TunnelScene3D;
+import scenes.TunnelScene;
 import therapeuticpresence.TherapeuticPresence;
 
-public class BezierCurve3D {
+public class BezierCurve {
 	public static final int MAX_POINTS = 16;
 	public static final float FADE_OUT_SECONDS = 0.6f;
 	public static final float MAX_TRANSPARENCY = 255f;
@@ -60,7 +60,7 @@ public class BezierCurve3D {
 	private int framesAlive = 0;
 	private float fadeOutFrames;
 	
-	public BezierCurve3D (float _initialStrokeShape, int _color) {
+	public BezierCurve (float _initialStrokeShape, int _color) {
 		strokeWeight = _initialStrokeShape;
 		strokeOffset = _initialStrokeShape;
 		color = _color;
@@ -90,7 +90,7 @@ public class BezierCurve3D {
 			
 			transparency -= regression(fadeOutFrames);
 			if (++framesAlive >= fadeOutFrames) transparency = 0f;
-			zOffset += TunnelScene3D.tunnelLength/_mainApplet.frameRate*FADE_OUT_SECONDS;
+			zOffset += TunnelScene.tunnelLength/_mainApplet.frameRate*FADE_OUT_SECONDS;
 			strokeWeight *= strokeWeightGrowth;
 			strokeOffset *= strokeOffsetGrowth;
 		}

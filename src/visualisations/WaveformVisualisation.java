@@ -29,12 +29,12 @@ package visualisations;
 
 import java.util.ArrayList;
 import processing.core.*;
-import scenes.TunnelScene3D;
+import scenes.TunnelScene;
 import therapeuticpresence.*;
 import therapeuticskeleton.Skeleton;
-import utils.BezierCurve3D;
+import utils.BezierCurve;
 
-public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation {
+public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
 	
 	// coordinates for the visualization are defined through angles of limbs
 	// bezier curves used for drawing. anchor points and control points.
@@ -49,14 +49,14 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	protected PVector anchorR2 = new PVector();
 	protected PVector right1 = new PVector();
 	protected PVector anchorR1 = new PVector();
-	protected ArrayList<BezierCurve3D> bezierCurves = new ArrayList<BezierCurve3D>();
+	protected ArrayList<BezierCurve> bezierCurves = new ArrayList<BezierCurve>();
 	
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width=0, height=0;
 	protected float centerZ=0;
 	protected float fadeInCenterZ=0;
-	protected final float lowerZBoundary = 0.3f*TunnelScene3D.tunnelLength; // to control z position of drawing within a narrow corridor
-	protected final float upperZBoundary = 0.85f*TunnelScene3D.tunnelLength;
+	protected final float lowerZBoundary = 0.3f*TunnelScene.tunnelLength; // to control z position of drawing within a narrow corridor
+	protected final float upperZBoundary = 0.85f*TunnelScene.tunnelLength;
 	
 	// these values are used for drawing the bezier curves
 	protected final int radiation = 30;
@@ -64,9 +64,8 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	protected final float scaleAC = 5f;
 	protected final float strokeWeight = 1.7f;
 	
-	public Geometry3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
+	public WaveformVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton,_audioManager);
-		mainApplet.setMirrorKinect(false);
 	}
 	
 	public void setup() {
@@ -78,8 +77,8 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	// use spherical coordinates? r = width/2, angle1 = angle of arm to body axis, angle2 = angle of arm segment to reference axis in reference plane
 	private void updateCanvasCoordinates () {
 	    center.set(0,0,centerZ);
-		width = TunnelScene3D.getTunnelWidthAt(centerZ);
-		height = TunnelScene3D.getTunnelHeightAt(centerZ);
+		width = TunnelScene.getTunnelWidthAt(centerZ);
+		height = TunnelScene.getTunnelHeightAt(centerZ);
 		// width/4 == distance between control points
 		// control points +- width/8 == anchor points
 		left1.x = center.x-width/2;
@@ -164,10 +163,10 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 				if (i==0) strokeOffsetGrowth = audioManager.getMeanFFT(0)*scaleDC;
 				else if (j==1) strokeOffsetGrowth = audioManager.getLeftFFT(i)*scaleAC;
 				else strokeOffsetGrowth = audioManager.getRightFFT(i)*scaleAC;
-				mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
+				mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve.MAX_TRANSPARENCY);
 				color = mainApplet.color(i,255,255,255);
 				int offset = PApplet.round(j*i*radiation);
-				BezierCurve3D temp = new BezierCurve3D(strokeOffsetGrowth,color);
+				BezierCurve temp = new BezierCurve(strokeOffsetGrowth,color);
 				temp.addAnchorPoint(new PVector(anchorL1.x,anchorL1.y + (offset*sampleValues[0]),anchorL1.z));
 				temp.addControlPoint(new PVector(left1.x,left1.y + (offset*sampleValues[1]),left1.z));
 				temp.addAnchorPoint(new PVector(anchorL2.x,anchorL2.y + (offset*sampleValues[2]),anchorL2.z));
@@ -199,7 +198,7 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
 			updateCanvasCoordinates();
 			updateBezierCurves();
-			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
+			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve.MAX_TRANSPARENCY);
 			mainApplet.strokeWeight(strokeWeight);
 			for (int i=0; i<bezierCurves.size(); i++) {
 				bezierCurves.get(i).draw(mainApplet);
@@ -215,7 +214,7 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
 			updateCanvasCoordinates();
 			updateBezierCurves();
-			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
+			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve.MAX_TRANSPARENCY);
 			mainApplet.strokeWeight(strokeWeight);
 			for (int i=0; i<bezierCurves.size(); i++) {
 				bezierCurves.get(i).draw(mainApplet);
@@ -238,7 +237,7 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 		if (bezierCurves.size() == 0) {
 			return true;
 		} else {
-			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve3D.MAX_TRANSPARENCY);
+			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve.MAX_TRANSPARENCY);
 			mainApplet.strokeWeight(strokeWeight);
 			for (int i=0; i<bezierCurves.size(); i++) {
 				bezierCurves.get(i).draw(mainApplet);
@@ -248,7 +247,7 @@ public class Geometry3DVisualisation extends AbstractSkeletonAudioVisualisation 
 	}
 
 	public short getVisualisationType() {
-		return TherapeuticPresence.GEOMETRY_3D_VISUALISATION;
+		return TherapeuticPresence.WAVEFORM_VISUALISATION;
 	}
 
 }

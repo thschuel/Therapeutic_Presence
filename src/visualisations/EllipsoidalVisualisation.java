@@ -29,12 +29,12 @@ package visualisations;
 
 import java.util.ArrayList;
 import processing.core.*;
-import scenes.TunnelScene3D;
+import scenes.TunnelScene;
 import therapeuticpresence.*;
 import therapeuticskeleton.Skeleton;
-import utils.Ellipsoid3D;
+import utils.Ellipsoid;
 
-public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisation {
+public class EllipsoidalVisualisation extends AbstractSkeletonAudioVisualisation {
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width, height;
 	protected float centerX=0;
@@ -55,20 +55,19 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	protected float fadeInCenterZ=0;
 	protected PVector center = new PVector();
 	private float orientation = 0;
-	protected final float lowerZBoundary = 0.3f*TunnelScene3D.tunnelLength; // to control z position of drawing within a narrow corridor
-	protected final float upperZBoundary = 0.85f*TunnelScene3D.tunnelLength;
+	protected final float lowerZBoundary = 0.3f*TunnelScene.tunnelLength; // to control z position of drawing within a narrow corridor
+	protected final float upperZBoundary = 0.85f*TunnelScene.tunnelLength;
 	
 	// the ellipse to draw
-	protected ArrayList<Ellipsoid3D> ellipsoids = new ArrayList<Ellipsoid3D>();
+	protected ArrayList<Ellipsoid> ellipsoids = new ArrayList<Ellipsoid>();
 	
 	// these values are used for drawing the audioresponsive circles
 	protected final float radiation = 80f;
 	protected final float scaleDC = 2f;
 	protected final float scaleAC = 20f;
 	
-	public Ellipsoidal3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
+	public EllipsoidalVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton,_audioManager);
-		mainApplet.setMirrorKinect(false);
 	}
 	
 	public void setup() {
@@ -82,8 +81,8 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	}
 	
 	public void updateCanvasCoordinates () {
-		width = TunnelScene3D.getTunnelWidthAt(centerZ);
-		height = TunnelScene3D.getTunnelHeightAt(centerZ);
+		width = TunnelScene.getTunnelWidthAt(centerZ);
+		height = TunnelScene.getTunnelHeightAt(centerZ);
 		PVector torso = skeleton.getJoint(Skeleton.NECK);
 		float mappedTorsoX = PApplet.constrain(torso.x-startTorsoX,-width/2,width/2);
 		float mappedTorsoY = PApplet.constrain(torso.y-startTorsoY,-height/2,height/2);
@@ -178,14 +177,14 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 			int color;
 			if (i==0) strokeWeight = audioManager.getMeanFFT(0)*scaleDC;
 			else strokeWeight = audioManager.getMeanFFT(i)*scaleAC;
-			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,Ellipsoid3D.MAX_TRANSPARENCY);
-			color = mainApplet.color(i,255,255,Ellipsoid3D.MAX_TRANSPARENCY);
+			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,Ellipsoid.MAX_TRANSPARENCY);
+			color = mainApplet.color(i,255,255,Ellipsoid.MAX_TRANSPARENCY);
 			float offset = i*radiation;
 			float radius = PApplet.map(angleLeftUpper,0,PConstants.PI,0f,1f)*1500f;//distanceMapped*1500f;
-			Ellipsoid3D temp = new Ellipsoid3D(center,new PVector(lHandX,lHandY,lHandZ),radius+offset,strokeWeight,angleLeftLower,color,audioManager.getMeanFFT(0)/audioManager.getMaxFFT(),true);
+			Ellipsoid temp = new Ellipsoid(center,new PVector(lHandX,lHandY,lHandZ),radius+offset,strokeWeight,angleLeftLower,color,audioManager.getMeanFFT(0)/audioManager.getMaxFFT(),true);
 			ellipsoids.add(temp);
 			radius = PApplet.map(angleRightUpper,0,PConstants.PI,0f,1f)*1500f;
-			temp = new Ellipsoid3D(center,new PVector(rHandX,rHandY,rHandZ),radius+offset,strokeWeight,angleRightLower,color,audioManager.getMeanFFT(0)/audioManager.getMaxFFT(),true);
+			temp = new Ellipsoid(center,new PVector(rHandX,rHandY,rHandZ),radius+offset,strokeWeight,angleRightLower,color,audioManager.getMeanFFT(0)/audioManager.getMaxFFT(),true);
 			ellipsoids.add(temp);
 			//color = mainApplet.color(i,255,255,Ellipsoid3D.MAX_TRANSPARENCY/2f);
 			//temp = new Ellipsoid3D(center,distanceMapped+offset,strokeWeight,orientation,color,0,false);
@@ -202,7 +201,7 @@ public class Ellipsoidal3DVisualisation extends AbstractSkeletonAudioVisualisati
 	}
 
 	public short getVisualisationType() {
-		return TherapeuticPresence.ELLIPSOIDAL_3D_VISUALISATION;
+		return TherapeuticPresence.ELLIPSOIDAL_VISUALISATION;
 	}
 
 }

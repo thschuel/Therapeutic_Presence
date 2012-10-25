@@ -30,11 +30,11 @@ package visualisations;
 import java.util.ArrayList;
 
 import processing.core.*;
-import scenes.TunnelScene3D;
+import scenes.TunnelScene;
 import therapeuticpresence.*;
 import therapeuticskeleton.Skeleton;
 
-public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualisation {
+public class GenerativeTreeVisualisation extends AbstractSkeletonAudioVisualisation {
 
 	private int strokeColor = 0;
 
@@ -44,8 +44,8 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	protected float fadeInCenterZ=0;
 	protected float fadeOutCenterZ=0;
 	protected PVector center = new PVector();
-	protected final float lowerZBoundary = 0.45f*TunnelScene3D.tunnelLength; // to control z position of drawing within a narrow corridor
-	protected final float upperZBoundary = 0.7f*TunnelScene3D.tunnelLength;
+	protected final float lowerZBoundary = 0.45f*TunnelScene.tunnelLength; // to control z position of drawing within a narrow corridor
+	protected final float upperZBoundary = 0.7f*TunnelScene.tunnelLength;
 
 	// variables to calculate and draw the tree
 	private float curlRightLowerArm = 0;
@@ -82,9 +82,8 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	protected float sampleStepSize =10f;
 	protected int actSampleIndex = 0;
 	
-	public GenerativeTree3DVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
+	public GenerativeTreeVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super (_mainApplet,_skeleton,_audioManager);
-		mainApplet.setMirrorKinect(true);
 	}
 	
 	public void setup() {
@@ -110,8 +109,8 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			
 			// center.z reacts to position of user with delay
 			centerZ = PApplet.map(fadeInCenterZ,0,TherapeuticPresence.maxDistanceToKinect,0,upperZBoundary);
-			width = TunnelScene3D.getTunnelWidthAt(centerZ);
-			height = TunnelScene3D.getTunnelHeightAt(centerZ);
+			width = TunnelScene.getTunnelWidthAt(centerZ);
+			height = TunnelScene.getTunnelHeightAt(centerZ);
 		    center.set(0,0,centerZ);
 			// get angles for drawing
 			getAnglesForBranches();
@@ -134,8 +133,8 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 			
 			// center.z reacts to position of user with delay
 			centerZ = fadeOutCenterZ;
-			width = TunnelScene3D.getTunnelWidthAt(centerZ);
-			height = TunnelScene3D.getTunnelHeightAt(centerZ);
+			width = TunnelScene.getTunnelWidthAt(centerZ);
+			height = TunnelScene.getTunnelHeightAt(centerZ);
 		    center.set(0,0,centerZ);
 			// get angles for drawing
 			getAnglesForBranches();
@@ -154,8 +153,8 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
 			// center.z reacts to position of user with delay
 			centerZ = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
-			width = TunnelScene3D.getTunnelWidthAt(centerZ);
-			height = TunnelScene3D.getTunnelHeightAt(centerZ);
+			width = TunnelScene.getTunnelWidthAt(centerZ);
+			height = TunnelScene.getTunnelHeightAt(centerZ);
 		    center.set(0,0,centerZ);
 			// get angles for drawing
 			getAnglesForBranches();
@@ -359,7 +358,7 @@ public class GenerativeTree3DVisualisation extends AbstractSkeletonAudioVisualis
 	}
 
 	public short getVisualisationType() {
-		return TherapeuticPresence.GENERATIVE_TREE_3D_VISUALISATION;
+		return TherapeuticPresence.GENERATIVE_TREE_VISUALISATION;
 	}
 
 }
