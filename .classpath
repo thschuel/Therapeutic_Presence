@@ -13,6 +13,7 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/base/core/core.jar">
 		<attributes>
+			<attribute name="javadoc_location" value="file:/Users/thschuel/Documents/eclipse/Therapeutic_Presence/doc/processing javadoc/core/"/>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Therapeutic_Presence/lib/base/core"/>
 		</attributes>
 	</classpathentry>
@@ -53,5 +54,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/user/shapes3d/shapes3d.jar"/>
 	<classpathentry kind="lib" path="lib/user/therapeuticskeleton/therapeuticskeleton.jar"/>
+	<classpathentry kind="lib" path="lib/user/PeasyCam/peasycam.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
