@@ -28,10 +28,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package scenes;
 
 import processing.core.*;
+import therapeuticpresence.AudioManager;
 import therapeuticpresence.PostureProcessing;
 import therapeuticpresence.TherapeuticPresence;
 
 public class BasicScene extends AbstractScene {
+	
+	// variables for audio responsiveness
+	protected AudioManager audioManager = null;
+	protected float audioReactionDelay = 12f;
+	protected float fftDCValue=0f;
+	protected float fftDCValueDelayed=0f;
+	
 	// variables for alerts
 	protected int alertColor;
 	protected float activeTime = 0f;
@@ -46,8 +54,9 @@ public class BasicScene extends AbstractScene {
 	public float upY = -1.0f; // kinect data comes upside down
 	public float upZ = 0.0f;
 
-	public BasicScene (TherapeuticPresence _mainApplet, int _backgroundColor) {
+	public BasicScene (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
 		super(_mainApplet,_backgroundColor);
+		audioManager = _audioManager;
 		mainApplet.colorMode(PConstants.RGB,255,255,255,100);
 		alertColor = mainApplet.color(255,0,0,100);
 		cameraZ=TherapeuticPresence.cameraEyeZ;

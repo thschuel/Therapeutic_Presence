@@ -35,7 +35,6 @@ import therapeuticpresence.*;
 import shapes3d.*;
 
 public class TunnelScene extends BasicScene {
-	protected AudioManager audioManager = null;
 	
 	protected Tube tunnelTube = null;
 	public static float tunnelWidth = 4000f;
@@ -60,13 +59,9 @@ public class TunnelScene extends BasicScene {
 	protected int backgroundTintHueMax = 360;
 	protected int backgroundTintHue = 207;
 	protected int defaultBackgroundHighlightColor = 0x10ffffff;
-	protected float audioReactionDelay = 12f;
-	protected float fftDCValue=0f;
-	protected float fftDCValueDelayed=0f;
 	
 	public TunnelScene (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
-		super (_mainApplet,_backgroundColor);
-		audioManager = _audioManager;
+		super (_mainApplet,_backgroundColor,_audioManager);
 		// rotate and set up for third person view
 		cameraZ = tunnelLength; // negative translation, because translation will be applied after rotation around Y
 		tunnelTube = new Tube(mainApplet,8,60);

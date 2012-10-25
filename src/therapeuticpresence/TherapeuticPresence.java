@@ -201,7 +201,7 @@ public class TherapeuticPresence extends PApplet {
 				break;
 			
 			default:
-				scene = new BasicScene(this,color(0,0,0));
+				scene = new BasicScene(this,color(0,0,0),audioManager);
 				scene.reset();
 				currentSceneType = TherapeuticPresence.BASIC_SCENE;
 				break;

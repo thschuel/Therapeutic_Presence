@@ -34,6 +34,7 @@ import processing.core.*;
 import scenes.TunnelScene;
 import therapeuticpresence.*;
 import therapeuticskeleton.Skeleton;
+import utils.TransformableMesh;
 
 public class MeshVisualisation extends AbstractSkeletonAudioVisualisation {
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
@@ -54,7 +55,7 @@ public class MeshVisualisation extends AbstractSkeletonAudioVisualisation {
 	protected final float upperZBoundary = 0.85f*TunnelScene.tunnelLength;
 	
 	// the mesh to draw
-	protected MyMesh mesh;
+	protected TransformableMesh mesh;
 	
 	// these values are used for audioresponsiveness
 	protected final float delay = 8f;
@@ -69,7 +70,7 @@ public class MeshVisualisation extends AbstractSkeletonAudioVisualisation {
 	
 	public void setup() {
 		mainApplet.pushStyle();
-		mesh = new MyMesh(mainApplet);
+		mesh = new TransformableMesh(mainApplet);
 		mesh.setUCount(100);
 		mesh.setVCount(100);
 		mesh.setColorRange(100, 192, 50, 80, 30, 50, 100);
@@ -147,43 +148,10 @@ public class MeshVisualisation extends AbstractSkeletonAudioVisualisation {
 	    mesh.setParam(2, right/PConstants.PI);
 	    mesh.update();
 		
-		/*
-		// add BezierCurves to Array. based on the calculated coordinates and the FFT values
-		for (int i=0; i<AudioManager.bands; i++) {
-			float strokeWeight;
-			int color;
-			for (int j=-1; j<2; j+=2) {
-				if (i==0) strokeWeight = audioManager.getMeanFFT(0)*scaleDC;
-				else if (j==1) strokeWeight = audioManager.getLeftFFT(i)*scaleAC;
-				else strokeWeight = audioManager.getRightFFT(i)*scaleAC;
-				mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,Ellipsoid3D.MAX_TRANSPARENCY);
-				color = mainApplet.color(i,255,255,255);
-				int offset = PApplet.round(j*i*radiation);
-				Mesh3D temp = new Mesh3D(mainApplet,center,left,right,orientation);
-				meshes.add(temp);
-				if (i==0) j=2; // draw dc curve only once
-			}
-		}*/
 	}
 
 	public short getVisualisationType() {
 		return TherapeuticPresence.ELLIPSOIDAL_VISUALISATION;
 	}
 
-}
-
-class MyMesh extends Mesh {
-	public MyMesh (PApplet _mainApplet) {
-		super(_mainApplet);
-	}
-	public PVector calculatePoints(float u, float v) {
-	    PVector p1 = calculateSteinbachScrew(u, v);
-	    PVector p2 = calculateBow(u, v);
-	    
-	    float x = lerp(p1.x, p2.x, params[1]);
-	    float y = lerp(p1.y, p2.y, params[1]);
-	    float z = lerp(p1.z, p2.z, params[1]);
-
-	    return new PVector(x, y, z);
-	}
 }

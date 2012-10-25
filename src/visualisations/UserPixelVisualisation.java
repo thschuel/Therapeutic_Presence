@@ -31,15 +31,12 @@ import SimpleOpenNI.SimpleOpenNI;
 import processing.core.*;
 import therapeuticpresence.TherapeuticPresence;
 
-public class UserPixelVisualisation extends AbstractVisualisation {
-
-	protected SimpleOpenNI kinect;
+public class UserPixelVisualisation extends DepthMapVisualisation {
 	protected int userId;
 	protected int color;
 	
 	public UserPixelVisualisation (TherapeuticPresence _mainApplet, SimpleOpenNI _kinect, int _userId) {
-		super(_mainApplet);
-		kinect = _kinect;
+		super(_mainApplet,_kinect);
 		userId = _userId;
 	}
 

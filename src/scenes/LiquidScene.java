@@ -36,15 +36,11 @@ import utils.GridSolver;
 import shapes3d.*;
 
 public class LiquidScene extends BasicScene {
-	protected AudioManager audioManager = null;
 	
 	protected int backgroundTintColor = 0;
 	protected int backgroundTintHueMax = 360;
 	protected int backgroundTintHue = 207;
 	protected int defaultBackgroundHighlightColor = 0x10ffffff;
-	protected float audioReactionDelay = 12f;
-	protected float fftDCValue=0f;
-	protected float fftDCValueDelayed=0f;
 
 	private float angle=0;
 	private float angleThreshold = 45f;
@@ -53,8 +49,7 @@ public class LiquidScene extends BasicScene {
 	private Ellipsoid ellipsoid;
 	
 	public LiquidScene (TherapeuticPresence _mainApplet, int _backgroundColor, AudioManager _audioManager) {
-		super (_mainApplet,_backgroundColor);
-		audioManager = _audioManager;
+		super (_mainApplet,_backgroundColor,_audioManager);
 		// set up for third person view
 		cameraZ = TherapeuticPresence.cameraEyeZ;
 
