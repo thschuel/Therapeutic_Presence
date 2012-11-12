@@ -34,7 +34,7 @@ import processing.core.*;
 import controlP5.*;
 import processing.opengl.*;
 import scenes.AbstractScene;
-import therapeuticskeleton.Skeleton;
+import therapeuticskeleton.*;
 import visualisations.AbstractSkeletonAudioVisualisation;
 import visualisations.AbstractSkeletonVisualisation;
 
@@ -90,18 +90,18 @@ public class GuiHud {
 	    // update fps Text
 		String shapeString = "";
 		switch (PostureProcessing.activePosture) {
-			case Skeleton.V_SHAPE: shapeString="V"; break;
-			case Skeleton.A_SHAPE: shapeString="A"; break;
-			case Skeleton.U_SHAPE: shapeString="U"; break;
-			case Skeleton.N_SHAPE: shapeString="N"; break;
-			case Skeleton.M_SHAPE: shapeString="M"; break;
-			case Skeleton.W_SHAPE: shapeString="W"; break;
-			case Skeleton.O_SHAPE: shapeString="O"; break;
-			case Skeleton.I_SHAPE: shapeString="I"; break;
-			case Skeleton.HANDS_FORWARD_DOWN_POSE: shapeString="HF"; break;
+			case SkeletonPosture.V_SHAPE: shapeString="V"; break;
+			case SkeletonPosture.A_SHAPE: shapeString="A"; break;
+			case SkeletonPosture.U_SHAPE: shapeString="U"; break;
+			case SkeletonPosture.N_SHAPE: shapeString="N"; break;
+			case SkeletonPosture.M_SHAPE: shapeString="M"; break;
+			case SkeletonPosture.W_SHAPE: shapeString="W"; break;
+			case SkeletonPosture.O_SHAPE: shapeString="O"; break;
+			case SkeletonPosture.I_SHAPE: shapeString="I"; break;
+			case SkeletonPosture.HANDS_FORWARD_DOWN_POSE: shapeString="HF"; break;
 			default: shapeString="NO"+PostureProcessing.activePosture; break;
 		}
-	    fps.setText("pG "+Skeleton.pushGestureStartCycle+" g "+PostureProcessing.currentGesture+" shape: "+shapeString+" fps: "+PApplet.round(mainApplet.frameRate));
+	    fps.setText("pG "+SkeletonGesture.pushGestureStartCycle+" g "+PostureProcessing.currentGesture+" shape: "+shapeString+" fps: "+PApplet.round(mainApplet.frameRate));
 	    // toggle debug output
 	    if (TherapeuticPresence.debugOutput) {
 			guiMessages.show();
@@ -164,7 +164,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,200);
-		menu.setBackgroundHeight(460);
+		menu.setBackgroundHeight(440);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -307,12 +307,6 @@ public class GuiHud {
 		angleScale3.setCaptionLabel("Angle Scale 3");
 		angleScale3.plugTo(this);
 		positionY += 20;
-		
-		controlP5.Slider kinectTiltDegree = control.addSlider("changeKinectTilt",-45f,45f,TherapeuticPresence.kinectTiltDegree,0,positionY,108,20);
-		kinectTiltDegree.moveTo(menu);
-		kinectTiltDegree.setCaptionLabel("Kinect Tilt");
-		kinectTiltDegree.plugTo(this);
-		positionY += 20;
 	}
 	
 	
@@ -424,9 +418,6 @@ public class GuiHud {
 	}
 	private void changeAngleScale3 (float theValue) {
 		AbstractSkeletonVisualisation.angleScale3 = theValue;
-	}
-	private void changeKinectTilt (float theValue) {
-		mainApplet.changeKinectTilt(theValue);
 	}
 	
 	

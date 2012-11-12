@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package therapeuticpresence;
 
 import scenes.*;
-import therapeuticskeleton.Skeleton;
+import therapeuticskeleton.*;
 import visualisations.*;
 
 public class PostureProcessing {
@@ -40,12 +40,12 @@ public class PostureProcessing {
 
 	public static final float timeHoldShapeToTrigger = 1.7f;
 	public static final float timeBlockTrigger = 2.5f;
-	public static short activePosture = Skeleton.NO_POSE;
+	public static short activePosture = SkeletonPosture.NO_POSE;
 	private boolean postureChange = false;
-	public static short currentGesture = Skeleton.NO_GESTURE;
+	public static short currentGesture = SkeletonGesture.NO_GESTURE;
 	private boolean newGestureRecognized = false;
 	// using counter for now
-	private float[] shapeActiveCounters = new float[Skeleton.NUMBER_OF_POSES]; // seconds Shape occured in a row
+	private float[] shapeActiveCounters = new float[SkeletonPosture.NUMBER_OF_POSES]; // seconds Shape occured in a row
 	private float timeSinceLastAction = 0f; // seconds since last switch
 	
 	public PostureProcessing (TherapeuticPresence _mainApplet, Skeleton _skeleton, AbstractScene _scene, AbstractVisualisation _visualisation) {
@@ -105,14 +105,14 @@ public class PostureProcessing {
 	
 	public void triggerAction () {
 		if (timeSinceLastAction > timeBlockTrigger) {
-			if (activePosture == Skeleton.HANDS_FORWARD_DOWN_POSE) {
+			if (activePosture == SkeletonPosture.HANDS_FORWARD_DOWN_POSE) {
 				scene.shapeActiveAlert(shapeActiveCounters[activePosture]);
 			}
-			if (currentGesture == Skeleton.PUSH_GESTURE) {
+			if (currentGesture == SkeletonGesture.PUSH_GESTURE) {
 				mainApplet.toggleVisualisations();
 				timeSinceLastAction = 0f;
 			}
-			if (shapeActiveCounters[Skeleton.HANDS_FORWARD_DOWN_POSE] > timeHoldShapeToTrigger) {
+			if (shapeActiveCounters[SkeletonPosture.HANDS_FORWARD_DOWN_POSE] > timeHoldShapeToTrigger) {
 				if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.GENERATIVE_TREE_VISUALISATION) {
 					((GenerativeTreeVisualisation)visualisation).shakeTree();
 					timeSinceLastAction = 0f;

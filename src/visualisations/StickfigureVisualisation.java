@@ -91,7 +91,7 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		drawStickfigure(false);
 		drawJoints(false);
 		drawMirrorPlane();
-		//drawLocalCoordinateSystem();
+		drawLocalCoordinateSystem();
 	}
 	
 	private void drawUserPixels () {
@@ -206,7 +206,7 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 			PVector P3 = PVector.add(P0,fu); P3.add(fv);
 			PVector P4 = PVector.sub(P0,fu); P4.add(fv);
 			
-			// draw your vertices
+			// draw vertices
 			mainApplet.pushMatrix();
 			mainApplet.noStroke();
 			mainApplet.colorMode(PConstants.RGB,255,255,255,255);

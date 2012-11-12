@@ -80,7 +80,7 @@ public class EllipsoidalVisualisation extends AbstractSkeletonAudioVisualisation
 		movementResponseDelay=8f;
 	}
 	
-	public void updateCanvasCoordinates () {
+	private void updateCanvasCoordinates () {
 		width = TunnelScene.getTunnelWidthAt(centerZ);
 		height = TunnelScene.getTunnelHeightAt(centerZ);
 		PVector torso = skeleton.getJoint(Skeleton.NECK);
@@ -89,7 +89,7 @@ public class EllipsoidalVisualisation extends AbstractSkeletonAudioVisualisation
 		centerX += (mappedTorsoX-centerX)/movementResponseDelay;
 		centerY += (mappedTorsoY-centerY)/movementResponseDelay;
 	    center.set(centerX,centerY,centerZ);
-		float orientationSkeleton = PVector.angleBetween(new PVector(0,1,0),skeleton.getOrientationY())-TherapeuticPresence.kinectTilt;
+		float orientationSkeleton = PVector.angleBetween(new PVector(0,1,0),skeleton.getOrientationY());
 		orientation += (orientationSkeleton*0.8-orientation)/movementResponseDelay;
 			
 	}
@@ -144,9 +144,9 @@ public class EllipsoidalVisualisation extends AbstractSkeletonAudioVisualisation
 	}
 	
 	private void updateEllipsoids () {
-		PVector lHand = skeleton.getJointLocalCoordSys(Skeleton.LEFT_HAND);
+		PVector lHand = skeleton.getJointLCS(Skeleton.LEFT_HAND);
 		lHand.x = PApplet.map(lHand.x,0,900f,0,width/2);
-		PVector rHand = skeleton.getJointLocalCoordSys(Skeleton.RIGHT_HAND);
+		PVector rHand = skeleton.getJointLCS(Skeleton.RIGHT_HAND);
 		rHand.x = PApplet.map(rHand.x,-900f,0f,-width/2,0);
 //		PVector lHandrHand = PVector.sub(lHand,rHand);
 		float distanceMapped = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,0f,1f);

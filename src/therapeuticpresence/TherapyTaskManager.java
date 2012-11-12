@@ -29,7 +29,7 @@ package therapeuticpresence;
 
 import java.util.ArrayList;
 
-import therapeuticskeleton.Skeleton;
+import therapeuticskeleton.*;
 
 public class TherapyTaskManager {
 
@@ -44,8 +44,8 @@ public class TherapyTaskManager {
 	
 	public TherapyTaskManager (TherapeuticPresence _mainApplet) {
 		mainApplet = _mainApplet;
-		addPostureToAlternations(Skeleton.V_SHAPE);
-		addPostureToAlternations(Skeleton.A_SHAPE);
+		addPostureToAlternations(SkeletonPosture.V_SHAPE);
+		addPostureToAlternations(SkeletonPosture.A_SHAPE);
 		mainApplet.updateTask(alternatingPostures.get(alternationsIndex));
 		mainApplet.updateScore(roundCounter);
 	}
