@@ -92,7 +92,7 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean mirrorKinect = false;
 	public static float maxDistanceToKinect = 4000f; // in mm, is used for scaling the visuals
 	public static final float cameraEyeZ = 5000f; // in mm, visuals are sensitive to this!
-	public static final float DEFAULT_POSTURE_TOLERANCE = 0.7f;
+	public static final float DEFAULT_POSTURE_TOLERANCE = 0.8f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
 	public static final float DEFAULT_GESTURE_TOLERANCE = 0.4f;
 	public static float gestureTolerance = TherapeuticPresence.DEFAULT_GESTURE_TOLERANCE;
