@@ -76,6 +76,7 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean fullBodyTracking = false; // control for full body tracking
 	public static boolean calculateLocalCoordSys = true; // control for full body tracking
 	public static boolean evaluatePostureAndGesture = true; // control for full body tracking
+	public static boolean evaluateStatistics = true; // control for skeleton statistics
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = false;
 	public static boolean demo=true;
@@ -89,10 +90,10 @@ public class TherapeuticPresence extends PApplet {
 	public static short currentSceneType;
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
-	public static boolean mirrorKinect = false;
-	public static float maxDistanceToKinect = 4000f; // in mm, is used for scaling the visuals
+	public static boolean mirrorKinect = false; // mirror is necessary to accurately label left/right limbs from a user's viewpoint
+	public static float maxDistanceToKinect = 3800f; // in mm, is used for scaling the visuals
 	public static final float cameraEyeZ = 5000f; // in mm, visuals are sensitive to this!
-	public static final float DEFAULT_POSTURE_TOLERANCE = 0.8f;
+	public static final float DEFAULT_POSTURE_TOLERANCE = 0.7f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
 	public static final float DEFAULT_GESTURE_TOLERANCE = 0.4f;
 	public static float gestureTolerance = TherapeuticPresence.DEFAULT_GESTURE_TOLERANCE;
@@ -106,6 +107,8 @@ public class TherapeuticPresence extends PApplet {
 	
 	private int activeUserId = -1;
 	private boolean skeletonDetectionStarted = false;
+	private boolean drawRunning = false;
+	private boolean runDraw = false; // activated after setup
 	
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
@@ -149,6 +152,8 @@ public class TherapeuticPresence extends PApplet {
 		
 		// generate HUD
 		guiHud = new GuiHud(this);
+		
+		runDraw = true;
 	}
 	
 	private void setupKinect () {
@@ -298,9 +303,9 @@ public class TherapeuticPresence extends PApplet {
 				setupScene(LIQUID_SCENE);
 				setupVisualisation(ELLIPSOIDAL_VISUALISATION);
 			}  else if (currentVisualisationMethod == ELLIPSOIDAL_VISUALISATION) {
-//				setupScene(TUNNEL_SCENE3D);
-//				setupVisualisation(MESH_3D_VISUALISATION);
-//			}  else if (currentVisualisationMethod == MESH_3D_VISUALISATION) {
+				setupScene(TUNNEL_SCENE);
+				setupVisualisation(MESH_VISUALISATION);
+			}  else if (currentVisualisationMethod == MESH_VISUALISATION) {
 				setupScene(TUNNEL_SCENE);
 				setupVisualisation(AGENT_VISUALISATION);
 			}  else if (currentVisualisationMethod == AGENT_VISUALISATION) {
@@ -315,6 +320,9 @@ public class TherapeuticPresence extends PApplet {
 	
 	// -----------------------------------------------------------------
 	public void draw() {
+		if (!runDraw) return;
+		drawRunning = true;
+		
 		// -------- update status --------------------------
 		if (kinect != null) {
 			kinect.update();
@@ -323,7 +331,7 @@ public class TherapeuticPresence extends PApplet {
 			userDetection();
 		}
 		if (skeleton != null && kinect.isTrackingSkeleton(skeleton.getUserId())) {
-			skeleton.update();
+			skeleton.update(frameCount,frameRate);
 		}
 		if (audioManager != null) {
 			audioManager.update();
@@ -358,7 +366,7 @@ public class TherapeuticPresence extends PApplet {
 			}
 			popStyle();
 		}
-		if (visualisation != null) { 
+		if (visualisation != null) { // while fade out and fade in visualisation is null
 			pushStyle();
 			visualisation.draw();
 			popStyle();
@@ -366,9 +374,29 @@ public class TherapeuticPresence extends PApplet {
 		
 		if (guiHud != null) {
 			pushStyle();
+			if (skeleton != null) {
+				SkeletonStatistics temp = skeleton.getStatistics();
+				guiHud.updateLiveStatistics(temp.getDistancePerSecondLeftHand(),temp.getDistancePerSecondLeftElbow(),temp.getDistancePerSecondRightHand(),temp.getDistancePerSecondRightElbow(),
+											temp.getDistanceLeftHand(),temp.getDistanceLeftElbow(),temp.getDistanceRightHand(),temp.getDistanceRightElbow());
+			}
 			guiHud.draw();
 			popStyle();
 		}
+		drawRunning = false;
+	}
+	
+	public void close() {
+		while (drawRunning); // wait for last draw to finish
+		runDraw = false; // stop draw 
+		
+		// TODO: Do closing work
+		skeleton = null;
+		scene = null;
+		postureProcessing = null;
+		
+		audioManager.stop();
+		kinect.close();
+		exit();
 	}
 	
 	public void debugMessage (String _message) {
@@ -431,7 +459,7 @@ public class TherapeuticPresence extends PApplet {
 			if (skeleton != null ) {
 				debugMessage("Trying to replace skeleton of user "+skeleton.getUserId()+" with skeleton of user "+_userId+"!");
 			}
-			skeleton = new Skeleton(kinect,_userId,fullBodyTracking,calculateLocalCoordSys,evaluatePostureAndGesture,mirrorTherapy);
+			skeleton = new Skeleton(kinect,_userId,fullBodyTracking,calculateLocalCoordSys,evaluatePostureAndGesture,mirrorTherapy,evaluateStatistics);
 			skeleton.setPostureTolerance(DEFAULT_POSTURE_TOLERANCE);
 			skeleton.setGestureTolerance(DEFAULT_GESTURE_TOLERANCE);
 			kinect.setSmoothingSkeleton(smoothingSkeleton);
@@ -668,6 +696,10 @@ public class TherapeuticPresence extends PApplet {
 				break;
 			case 'r':
 				radiusOfSkeletonDetectionSpace += 50f;
+				break;
+				
+			case 'q':
+				close();
 				break;
 				
 		}

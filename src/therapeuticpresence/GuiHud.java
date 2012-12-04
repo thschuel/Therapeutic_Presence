@@ -50,6 +50,7 @@ public class GuiHud {
 	private Button menuButton;
 	private Textarea info;
 	private Textarea fps;
+	private Textarea liveStatistics;
 	private Textarea score;
 	private Textarea task;
 	private Textarea guiMessages;
@@ -134,6 +135,11 @@ public class GuiHud {
 		task.setText("Next pose: "+_task);
 	}
 	
+	public void updateLiveStatistics (float dPSLeftHand, float dPSLeftElbow, float dPSRightHand, float dPSRightElbow, float dLeftHand, float dLeftElbow, float dRightHand, float dRightElbow) {
+		liveStatistics.setText("dPS-LH:\t"+PApplet.round(dPSLeftHand)+"\n   -LE:\t"+PApplet.round(dPSLeftElbow)+"\n   -RH:\t"+PApplet.round(dPSRightHand)+"\n   -RE:\t"+PApplet.round(dPSRightElbow)+
+							   "\n  d-LH:\t"+PApplet.round(dLeftHand)+"\n   -LE:\t"+PApplet.round(dLeftElbow)+"\n   -RH:\t"+PApplet.round(dRightHand)+"\n   -RE:\t"+PApplet.round(dRightElbow));
+	}
+	
 	private void createInfoElements() {
 		info = control.addTextarea("InfoLabel",
 									"Controls: \n" +
@@ -149,13 +155,17 @@ public class GuiHud {
 		
 		fps = control.addTextarea("fpsArea","",3,mainApplet.height-20,500,50);
 		
+		liveStatistics = control.addTextarea("liveStatisticsArea","",mainApplet.width-400,10,200,mainApplet.height-20);
+		liveStatistics.setFont(mainApplet.createFont("Helvetica",20));
+		liveStatistics.setText("");
+		
 		guiMessages = control.addTextarea("guiMessagesArea","",mainApplet.width-200,10,200,mainApplet.height-20);
 
-		score = control.addTextarea("scoreArea","",mainApplet.width/2-5,20,70,70);
+		score = control.addTextarea("scoreArea","",mainApplet.width/2-100,20,70,70);
 		score.setFont(mainApplet.createFont("Helvetica",30));
 		score.setText(""+0);
 		
-		task = control.addTextarea("taskArea","",mainApplet.width/2-305,20,300,70);
+		task = control.addTextarea("taskArea","",mainApplet.width/2-400,20,300,70);
 		task.setFont(mainApplet.createFont("Helvetica",30));
 		task.setText(""+0);
 	}
@@ -164,7 +174,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,200);
-		menu.setBackgroundHeight(440);
+		menu.setBackgroundHeight(460);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -307,6 +317,14 @@ public class GuiHud {
 		angleScale3.setCaptionLabel("Angle Scale 3");
 		angleScale3.plugTo(this);
 		positionY += 20;
+		
+		controlP5.Button closeApplication = control.addButton("closeApplication",0,0,positionY,200,20);
+		closeApplication.setColorBackground(mainApplet.color(150,0,0));
+		closeApplication.setColorForeground(mainApplet.color(200,0,0));
+		closeApplication.moveTo(menu);
+		closeApplication.setCaptionLabel("Close Application");
+		closeApplication.plugTo(this);
+		positionY += 20;
 	}
 	
 	
@@ -418,6 +436,9 @@ public class GuiHud {
 	}
 	private void changeAngleScale3 (float theValue) {
 		AbstractSkeletonVisualisation.angleScale3 = theValue;
+	}
+	private void closeApplication (float theValue) {
+		mainApplet.close();
 	}
 	
 	

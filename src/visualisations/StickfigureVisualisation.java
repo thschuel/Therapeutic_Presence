@@ -39,8 +39,8 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 	private int mirrorPlaneColor = 0;
 	private int pixelColor=0;
 	private float transparency=0;
-	private float lengthJointOrientations = 0f;
-	private float radiusJoints = 0f;
+	private float lengthJointOrientations = 100f;
+	private float radiusJoints = 10f;
 	private float scale = 1f;
 	private float strokeWeight = 2f;
 	private SimpleOpenNI kinect;
@@ -63,8 +63,6 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		strokeColor = mainApplet.color(0,255,255);
 		jointColor = mainApplet.color(0,0,255);
 		mirrorPlaneColor = mainApplet.color(100,100,100);
-		lengthJointOrientations = 100f;
-		radiusJoints = 11f;
 	}
 
 	public boolean fadeIn () {
@@ -91,7 +89,7 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		drawStickfigure(false);
 		drawJoints(false);
 		drawMirrorPlane();
-		drawLocalCoordinateSystem();
+		//drawLocalCoordinateSystem();
 	}
 	
 	private void drawUserPixels () {
@@ -158,13 +156,14 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		
 		for (short i=0; i<count; i++) {
 			PVector joint = skeleton.getJoint(i);
-			float confidence = skeleton.getConfidenceJoint(i);
+			float confidence = skeleton.getJointConfidence(i);
+			float distance = skeleton.getJointDelta(i)/10;
 			mainApplet.pushMatrix();
 			mainApplet.translate(joint.x,joint.y,joint.z);
 			mainApplet.noStroke();
 			mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 			mainApplet.fill(jointColor,55+confidence*200);
-			mainApplet.sphere(radiusJoints);
+			mainApplet.sphere(1+radiusJoints*distance);
 			
 			if (drawOrientations) {
 				PMatrix3D orientation = skeleton.getJointOrientation(i);
