@@ -90,7 +90,7 @@ public class TherapeuticPresence extends PApplet {
 	public static short currentSceneType;
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
-	public static boolean mirrorKinect = false; // mirror is necessary to accurately label left/right limbs from a user's viewpoint
+	public static boolean mirrorKinect = false;
 	public static float maxDistanceToKinect = 3800f; // in mm, is used for scaling the visuals
 	public static final float cameraEyeZ = 5000f; // in mm, visuals are sensitive to this!
 	public static final float DEFAULT_POSTURE_TOLERANCE = 0.7f;

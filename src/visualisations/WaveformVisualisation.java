@@ -81,16 +81,16 @@ public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
 		height = TunnelScene.getTunnelHeightAt(centerZ);
 		// width/4 == distance between control points
 		// control points +- width/8 == anchor points
-		left1.x = center.x-width/2;
-		left2.x = center.x-width/4;
-		right2.x = center.x+width/4;
-		right1.x = center.x+width/2;	
-		anchorL1.x = center.x-5*width/8;
-		anchorL2.x = center.x-3*width/8;
-		anchorL3.x = center.x-width/8;
-		anchorR3.x = center.x+width/8;
-		anchorR2.x = center.x+3*width/8;
-		anchorR1.x = center.x+5*width/8;
+		left1.x = center.x+width/2;
+		left2.x = center.x+width/4;
+		right2.x = center.x-width/4;
+		right1.x = center.x-width/2;	
+		anchorL1.x = center.x+5*width/8;
+		anchorL2.x = center.x+3*width/8;
+		anchorL3.x = center.x+width/8;
+		anchorR3.x = center.x-width/8;
+		anchorR2.x = center.x-3*width/8;
+		anchorR1.x = center.x-5*width/8;
 		left1.z += (center.z + skeleton.getJoint(Skeleton.LEFT_HAND).z-skeleton.getJoint(Skeleton.LEFT_SHOULDER).z - left1.z)/movementResponseDelay;
 		left2.z += (center.z + skeleton.getJoint(Skeleton.LEFT_ELBOW).z-skeleton.getJoint(Skeleton.LEFT_SHOULDER).z - left2.z)/movementResponseDelay;
 		right2.z += (center.z + skeleton.getJoint(Skeleton.RIGHT_ELBOW).z-skeleton.getJoint(Skeleton.RIGHT_SHOULDER).z - right2.z)/movementResponseDelay;
@@ -115,7 +115,7 @@ public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
 		angleLeftLowerArm = PApplet.constrain(angleLeftLowerArm,0,PApplet.radians(120)*((angleLeftUpperArm-PConstants.QUARTER_PI)/PConstants.HALF_PI));
 		angleRightLowerArm = PApplet.constrain(angleRightLowerArm,0,PApplet.radians(120)*((angleRightUpperArm-PConstants.QUARTER_PI)/PConstants.HALF_PI));
 		
-		// use negative angles because kinect data comes upside down
+		// use negative angles for lower arms to bend waveform corresponding to arm position
 		angleLeftLowerArm = -angleLeftLowerArm;
 		angleRightLowerArm = -angleRightLowerArm;
 		
@@ -127,10 +127,10 @@ public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
 		angleRightLowerArm = (angleRightLowerArm+angleRightUpperArm)%PConstants.PI;
 		
 		// actual coordinates
-		float left2YNew = center.y+(left2.x-center.x)*PApplet.sin(angleLeftUpperArm)/PApplet.cos(angleLeftUpperArm);
-		float right2YNew = center.y-(right2.x-center.x)*PApplet.sin(angleRightUpperArm)/PApplet.cos(angleRightUpperArm);
-		float left1YNew = left2YNew+(left1.x-left2.x)*PApplet.sin(angleLeftLowerArm)/PApplet.cos(angleLeftLowerArm);
-		float right1YNew = right2YNew-(right1.x-right2.x)*PApplet.sin(angleRightLowerArm)/PApplet.cos(angleRightLowerArm);
+		float left2YNew = center.y-(left2.x-center.x)*PApplet.sin(angleLeftUpperArm)/PApplet.cos(angleLeftUpperArm);
+		float right2YNew = center.y+(right2.x-center.x)*PApplet.sin(angleRightUpperArm)/PApplet.cos(angleRightUpperArm);
+		float left1YNew = left2YNew-(left1.x-left2.x)*PApplet.sin(angleLeftLowerArm)/PApplet.cos(angleLeftLowerArm);
+		float right1YNew = right2YNew+(right1.x-right2.x)*PApplet.sin(angleRightLowerArm)/PApplet.cos(angleRightLowerArm);
 		// constrain coordinates
 		left2YNew = PApplet.constrain(left2YNew,center.y-height/2+50,center.y+height/2-50);
 		right2YNew = PApplet.constrain(right2YNew,center.y-height/2+50,center.y+height/2-50);
@@ -143,12 +143,12 @@ public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
 		left1.y += (left1YNew-left1.y)/movementResponseDelay;
 		right1.y += (right1YNew-right1.y)/movementResponseDelay;
 		// update anchorpoints based on controlpoints
-		anchorL1.y = left1.y + ((left2.y-left1.y)/2);
+		anchorL1.y = left1.y - ((left2.y-left1.y)/2);
 		anchorL2.y = left1.y + ((left2.y-left1.y)/2);
 		anchorL3.y = center.y + ((left2.y-center.y)/2);
 		anchorR3.y = center.y + ((right2.y-center.y)/2);
 		anchorR2.y = right1.y + ((right2.y-right1.y)/2);
-		anchorR1.y = right1.y + ((right2.y-right1.y)/2);
+		anchorR1.y = right1.y - ((right2.y-right1.y)/2);
 		// use sample data to shift offset
 		float sampleValues[] = new float[11];
 		for (int i=0; i<11; i++) {

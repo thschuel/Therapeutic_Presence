@@ -50,6 +50,9 @@ public class BasicScene extends AbstractScene {
 	public float cameraX = 0.0f;
 	public float cameraY = 0.0f;
 	public float cameraZ = 0.0f;
+	public float centerX = 0.0f;
+	public float centerY = 0.0f;
+	public float centerZ = 0.0f;
 	public float upX = 0.0f; 
 	public float upY = -1.0f; // kinect data comes upside down
 	public float upZ = 0.0f;
@@ -71,7 +74,7 @@ public class BasicScene extends AbstractScene {
 		// reset the scene
 		mainApplet.background(backgroundColor);
 		// set the camera to the user specified position, facing towards the origin
-		mainApplet.camera(cameraX,cameraY,cameraZ,0,0,0,upX,upY,upZ);
+		mainApplet.camera(cameraX,cameraY,cameraZ,centerX,centerY,centerZ,upX,upY,upZ);
 		mainApplet.noLights();
 		// fade out alert
 		activeTime -= alertFadeOutTime/mainApplet.frameRate;

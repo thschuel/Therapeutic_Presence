@@ -183,8 +183,8 @@ public class GenerativeTreeVisualisation extends AbstractSkeletonAudioVisualisat
 	private void getAnglesForBranches () {
 		float angleLeftUpperArm = skeleton.getAngleLeftUpperArm(); 
 		float angleRightUpperArm = skeleton.getAngleRightUpperArm();
-		float angleLeftLowerArm = skeleton.angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER,Skeleton.LEFT_HAND,Skeleton.LEFT_ELBOW); 
-		float angleRightLowerArm =  skeleton.angleBetween(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW); 
+		float angleLeftLowerArm = skeleton.getAngleLeftLowerArm();//angleBetween(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER,Skeleton.LEFT_HAND,Skeleton.LEFT_ELBOW); 
+		float angleRightLowerArm =  skeleton.getAngleRightLowerArm();//angleBetween(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER,Skeleton.RIGHT_HAND,Skeleton.RIGHT_ELBOW); 
 		float orientationSkeleton = PVector.angleBetween(new PVector(0,0,1),skeleton.getOrientationX()) - PConstants.HALF_PI;
 
 		// use distance to body plane measure
@@ -194,24 +194,12 @@ public class GenerativeTreeVisualisation extends AbstractSkeletonAudioVisualisat
 //		angleLeftUpperArmToX -= PConstants.HALF_PI;
 //		angleRightUpperArmToX -= PConstants.HALF_PI;
 		
-		
-		// TODO this is a hack. find solution to switch on/off mirroring of kinect
-		if (!TherapeuticPresence.mirrorKinect) {
-			// trees react to body posture with a delay
-			curlLeftLowerArm += (angleRightLowerArm*angleScale1-curlLeftLowerArm)/movementResponseDelay;		
-			curlLeftUpperArm += (angleRightUpperArm*angleScale2-curlLeftUpperArm)/movementResponseDelay;
-			curlRightLowerArm += (angleLeftLowerArm*angleScale1-curlRightLowerArm)/movementResponseDelay;
-			curlRightUpperArm += (angleLeftUpperArm*angleScale2-curlRightUpperArm)/movementResponseDelay;		
-			orientationTree += (orientationSkeleton*angleScale3-orientationTree)/movementResponseDelay;
-		} else {
-			// trees react to body posture with a delay
-			curlLeftLowerArm += (angleLeftLowerArm*angleScale1-curlLeftLowerArm)/movementResponseDelay;
-			curlLeftUpperArm += (angleLeftUpperArm*angleScale2-curlLeftUpperArm)/movementResponseDelay;
-			curlRightLowerArm += (angleRightLowerArm*angleScale1-curlRightLowerArm)/movementResponseDelay;		
-			curlRightUpperArm += (angleRightUpperArm*angleScale2-curlRightUpperArm)/movementResponseDelay;	
-			orientationTree += (-orientationSkeleton*angleScale3-orientationTree)/movementResponseDelay;
-		}
-		
+		// trees react to body posture with a delay
+		curlLeftLowerArm += (angleLeftLowerArm*angleScale1-curlLeftLowerArm)/movementResponseDelay;
+		curlLeftUpperArm += (angleLeftUpperArm*angleScale2-curlLeftUpperArm)/movementResponseDelay;
+		curlRightLowerArm += (angleRightLowerArm*angleScale1-curlRightLowerArm)/movementResponseDelay;		
+		curlRightUpperArm += (angleRightUpperArm*angleScale2-curlRightUpperArm)/movementResponseDelay;	
+		orientationTree += (-orientationSkeleton*angleScale3-orientationTree)/movementResponseDelay;
 		
 	}
 	

@@ -38,12 +38,11 @@ public class Ellipsoid {
 	public static final float MAX_STEPS = 36f;
 	public static final float MAX_TRANSPARENCY = 255f;
 
-	private PVector center = new PVector();
 	private PVector pos = new PVector();
 	private float zOffset = 0f;
 	private float radius;
 	private float height;
-	private float orientation;
+	private float tilt;
 	private float speed;
 	private float FADE_OUT_SECONDS = 0.7f;
 	private int color;
@@ -52,13 +51,12 @@ public class Ellipsoid {
 	private float fadeOutFrames;
 	private boolean fadeOut;
 	
-	public Ellipsoid(PVector _center, PVector _pos, float _radius, float _height, float _orientation, int _color, float _speed, boolean _fadeOut) {
-		center=_center;
+	public Ellipsoid(PVector _pos, float _radius, float _height, float _tilt, int _color, float _speed, boolean _fadeOut) {
 		pos=_pos;
 		color=_color;
 		radius=_radius;
 		height=_height;
-		orientation=_orientation;
+		tilt=_tilt;
 		speed=_speed;
 		fadeOut=_fadeOut;
 		if (!fadeOut) {
@@ -73,9 +71,8 @@ public class Ellipsoid {
 			_mainApplet.fill(color,transparency);
 			_mainApplet.noStroke();
 			_mainApplet.pushMatrix();
-			_mainApplet.translate(center.x,center.y,center.z);
-			_mainApplet.translate(pos.x,pos.y,-pos.z);
-			_mainApplet.rotateX(orientation);
+			_mainApplet.translate(pos.x,pos.y,pos.z);
+			_mainApplet.rotateX(tilt);
 			_mainApplet.pushMatrix();
 			_mainApplet.translate(0,zOffset,0);
 			makeEllipsoid(_mainApplet);

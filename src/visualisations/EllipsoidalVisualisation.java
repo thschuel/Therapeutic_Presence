@@ -38,10 +38,8 @@ public class EllipsoidalVisualisation extends AbstractSkeletonAudioVisualisation
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width, height;
 	protected float centerX=0;
-	protected float startTorsoX=0;
 	protected float centerY=0;
-	protected float startTorsoY=0;
-	protected float centerZ;
+	protected float centerZ=0;
 	protected float angleLeftLower=0;
 	protected float angleRightLower=0;
 	protected float angleLeftUpper=0;
@@ -54,7 +52,8 @@ public class EllipsoidalVisualisation extends AbstractSkeletonAudioVisualisation
 	protected float rHandZ=0;
 	protected float fadeInCenterZ=0;
 	protected PVector center = new PVector();
-	private float orientation = 0;
+	protected float mappedDistance = 0f;
+	protected float scale=0f;
 	protected final float lowerZBoundary = 0.3f*TunnelScene.tunnelLength; // to control z position of drawing within a narrow corridor
 	protected final float upperZBoundary = 0.85f*TunnelScene.tunnelLength;
 	
@@ -71,9 +70,6 @@ public class EllipsoidalVisualisation extends AbstractSkeletonAudioVisualisation
 	}
 	
 	public void setup() {
-		PVector torso = skeleton.getJoint(Skeleton.TORSO);
-		startTorsoX=torso.x;
-		startTorsoY=torso.y;
 		angleScale1=0.1f;
 		angleScale2=0.9f;
 		angleScale3=0.8f;
@@ -83,22 +79,15 @@ public class EllipsoidalVisualisation extends AbstractSkeletonAudioVisualisation
 	private void updateCanvasCoordinates () {
 		width = TunnelScene.getTunnelWidthAt(centerZ);
 		height = TunnelScene.getTunnelHeightAt(centerZ);
-		PVector torso = skeleton.getJoint(Skeleton.NECK);
-		float mappedTorsoX = PApplet.constrain(torso.x-startTorsoX,-width/2,width/2);
-		float mappedTorsoY = PApplet.constrain(torso.y-startTorsoY,-height/2,height/2);
-		centerX += (mappedTorsoX-centerX)/movementResponseDelay;
-		centerY += (mappedTorsoY-centerY)/movementResponseDelay;
+		centerZ += (mappedDistance-centerZ)/movementResponseDelay; // mappedDistance calculated in draw and fade in
 	    center.set(centerX,centerY,centerZ);
-		float orientationSkeleton = PVector.angleBetween(new PVector(0,1,0),skeleton.getOrientationY());
-		orientation += (orientationSkeleton*0.8-orientation)/movementResponseDelay;
 			
 	}
 	
 	public void draw () {
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
-			// center.z reacts to position of user with delay
-			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
-			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
+			mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
+			scale = PApplet.map(mappedDistance,lowerZBoundary,upperZBoundary,0f,1f);
 			updateCanvasCoordinates();
 			updateEllipsoids();
 			for (int i=0; i<ellipsoids.size(); i++) {
@@ -109,10 +98,9 @@ public class EllipsoidalVisualisation extends AbstractSkeletonAudioVisualisation
 	
 	public boolean fadeIn () {
 		if (skeleton.isUpdated() && audioManager.isUpdated()) {
-			// center.z reacts to position of user with delay
 			fadeInCenterZ+=skeleton.distanceToKinect()/mainApplet.frameRate;
-			float mappedDistance = PApplet.map(fadeInCenterZ,0,TherapeuticPresence.maxDistanceToKinect,0,upperZBoundary);
-			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
+			mappedDistance = PApplet.map(fadeInCenterZ,0,TherapeuticPresence.maxDistanceToKinect,0,upperZBoundary);
+			scale = PApplet.map(mappedDistance,0f,upperZBoundary,0f,1f);
 			updateCanvasCoordinates();
 			updateEllipsoids();
 			for (int i=0; i<ellipsoids.size(); i++) {
@@ -144,26 +132,28 @@ public class EllipsoidalVisualisation extends AbstractSkeletonAudioVisualisation
 	}
 	
 	private void updateEllipsoids () {
-		PVector lHand = skeleton.getJointLCS(Skeleton.LEFT_HAND);
-		lHand.x = PApplet.map(lHand.x,0,900f,0,width/2);
-		PVector rHand = skeleton.getJointLCS(Skeleton.RIGHT_HAND);
-		rHand.x = PApplet.map(rHand.x,-900f,0f,-width/2,0);
-//		PVector lHandrHand = PVector.sub(lHand,rHand);
-		float distanceMapped = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,0f,1f);
-		float angleLeftLowerNew = -skeleton.getAngleLeftLowerArm()*angleScale1;
-		float angleRightLowerNew = -skeleton.getAngleRightLowerArm()*angleScale1;
-		float angleLeftUpperNew = -skeleton.getAngleLeftUpperArm()*angleScale2;
-		float angleRightUpperNew = -skeleton.getAngleRightUpperArm()*angleScale2;
-		angleLeftLower += (angleLeftLowerNew-angleLeftLower)/movementResponseDelay;
-		angleRightLower += (angleRightLowerNew-angleRightLower)/movementResponseDelay;
-		angleLeftUpper += (angleLeftUpperNew-angleLeftUpper)/movementResponseDelay;
-		angleRightUpper += (angleRightUpperNew-angleRightUpper)/movementResponseDelay;
+		PVector lHand = skeleton.getJoint(Skeleton.LEFT_HAND);
+		PVector rHand = skeleton.getJoint(Skeleton.RIGHT_HAND);
+		// expand x-range of arms to yield better visualisation
+		lHand.x *= 1f+(2f*scale);
+		rHand.x *= 1f+(2f*scale);
+		//lHand.x = PApplet.map(lHand.x,0,900f,0,width/2);
+		//rHand.x = PApplet.map(rHand.x,-900f,0f,-width/2,0);
 		lHandX += (lHand.x-lHandX)/movementResponseDelay;
 		lHandY += (lHand.y-lHandY)/movementResponseDelay;
 		lHandZ += (lHand.z-lHandZ)/movementResponseDelay;
 		rHandX += (rHand.x-rHandX)/movementResponseDelay;
 		rHandY += (rHand.y-rHandY)/movementResponseDelay;
 		rHandZ += (rHand.z-rHandZ)/movementResponseDelay;
+		
+		float angleLeftLowerNew = skeleton.getAngleLeftLowerArm()*angleScale1;
+		float angleRightLowerNew = skeleton.getAngleRightLowerArm()*angleScale1;
+		float angleLeftUpperNew = skeleton.getAngleLeftUpperArm()*angleScale2;
+		float angleRightUpperNew = skeleton.getAngleRightUpperArm()*angleScale2;
+		angleLeftLower += (angleLeftLowerNew-angleLeftLower)/movementResponseDelay;
+		angleRightLower += (angleRightLowerNew-angleRightLower)/movementResponseDelay;
+		angleLeftUpper += (angleLeftUpperNew-angleLeftUpper)/movementResponseDelay;
+		angleRightUpper += (angleRightUpperNew-angleRightUpper)/movementResponseDelay;
 		
 		// use sample data to shift offset
 //		float sampleValues[] = new float[11];
@@ -181,14 +171,11 @@ public class EllipsoidalVisualisation extends AbstractSkeletonAudioVisualisation
 			color = mainApplet.color(i,255,255,Ellipsoid.MAX_TRANSPARENCY);
 			float offset = i*radiation;
 			float radius = PApplet.map(angleLeftUpper,0,PConstants.PI,0f,1f)*1500f;//distanceMapped*1500f;
-			Ellipsoid temp = new Ellipsoid(center,new PVector(lHandX,lHandY,lHandZ),radius+offset,strokeWeight,angleLeftLower,color,audioManager.getMeanFFT(0)/audioManager.getMaxFFT(),true);
+			Ellipsoid temp = new Ellipsoid(new PVector(lHandX,lHandY,lHandZ),radius+offset,strokeWeight,-angleLeftLower,color,audioManager.getMeanFFT(0)/audioManager.getMaxFFT(),true);
 			ellipsoids.add(temp);
 			radius = PApplet.map(angleRightUpper,0,PConstants.PI,0f,1f)*1500f;
-			temp = new Ellipsoid(center,new PVector(rHandX,rHandY,rHandZ),radius+offset,strokeWeight,angleRightLower,color,audioManager.getMeanFFT(0)/audioManager.getMaxFFT(),true);
+			temp = new Ellipsoid(new PVector(rHandX,rHandY,rHandZ),radius+offset,strokeWeight,-angleRightLower,color,audioManager.getMeanFFT(0)/audioManager.getMaxFFT(),true);
 			ellipsoids.add(temp);
-			//color = mainApplet.color(i,255,255,Ellipsoid3D.MAX_TRANSPARENCY/2f);
-			//temp = new Ellipsoid3D(center,distanceMapped+offset,strokeWeight,orientation,color,0,false);
-			//ellipsoids.add(temp);
 		}
 		
 		
