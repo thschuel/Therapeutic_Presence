@@ -61,13 +61,14 @@ public class TherapeuticPresence extends PApplet {
 	// --- setup constants ---
 	public static final short MAX_USERS = 4;
 	public static final short DEPTHMAP_VISUALISATION = 0;
-	public static final short STICKFIGURE_VISUALISATION = 1;
-	public static final short GENERATIVE_TREE_VISUALISATION = 2;
-	public static final short WAVEFORM_VISUALISATION = 3;
-	public static final short ELLIPSOIDAL_VISUALISATION = 4;
-	public static final short MESH_VISUALISATION = 5;
-	public static final short AGENT_VISUALISATION = 6;
-	public static final short USER_PIXEL_VISUALISATION = 7;
+	public static final short USER_PIXEL_VISUALISATION = 1;
+	public static final short STATISTICS_VISUALISATION = 2;
+	public static final short STICKFIGURE_VISUALISATION = 3;
+	public static final short GENERATIVE_TREE_VISUALISATION = 4;
+	public static final short WAVEFORM_VISUALISATION = 5;
+	public static final short ELLIPSOIDAL_VISUALISATION = 6;
+	public static final short MESH_VISUALISATION = 7;
+	public static final short AGENT_VISUALISATION = 8;
 	public static final short BASIC_SCENE = 0;
 	public static final short TUNNEL_SCENE = 1;
 	public static final short LIQUID_SCENE = 2;
@@ -79,6 +80,7 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean evaluateStatistics = true; // control for skeleton statistics
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = false;
+	public static boolean showLiveStatistics = false;
 	public static boolean demo=true;
 	public static boolean transferSkeleton=true;
 	public static boolean constantFrameRate = false;
@@ -91,7 +93,7 @@ public class TherapeuticPresence extends PApplet {
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
-	public static float maxDistanceToKinect = 3800f; // in mm, is used for scaling the visuals
+	public static float maxDistanceToKinect = 2800f; // in mm, is used for scaling the visuals
 	public static final float cameraEyeZ = 5000f; // in mm, visuals are sensitive to this!
 	public static final float DEFAULT_POSTURE_TOLERANCE = 0.7f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
@@ -221,6 +223,33 @@ public class TherapeuticPresence extends PApplet {
 		
 		// set up next visualisation for fade in
 		switch (_visualisationMethod) {
+		
+			case TherapeuticPresence.USER_PIXEL_VISUALISATION: // this is only for switching to this visualisation when skeleton is already tracked!
+				if (skeleton != null) {
+					nextVisualisation = new UserPixelVisualisation(this,kinect,skeleton.getUserId());
+					nextVisualisation.setup();
+				} else {
+					nextVisualisation = new UserPixelVisualisation(this,kinect,activeUserId);
+					nextVisualisation.setup();
+				}
+				currentVisualisationMethod = TherapeuticPresence.USER_PIXEL_VISUALISATION;
+				break;
+				
+			case TherapeuticPresence.STATISTICS_VISUALISATION:
+				if (skeleton != null) {
+					SkeletonStatistics statistics = skeleton.getFinalStatistics();
+					visualisation = new StatisticsVisualisation(this,statistics,guiHud);
+					visualisation.setup();
+					lastVisualisation = null; // skip fade in/fade out for statistics
+					currentVisualisationMethod = TherapeuticPresence.STATISTICS_VISUALISATION;
+				} else {
+					nextVisualisation = new DepthMapVisualisation(this,kinect);
+					nextVisualisation.setup();
+					currentVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
+					PApplet.println("Cannot setup statistics visualisation without skeleton data");
+				}
+				break;
+				
 			case TherapeuticPresence.STICKFIGURE_VISUALISATION:
 				if (lastVisualisation.getVisualisationType() == TherapeuticPresence.USER_PIXEL_VISUALISATION)
 					nextVisualisation = new StickfigureVisualisation(this,kinect,skeleton,((UserPixelVisualisation)lastVisualisation).getColor());
@@ -260,17 +289,6 @@ public class TherapeuticPresence extends PApplet {
 				nextVisualisation.setup();
 				currentVisualisationMethod = TherapeuticPresence.AGENT_VISUALISATION;
 				break;
-				
-			case TherapeuticPresence.USER_PIXEL_VISUALISATION: // this is only for switching to this visualisation when skeleton is already tracked!
-				if (skeleton != null) {
-					nextVisualisation = new UserPixelVisualisation(this,kinect,skeleton.getUserId());
-					nextVisualisation.setup();
-				} else {
-					nextVisualisation = new UserPixelVisualisation(this,kinect,activeUserId);
-					nextVisualisation.setup();
-				}
-				currentVisualisationMethod = TherapeuticPresence.USER_PIXEL_VISUALISATION;
-				break;
 			
 			default:
 				nextVisualisation = new DepthMapVisualisation(this,kinect);
@@ -281,6 +299,17 @@ public class TherapeuticPresence extends PApplet {
 		if (postureProcessing != null) {
 			postureProcessing.setVisualisation(nextVisualisation);
 		}
+	}
+	
+	public void toggleScenes () {
+		if (currentSceneType == BASIC_SCENE) {
+			setupScene(LIQUID_SCENE);
+		} else if (currentSceneType == LIQUID_SCENE) {
+			setupScene(TUNNEL_SCENE);
+		} else {
+			setupScene(BASIC_SCENE);
+		}
+		
 	}
 	
 	public void toggleVisualisations () {
@@ -374,10 +403,9 @@ public class TherapeuticPresence extends PApplet {
 		
 		if (guiHud != null) {
 			pushStyle();
-			if (skeleton != null) {
-				SkeletonStatistics temp = skeleton.getStatistics();
-				guiHud.updateLiveStatistics(temp.getDistancePerSecondLeftHand(),temp.getDistancePerSecondLeftElbow(),temp.getDistancePerSecondRightHand(),temp.getDistancePerSecondRightElbow(),
-											temp.getDistanceLeftHand(),temp.getDistanceLeftElbow(),temp.getDistanceRightHand(),temp.getDistanceRightElbow());
+			if (showLiveStatistics && skeleton != null && currentVisualisationMethod != TherapeuticPresence.STATISTICS_VISUALISATION) {
+				SkeletonStatistics temp = skeleton.getLiveStatistics();
+				guiHud.updateLiveStatistics(temp.getDistancePerSecondLeftHand(),temp.getDistancePerSecondLeftElbow(),temp.getDistancePerSecondRightHand(),temp.getDistancePerSecondRightElbow());
 			}
 			guiHud.draw();
 			popStyle();
@@ -679,6 +707,12 @@ public class TherapeuticPresence extends PApplet {
 		  			debugMessage("No calibration data loaded. You need at least one active user!");
 		  		}
 			    break;
+			    
+		  	case '\n':
+				setupScene(TherapeuticPresence.BASIC_SCENE);
+				setupVisualisation(TherapeuticPresence.STATISTICS_VISUALISATION);
+				break;
+			    
 			case 'w':
 				centerOfSkeletonDetectionSpace.z -= 50f;
 				break;

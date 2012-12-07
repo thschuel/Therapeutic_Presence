@@ -51,6 +51,7 @@ public class GuiHud {
 	private Textarea info;
 	private Textarea fps;
 	private Textarea liveStatistics;
+	private Textarea finalStatistics;
 	private Textarea score;
 	private Textarea task;
 	private Textarea guiMessages;
@@ -118,6 +119,17 @@ public class GuiHud {
 	    	score.hide();
 	    	task.hide();
 	    }
+	    if (TherapeuticPresence.showLiveStatistics) {
+	    	liveStatistics.show();
+	    } else {
+	    	liveStatistics.hide();
+	    }
+	    if (TherapeuticPresence.currentVisualisationMethod == TherapeuticPresence.STATISTICS_VISUALISATION) {
+	    	liveStatistics.hide();
+	    	finalStatistics.show();
+	    } else {
+	    	finalStatistics.hide();
+	    }
 	}
 	
 	public void sendGuiMessage (String s) {
@@ -135,9 +147,14 @@ public class GuiHud {
 		task.setText("Next pose: "+_task);
 	}
 	
-	public void updateLiveStatistics (float dPSLeftHand, float dPSLeftElbow, float dPSRightHand, float dPSRightElbow, float dLeftHand, float dLeftElbow, float dRightHand, float dRightElbow) {
-		liveStatistics.setText("dPS-LH:\t"+PApplet.round(dPSLeftHand)+"\n   -LE:\t"+PApplet.round(dPSLeftElbow)+"\n   -RH:\t"+PApplet.round(dPSRightHand)+"\n   -RE:\t"+PApplet.round(dPSRightElbow)+
-							   "\n  d-LH:\t"+PApplet.round(dLeftHand)+"\n   -LE:\t"+PApplet.round(dLeftElbow)+"\n   -RH:\t"+PApplet.round(dRightHand)+"\n   -RE:\t"+PApplet.round(dRightElbow));
+	public void updateLiveStatistics (float dPSLeftHand, float dPSLeftElbow, float dPSRightHand, float dPSRightElbow) {
+		DecimalFormat df = new DecimalFormat ("0.00");
+		liveStatistics.setText("mm per second\nLH: "+df.format(dPSLeftHand)+"\nLE: "+df.format(dPSLeftElbow)+"\nRH: "+df.format(dPSRightHand)+"\nRE: "+df.format(dPSRightElbow));
+	}
+	
+	public void setFinalStatistics (float dLeftHand, float dLeftElbow, float dRightHand, float dRightElbow) {
+		DecimalFormat df = new DecimalFormat ("0.00");
+		finalStatistics.setText("distance in mm\nLH: "+df.format(dLeftHand)+"\nLE: "+df.format(dLeftElbow)+"\nRH: "+df.format(dRightHand)+"\nRE: "+df.format(dRightElbow));
 	}
 	
 	private void createInfoElements() {
@@ -154,10 +171,13 @@ public class GuiHud {
 									3,mainApplet.height-150,500,150);
 		
 		fps = control.addTextarea("fpsArea","",3,mainApplet.height-20,500,50);
-		
+
 		liveStatistics = control.addTextarea("liveStatisticsArea","",mainApplet.width-400,10,200,mainApplet.height-20);
-		liveStatistics.setFont(mainApplet.createFont("Helvetica",20));
+		liveStatistics.setFont(mainApplet.createFont("Courier",20));
 		liveStatistics.setText("");
+		finalStatistics = control.addTextarea("finalStatisticsArea","",mainApplet.width-400,10,200,mainApplet.height-20);
+		finalStatistics.setFont(mainApplet.createFont("Courier",20));
+		finalStatistics.setText("");
 		
 		guiMessages = control.addTextarea("guiMessagesArea","",mainApplet.width-200,10,200,mainApplet.height-20);
 
@@ -174,7 +194,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,200);
-		menu.setBackgroundHeight(460);
+		menu.setBackgroundHeight(500);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -188,13 +208,13 @@ public class GuiHud {
 		
 		controlP5.Button mirrorTherapyLeft = control.addButton("switchMirrorTherapyLeft",Skeleton.MIRROR_THERAPY_LEFT,0,positionY,200,20);
 		mirrorTherapyLeft.moveTo(menu);
-		mirrorTherapyLeft.setCaptionLabel("Mirror right");
+		mirrorTherapyLeft.setCaptionLabel("Mirror left");
 		mirrorTherapyLeft.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Button mirrorTherapyRight = control.addButton("switchMirrorTherapyRight",Skeleton.MIRROR_THERAPY_RIGHT,0,positionY,200,20);
 		mirrorTherapyRight.moveTo(menu);
-		mirrorTherapyRight.setCaptionLabel("Mirror left");
+		mirrorTherapyRight.setCaptionLabel("Mirror right");
 		mirrorTherapyRight.plugTo(this);
 		positionY += 20;
 		
@@ -216,10 +236,10 @@ public class GuiHud {
 		drawSkeletons.plugTo(this);
 		positionY += 20;
 		
-		controlP5.Button drawEllipsoid = control.addButton("switchVisualisationEllipsoid",TherapeuticPresence.ELLIPSOIDAL_VISUALISATION,0,positionY,200,20);
-		drawEllipsoid.moveTo(menu);
-		drawEllipsoid.setCaptionLabel("Draw Ellipsoid");
-		drawEllipsoid.plugTo(this);
+		controlP5.Button drawWaveform = control.addButton("switchVisualisationWaveform",TherapeuticPresence.WAVEFORM_VISUALISATION,0,positionY,200,20);
+		drawWaveform.moveTo(menu);
+		drawWaveform.setCaptionLabel("Draw Waveform");
+		drawWaveform.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Button drawTree = control.addButton("switchVisualisationTree",TherapeuticPresence.GENERATIVE_TREE_VISUALISATION,0,positionY,200,20);
@@ -228,13 +248,27 @@ public class GuiHud {
 		drawTree.plugTo(this);
 		positionY += 20;
 		
-		controlP5.Button drawWaveform = control.addButton("switchVisualisationWaveform",TherapeuticPresence.WAVEFORM_VISUALISATION,0,positionY,200,20);
-		drawWaveform.moveTo(menu);
-		drawWaveform.setCaptionLabel("Draw Waveform");
-		drawWaveform.plugTo(this);
+		controlP5.Button drawEllipsoid = control.addButton("switchVisualisationEllipsoid",TherapeuticPresence.ELLIPSOIDAL_VISUALISATION,0,positionY,200,20);
+		drawEllipsoid.moveTo(menu);
+		drawEllipsoid.setCaptionLabel("Draw Ellipsoid");
+		drawEllipsoid.plugTo(this);
 		positionY += 20;
 		
-		controlP5.Textarea switchTaskModeLabel = control.addTextarea("switchTaskModeLabel","Structured Task Mode",2,positionY+4,178,16);
+		controlP5.Button drawStatistics = control.addButton("switchVisualisationStatistics",TherapeuticPresence.STATISTICS_VISUALISATION,0,positionY,200,20);
+		drawStatistics.moveTo(menu);
+		drawStatistics.setCaptionLabel("Draw Statistics");
+		drawStatistics.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Textarea showLiveStatisticsLabel = control.addTextarea("showLiveStatisticsLabel","Live Statistics",2,positionY+4,178,16);
+		showLiveStatisticsLabel.moveTo(menu);
+		controlP5.Toggle showLiveStatistics = control.addToggle("showLiveStatistics",TherapeuticPresence.showLiveStatistics,180,positionY,20,20);
+		showLiveStatistics.moveTo(menu);
+		showLiveStatistics.setLabelVisible(false);
+		showLiveStatistics.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Textarea switchTaskModeLabel = control.addTextarea("switchTaskModeLabel","Task Mode",2,positionY+4,178,16);
 		switchTaskModeLabel.moveTo(menu);
 		controlP5.Toggle switchTaskMode = control.addToggle("switchTaskMode",TherapeuticPresence.structuredTaskMode,180,positionY,20,20);
 		switchTaskMode.moveTo(menu);
@@ -354,11 +388,7 @@ public class GuiHud {
 	}
 
 	private void switchScene (int theValue) {
-		if (TherapeuticPresence.currentSceneType == TherapeuticPresence.TUNNEL_SCENE) {
-			mainApplet.setupScene(TherapeuticPresence.LIQUID_SCENE);
-		} else {
-			mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE);
-		}
+		mainApplet.toggleScenes();
 		menu.hide();
 	}
 	
@@ -390,6 +420,16 @@ public class GuiHud {
 		mainApplet.setupScene(TherapeuticPresence.LIQUID_SCENE);
 		mainApplet.setupVisualisation(TherapeuticPresence.ELLIPSOIDAL_VISUALISATION);
 		menu.hide();
+	}
+
+	private void switchVisualisationStatistics (int theValue) {
+		mainApplet.setupScene(TherapeuticPresence.BASIC_SCENE);
+		mainApplet.setupVisualisation(TherapeuticPresence.STATISTICS_VISUALISATION);
+		menu.hide();
+	}
+	
+	private void showLiveStatistics (int theValue) {
+		TherapeuticPresence.showLiveStatistics = !TherapeuticPresence.showLiveStatistics;
 	}
 	
 	private void switchTaskMode (int theValue) {
