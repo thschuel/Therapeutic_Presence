@@ -87,13 +87,7 @@ public class AgentVisualisation extends AbstractSkeletonAudioVisualisation {
 		centerY =0;//+= (mappedTorsoY-centerY)/delay;
 	    center.set(centerX,centerY,centerZ);
 		float orientationSkeleton = PVector.angleBetween(new PVector(0,0,1),skeleton.getOrientationX()) - PConstants.HALF_PI;
-		// TODO: this is a hack. find solution for changing mirror kinect on the fly
-		if (!TherapeuticPresence.mirrorKinect) {
-			orientation += (orientationSkeleton*0.4-orientation)/delay;
-		} else {
-			orientation += (-orientationSkeleton*0.4-orientation)/delay;
-		}
-			
+		orientation += (orientationSkeleton*0.4-orientation)/delay;	
 	}
 	
 	public void draw () {

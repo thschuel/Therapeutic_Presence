@@ -157,13 +157,13 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		for (short i=0; i<count; i++) {
 			PVector joint = skeleton.getJoint(i);
 			float confidence = skeleton.getJointConfidence(i);
-			float distance = skeleton.getJointDelta(i)/10;
+			float distance = skeleton.getJointDelta(i)/20;
 			mainApplet.pushMatrix();
 			mainApplet.translate(joint.x,joint.y,joint.z);
 			mainApplet.noStroke();
 			mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 			mainApplet.fill(jointColor,55+confidence*200);
-			mainApplet.sphere(1+radiusJoints*distance);
+			mainApplet.sphere(radiusJoints+radiusJoints*distance);
 			
 			if (drawOrientations) {
 				PMatrix3D orientation = skeleton.getJointOrientation(i);

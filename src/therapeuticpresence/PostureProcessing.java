@@ -118,7 +118,7 @@ public class PostureProcessing {
 					timeSinceLastAction = 0f;
 				}
 			}
-			if (shapeActiveCounters[SkeletonPosture.I_SHAPE] > timeHoldShapeToTrigger) {
+			if (TherapeuticPresence.useIShapeToStartStatistics && shapeActiveCounters[SkeletonPosture.I_SHAPE] > timeHoldShapeToTrigger) {
 				mainApplet.setupScene(TherapeuticPresence.BASIC_SCENE);
 				mainApplet.setupVisualisation(TherapeuticPresence.STATISTICS_VISUALISATION);
 				timeSinceLastAction = 0f;

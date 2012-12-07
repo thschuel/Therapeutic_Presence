@@ -32,6 +32,7 @@ import processing.core.*;
 import scenes.TunnelScene;
 import therapeuticpresence.*;
 import therapeuticskeleton.Skeleton;
+import therapeuticskeleton.SkeletonStatistics;
 import utils.BezierCurve;
 
 public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
@@ -53,7 +54,10 @@ public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
 	
 	// size of drawing canvas for bezier curves. is controlled by distance of user.
 	protected float width=0, height=0;
-	protected float centerZ=0;
+	protected float centerX=0f;
+	protected float centerY=0f;
+	protected float startUserY=0f;
+	protected float centerZ=0f;
 	protected float fadeInCenterZ=0;
 	protected final float lowerZBoundary = 0.3f*TunnelScene.tunnelLength; // to control z position of drawing within a narrow corridor
 	protected final float upperZBoundary = 0.85f*TunnelScene.tunnelLength;
@@ -70,13 +74,14 @@ public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
 	
 	public void setup() {
 		mainApplet.noLights();
+		startUserY=skeleton.getOrigin().y;
 		movementResponseDelay=8f;
 	}
 	
 	// TODO: change calculation so that higher degree of freedom of movements is possible
 	// use spherical coordinates? r = width/2, angle1 = angle of arm to body axis, angle2 = angle of arm segment to reference axis in reference plane
 	private void updateCanvasCoordinates () {
-	    center.set(0,0,centerZ);
+	    center.set(centerX,centerY,centerZ);
 		width = TunnelScene.getTunnelWidthAt(centerZ);
 		height = TunnelScene.getTunnelHeightAt(centerZ);
 		// width/4 == distance between control points
@@ -196,6 +201,27 @@ public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
 			// center.z reacts to position of user with delay
 			float mappedDistance = PApplet.map(skeleton.distanceToKinect(),0,TherapeuticPresence.maxDistanceToKinect,lowerZBoundary,upperZBoundary);
 			centerZ += (mappedDistance-centerZ)/movementResponseDelay;
+			// center.x reacts to position of user in a limited space with delay
+			float userX = skeleton.getOrigin().x/2f;
+			centerX += (userX-centerX)/movementResponseDelay;
+			// center.y reacts to hand movement of user if statistics is used
+			if (skeleton.getEvaluateStatistics()) {
+				SkeletonStatistics statistics = skeleton.getLiveStatistics();
+				PVector leftHandMovementDirection = statistics.getDirectionOfMovementLeftHand();
+				if (PVector.angleBetween(leftHandMovementDirection,new PVector(0,1,0)) < PConstants.HALF_PI) {
+					centerY+=5f;
+				} else {
+					centerY-=5f;
+				}
+				PVector rightHandMovementDirection = statistics.getDirectionOfMovementRightHand();
+				if (PVector.angleBetween(rightHandMovementDirection,new PVector(0,1,0)) < PConstants.HALF_PI) {
+					centerY+=5f;
+				} else {
+					centerY-=5f;
+				}
+				centerY = PApplet.constrain(centerY,-height/4f,height/3f);
+			}
+			
 			updateCanvasCoordinates();
 			updateBezierCurves();
 			mainApplet.colorMode(PApplet.HSB,AudioManager.bands,255,255,BezierCurve.MAX_TRANSPARENCY);
