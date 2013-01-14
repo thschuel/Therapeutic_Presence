@@ -75,7 +75,6 @@ public class TherapeuticPresence extends PApplet {
 
 	// --- static setup variables ---
 	public static boolean fullBodyTracking = false; // control for full body tracking
-	public static boolean calculateLocalCoordSys = true; // control for full body tracking
 	public static boolean evaluatePostureAndGesture = true; // control for full body tracking
 	public static boolean evaluateStatistics = true; // control for skeleton statistics
 	public static boolean recordFlag = true; // set to false for playback
@@ -488,7 +487,7 @@ public class TherapeuticPresence extends PApplet {
 			if (skeleton != null ) {
 				debugMessage("Trying to replace skeleton of user "+skeleton.getUserId()+" with skeleton of user "+_userId+"!");
 			}
-			skeleton = new Skeleton(kinect,_userId,fullBodyTracking,calculateLocalCoordSys,evaluatePostureAndGesture,mirrorTherapy,evaluateStatistics);
+			skeleton = new Skeleton(kinect,_userId,fullBodyTracking,evaluatePostureAndGesture,mirrorTherapy,evaluateStatistics);
 			skeleton.setPostureTolerance(DEFAULT_POSTURE_TOLERANCE);
 			skeleton.setGestureTolerance(DEFAULT_GESTURE_TOLERANCE);
 			kinect.setSmoothingSkeleton(smoothingSkeleton);

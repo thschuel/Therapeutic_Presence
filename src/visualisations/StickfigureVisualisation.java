@@ -36,7 +36,9 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 
 	private int strokeColor = 0;
 	private int jointColor = 0;
-	private int mirrorPlaneColor = 0;
+	private int sagittalPlaneColor = 0;
+	private int frontalPlaneColor = 0;
+	private int transversalPlaneColor = 0;
 	private int pixelColor=0;
 	private float transparency=0;
 	private float lengthJointOrientations = 100f;
@@ -62,7 +64,9 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 		strokeColor = mainApplet.color(0,255,255);
 		jointColor = mainApplet.color(0,0,255);
-		mirrorPlaneColor = mainApplet.color(100,100,100);
+		sagittalPlaneColor = mainApplet.color(0,255,255);
+		frontalPlaneColor = mainApplet.color(0,0,255);
+		transversalPlaneColor = mainApplet.color(255,0,255);
 	}
 
 	public boolean fadeIn () {
@@ -88,7 +92,7 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		drawUserPixels();
 		drawStickfigure(false);
 		drawJoints(false);
-		drawMirrorPlane();
+		drawBodyPlanes();
 		//drawLocalCoordinateSystem();
 	}
 	
@@ -185,40 +189,94 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		}
 	}
 
-	private void drawMirrorPlane () {
-		// for debug: show mirror plane
+	private void drawBodyPlanes () {
+		// for debug: show body planes (sagittal plane is mirror plane)
 		// draw plane by finding 4 points in that plane
-		if (skeleton.getMirrorTherapy() != Skeleton.MIRROR_THERAPY_OFF) {
-			PVector n0MP = skeleton.getN0VectorMirrorPlane();
-			PVector rMP = skeleton.getRVectorMirrorPlane();
-			PVector u = n0MP.cross(new PVector(0,0,1)); // cross product of n0 with arbitrary vector -> u lies on the plane
-			PVector v = n0MP.cross(u); // v is orthogonal to both N and u (again is in the plane) 
-			u.normalize();
-			v.normalize();
-			// draw a quad centered in the neckPoint (which is always part of the mirror plane)
-			PVector P0 = rMP;
-			float sizePlane = 300.0f;
-			PVector fu = PVector.mult(u,sizePlane);
-			PVector fv = PVector.mult(v,sizePlane);
-			PVector P1 = PVector.sub(P0,fu); P1.sub(fv);
-			PVector P2 = PVector.add(P0,fu); P2.sub(fv);
-			PVector P3 = PVector.add(P0,fu); P3.add(fv);
-			PVector P4 = PVector.sub(P0,fu); P4.add(fv);
-			
-			// draw vertices
-			mainApplet.pushMatrix();
-			mainApplet.noStroke();
-			mainApplet.colorMode(PConstants.RGB,255,255,255,255);
-			mainApplet.fill(mirrorPlaneColor,40);
-			mainApplet.beginShape(PApplet.QUADS);
-				mainApplet.vertex(P1.x,P1.y,P1.z);
-				mainApplet.vertex(P2.x,P2.y,P2.z);
-				mainApplet.vertex(P3.x,P3.y,P3.z);
-				mainApplet.vertex(P4.x,P4.y,P4.z);
-			mainApplet.endShape();
-			mainApplet.popMatrix();
-		}
-				
+		PVector n0 = skeleton.getN0VectorSagittalPlane();
+		PVector r = skeleton.getRVectorSagittalPlane();
+		PVector u = n0.cross(new PVector(0,0,1)); // cross product of n0 with arbitrary vector -> u lies on the plane
+		PVector v = n0.cross(u); // v is orthogonal to both N and u (again is in the plane) 
+		u.normalize();
+		v.normalize();
+		// draw a quad centered in the torso point (which is always part of the planes -> r)
+		PVector P0 = r;
+		float sizePlane = 300.0f;
+		PVector fu = PVector.mult(u,sizePlane);
+		PVector fv = PVector.mult(v,sizePlane);
+		PVector P1 = PVector.sub(P0,fu); P1.sub(fv);
+		PVector P2 = PVector.add(P0,fu); P2.sub(fv);
+		PVector P3 = PVector.add(P0,fu); P3.add(fv);
+		PVector P4 = PVector.sub(P0,fu); P4.add(fv);
+		// draw vertices
+		mainApplet.pushMatrix();
+		mainApplet.noStroke();
+		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
+		mainApplet.fill(sagittalPlaneColor,200);
+		mainApplet.beginShape(PApplet.QUADS);
+			mainApplet.vertex(P1.x,P1.y,P1.z);
+			mainApplet.vertex(P2.x,P2.y,P2.z);
+			mainApplet.vertex(P3.x,P3.y,P3.z);
+			mainApplet.vertex(P4.x,P4.y,P4.z);
+		mainApplet.endShape();
+		mainApplet.popMatrix();
+		
+		// draw frontal plane by finding 4 points in that plane
+		n0 = skeleton.getN0VectorFrontalPlane();
+		r = skeleton.getRVectorFrontalPlane();
+		u = n0.cross(new PVector(0,0,1)); // cross product of n0 with arbitrary vector -> u lies on the plane
+		v = n0.cross(u); // v is orthogonal to both N and u (again is in the plane) 
+		u.normalize();
+		v.normalize();
+		// draw a quad centered in the torso point (which is always part of the planes -> r)
+		P0 = r;
+		sizePlane = 300.0f;
+		fu = PVector.mult(u,sizePlane);
+		fv = PVector.mult(v,sizePlane);
+		P1 = PVector.sub(P0,fu); P1.sub(fv);
+		P2 = PVector.add(P0,fu); P2.sub(fv);
+		P3 = PVector.add(P0,fu); P3.add(fv);
+		P4 = PVector.sub(P0,fu); P4.add(fv);
+		// draw vertices
+		mainApplet.pushMatrix();
+		mainApplet.noStroke();
+		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
+		mainApplet.fill(frontalPlaneColor,200);
+		mainApplet.beginShape(PApplet.QUADS);
+			mainApplet.vertex(P1.x,P1.y,P1.z);
+			mainApplet.vertex(P2.x,P2.y,P2.z);
+			mainApplet.vertex(P3.x,P3.y,P3.z);
+			mainApplet.vertex(P4.x,P4.y,P4.z);
+		mainApplet.endShape();
+		mainApplet.popMatrix();
+		
+		// draw transversal plane by finding 4 points in that plane
+		n0 = skeleton.getN0VectorTransversalPlane();
+		r = skeleton.getRVectorTransversalPlane();
+		u = n0.cross(new PVector(0,0,1)); // cross product of n0 with arbitrary vector -> u lies on the plane
+		v = n0.cross(u); // v is orthogonal to both N and u (again is in the plane) 
+		u.normalize();
+		v.normalize();
+		// draw a quad centered in the torso point (which is always part of the planes -> r)
+		P0 = r;
+		sizePlane = 300.0f;
+		fu = PVector.mult(u,sizePlane);
+		fv = PVector.mult(v,sizePlane);
+		P1 = PVector.sub(P0,fu); P1.sub(fv);
+		P2 = PVector.add(P0,fu); P2.sub(fv);
+		P3 = PVector.add(P0,fu); P3.add(fv);
+		P4 = PVector.sub(P0,fu); P4.add(fv);
+		// draw vertices
+		mainApplet.pushMatrix();
+		mainApplet.noStroke();
+		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
+		mainApplet.fill(transversalPlaneColor,200);
+		mainApplet.beginShape(PApplet.QUADS);
+			mainApplet.vertex(P1.x,P1.y,P1.z);
+			mainApplet.vertex(P2.x,P2.y,P2.z);
+			mainApplet.vertex(P3.x,P3.y,P3.z);
+			mainApplet.vertex(P4.x,P4.y,P4.z);
+		mainApplet.endShape();
+		mainApplet.popMatrix();
 	}
 	
 	private void drawLocalCoordinateSystem () {
