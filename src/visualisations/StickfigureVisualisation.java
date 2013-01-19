@@ -92,8 +92,9 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		drawUserPixels();
 		drawStickfigure(false);
 		drawJoints(false);
-		drawBodyPlanes();
-		//drawLocalCoordinateSystem();
+		//drawBodyPlanes();
+		drawLocalCoordinateSystem();
+		//drawArmProjections();
 	}
 	
 	private void drawUserPixels () {
@@ -188,6 +189,27 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 			mainApplet.popMatrix();
 		}
 	}
+	
+	private void drawArmProjections () {
+		// DRAWING IS DONE IN WRONG COORDINATE SYSTEM. RESULT IS ONLY FOR DEBUG PURPOSES
+		PVector lUpperArmProjected = skeleton.projectionOnTransversalPlane(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER);
+		PVector lShoulder = skeleton.getJoint(Skeleton.LEFT_SHOULDER);
+		mainApplet.pushMatrix();
+		mainApplet.translate(lShoulder.x,lShoulder.y,lShoulder.z);
+		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
+		mainApplet.stroke(255,255,255,255);
+		mainApplet.line(0f,0f,0f,lUpperArmProjected.x,lUpperArmProjected.y,lUpperArmProjected.z);
+		mainApplet.popMatrix();
+
+		PVector rUpperArmProjected = skeleton.projectionOnTransversalPlane(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
+		PVector rShoulder = skeleton.getJoint(Skeleton.RIGHT_SHOULDER);
+		mainApplet.pushMatrix();
+		mainApplet.translate(rShoulder.x,rShoulder.y,rShoulder.z);
+		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
+		mainApplet.stroke(255,255,255,255);
+		mainApplet.line(0f,0f,0f,rUpperArmProjected.x,rUpperArmProjected.y,rUpperArmProjected.z);
+		mainApplet.popMatrix();
+	}
 
 	private void drawBodyPlanes () {
 		// for debug: show body planes (sagittal plane is mirror plane)
@@ -281,22 +303,40 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 	
 	private void drawLocalCoordinateSystem () {
 		PVector origin = skeleton.getOrigin();
-		PVector xVector = skeleton.getOrientationX();
-		PVector yVector = skeleton.getOrientationY();
-		PVector zVector = skeleton.getOrientationZ();
+		PVector xVector = new PVector();
+		xVector.set(skeleton.getOrientationX());
+		PVector yVector = new PVector();
+		yVector.set(skeleton.getOrientationY());
+		PVector zVector = new PVector();
+		zVector.set(skeleton.getOrientationZ());
+		PVector sagittalN0Vector = new PVector();
+		sagittalN0Vector.set(skeleton.getN0VectorSagittalPlane());
+		PVector frontalN0Vector = new PVector();
+		frontalN0Vector.set(skeleton.getN0VectorFrontalPlane());
+		PVector transversalN0Vector = new PVector();
+		transversalN0Vector.set(skeleton.getN0VectorTransversalPlane());
 		xVector.mult(1000);
 		yVector.mult(1000);
 		zVector.mult(1000);
+		sagittalN0Vector.mult(500);
+		frontalN0Vector.mult(500);
+		transversalN0Vector.mult(500);
 		mainApplet.pushMatrix();
 		mainApplet.translate(origin.x,origin.y,origin.z);
 		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 		mainApplet.strokeWeight(4);
-		mainApplet.stroke(255,0,0,255);
+		mainApplet.stroke(255,0,0,180);
 		mainApplet.line(0,0,0,xVector.x,xVector.y,xVector.z);
-		mainApplet.stroke(0,255,0,255);
+		mainApplet.stroke(0,255,0,180);
 		mainApplet.line(0,0,0,yVector.x,yVector.y,yVector.z);
-		mainApplet.stroke(0,0,255,255);
+		mainApplet.stroke(0,0,255,180);
 		mainApplet.line(0,0,0,zVector.x,zVector.y,zVector.z);
+		mainApplet.stroke(255,0,0,255);
+		mainApplet.line(0,0,0,sagittalN0Vector.x,sagittalN0Vector.y,sagittalN0Vector.z);
+		mainApplet.stroke(0,255,0,255);
+		mainApplet.line(0,0,0,transversalN0Vector.x,transversalN0Vector.y,transversalN0Vector.z);
+		mainApplet.stroke(0,0,255,255);
+		mainApplet.line(0,0,0,frontalN0Vector.x,frontalN0Vector.y,frontalN0Vector.z);
 		mainApplet.popMatrix();
 	}
 

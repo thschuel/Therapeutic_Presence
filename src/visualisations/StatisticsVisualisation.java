@@ -17,10 +17,6 @@ public class StatisticsVisualisation extends AbstractVisualisation {
 	private PVector lastLeftShoulderLCS = new PVector();
 	private PVector lastRightShoulderLCS = new PVector();
 	private PVector lastTorsoLCS = new PVector();
-	private PVector leftHandAtMaxAngle = new PVector();
-	private PVector leftElbowAtMaxAngle = new PVector();
-	private PVector rightHandAtMaxAngle = new PVector();
-	private PVector rightElbowAtMaxAngle = new PVector();
 	
 	public StatisticsVisualisation (TherapeuticPresence _mainApplet, SkeletonStatistics _statistics, GuiHud _guiHud) {
 		super(_mainApplet);
@@ -38,10 +34,6 @@ public class StatisticsVisualisation extends AbstractVisualisation {
 		lastLeftShoulderLCS = statistics.getLastLeftShoulderLCS();
 		lastRightShoulderLCS = statistics.getLastRightShoulderLCS();
 		lastTorsoLCS = statistics.getLastTorsoLCS();
-		leftHandAtMaxAngle = statistics.getLeftHandAtMaxAngle();
-		leftElbowAtMaxAngle = statistics.getLeftElbowAtMaxAngle();
-		rightHandAtMaxAngle = statistics.getRightHandAtMaxAngle();
-		rightElbowAtMaxAngle = statistics.getRightElbowAtMaxAngle();
 
 		guiHud.setFinalStatistics(statistics.getDistanceLeftHand(), statistics.getDistanceLeftElbow(), statistics.getDistanceRightHand(), statistics.getDistanceRightElbow());
 	}
@@ -57,21 +49,12 @@ public class StatisticsVisualisation extends AbstractVisualisation {
 		drawLineBetweenJoints(new PVector(),lastRightShoulderLCS);
 		drawLineBetweenJoints(lastTorsoLCS,lastLeftShoulderLCS);
 		drawLineBetweenJoints(lastTorsoLCS,lastRightShoulderLCS);
-
-		drawLineBetweenJoints(lastLeftShoulderLCS,leftElbowAtMaxAngle);
-		drawLineBetweenJoints(lastRightShoulderLCS,rightElbowAtMaxAngle);
-		drawLineBetweenJoints(leftElbowAtMaxAngle,leftHandAtMaxAngle);
-		drawLineBetweenJoints(rightElbowAtMaxAngle,rightHandAtMaxAngle);
 		
 		drawJoint(new PVector());
 		drawJoint(lastLeftShoulderLCS);
 		drawJoint(lastRightShoulderLCS);
 		drawJoint(lastTorsoLCS);
 		
-		drawJoint(leftElbowAtMaxAngle);
-		drawJoint(rightElbowAtMaxAngle);
-		drawJoint(leftHandAtMaxAngle);
-		drawJoint(rightHandAtMaxAngle);
 		
 		mainApplet.popMatrix();
 	}

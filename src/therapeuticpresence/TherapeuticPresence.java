@@ -27,6 +27,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package therapeuticpresence;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+
 import javax.media.opengl.GL;
 import therapeuticskeleton.*;
 import processing.core.*;
@@ -76,14 +79,12 @@ public class TherapeuticPresence extends PApplet {
 	// --- static setup variables ---
 	public static boolean fullBodyTracking = false; // control for full body tracking
 	public static boolean evaluatePostureAndGesture = true; // control for full body tracking
-	public static boolean evaluateStatistics = true; // control for skeleton statistics
+	public static boolean evaluateStatistics = true; // control for skeleton statistics, switched on initially
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = false;
 	public static boolean showLiveStatistics = false;
-	public static boolean useIShapeToStartStatistics = false;
 	public static boolean demo=true;
-	public static boolean transferSkeleton=true;
-	public static boolean constantFrameRate = false;
+	public static boolean transferSkeleton=false;
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE;
 	public static short initialVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 	public static short defaultSceneType = TherapeuticPresence.BASIC_SCENE;
@@ -93,7 +94,7 @@ public class TherapeuticPresence extends PApplet {
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
-	public static float maxDistanceToKinect = 2800f; // in mm, is used for scaling the visuals
+	public static float maxDistanceToKinect = 4000f; // in mm, is used for scaling the visuals
 	public static final float cameraEyeZ = 5000f; // in mm, visuals are sensitive to this!
 	public static final float DEFAULT_POSTURE_TOLERANCE = 0.3f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
@@ -131,14 +132,15 @@ public class TherapeuticPresence extends PApplet {
 	protected PostureProcessing postureProcessing = null;
 	// task manager for structured therapy
 	protected TherapyTaskManager taskManager = null;
+	// For statistics logging
+	protected FileWriter fileWriter = null;
+	protected BufferedWriter buffer = null;
 	
 	
 	// -----------------------------------------------------------------
 	public void setup() {		
 		size(screenWidth-16,screenHeight-128,OPENGL);
-		if (constantFrameRate) {
-			frameRate(25f);
-		}
+		
 		// establish connection to kinect/openni
 		setupKinect();
 		// start the audio interface
@@ -238,15 +240,21 @@ public class TherapeuticPresence extends PApplet {
 			case TherapeuticPresence.STATISTICS_VISUALISATION:
 				if (skeleton != null) {
 					SkeletonStatistics statistics = skeleton.getFinalStatistics();
-					visualisation = new StatisticsVisualisation(this,statistics,guiHud);
-					visualisation.setup();
-					lastVisualisation = null; // skip fade in/fade out for statistics
-					currentVisualisationMethod = TherapeuticPresence.STATISTICS_VISUALISATION;
+					if (statistics != null) {
+						visualisation = new StatisticsVisualisation(this,statistics,guiHud);
+						visualisation.setup();
+						lastVisualisation = null; // skip fade in/fade out for statistics
+						currentVisualisationMethod = TherapeuticPresence.STATISTICS_VISUALISATION;
+					} else {
+						visualisation = lastVisualisation;
+						lastVisualisation = null;
+						debugMessage("Cannot setup statistics visualisation without statistics data");
+					}
 				} else {
 					nextVisualisation = new DepthMapVisualisation(this,kinect);
 					nextVisualisation.setup();
 					currentVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
-					PApplet.println("Cannot setup statistics visualisation without skeleton data");
+					debugMessage("Cannot setup statistics visualisation without skeleton data");
 				}
 				break;
 				
@@ -296,7 +304,7 @@ public class TherapeuticPresence extends PApplet {
 				currentVisualisationMethod = TherapeuticPresence.DEPTHMAP_VISUALISATION;
 				break;
 		}
-		if (postureProcessing != null) {
+		if (postureProcessing != null && nextVisualisation != null) {
 			postureProcessing.setVisualisation(nextVisualisation);
 		}
 	}
@@ -349,6 +357,10 @@ public class TherapeuticPresence extends PApplet {
 	
 	// -----------------------------------------------------------------
 	public void draw() {
+		draw_therapy();
+	}
+	
+	private void draw_therapy() {
 		if (!runDraw) return;
 		drawRunning = true;
 		
@@ -405,7 +417,11 @@ public class TherapeuticPresence extends PApplet {
 			pushStyle();
 			if (showLiveStatistics && skeleton != null && currentVisualisationMethod != TherapeuticPresence.STATISTICS_VISUALISATION) {
 				SkeletonStatistics temp = skeleton.getLiveStatistics();
-				guiHud.updateLiveStatistics(temp.getDistancePerSecondLeftHand(),temp.getDistancePerSecondLeftElbow(),temp.getDistancePerSecondRightHand(),temp.getDistancePerSecondRightElbow());
+				if (temp != null) {
+					guiHud.updateLiveStatistics(temp);
+				} else {
+					PApplet.println("no statistics data generated");
+				}
 			}
 			guiHud.draw();
 			popStyle();
@@ -418,10 +434,12 @@ public class TherapeuticPresence extends PApplet {
 		runDraw = false; // stop draw 
 		
 		// TODO: Do closing work
+		if (skeleton != null && fileWriter != null && buffer != null) {
+			endStatistics();
+		}
 		skeleton = null;
 		scene = null;
 		postureProcessing = null;
-		
 		audioManager.stop();
 		kinect.close();
 		exit();
@@ -487,9 +505,14 @@ public class TherapeuticPresence extends PApplet {
 			if (skeleton != null ) {
 				debugMessage("Trying to replace skeleton of user "+skeleton.getUserId()+" with skeleton of user "+_userId+"!");
 			}
-			skeleton = new Skeleton(kinect,_userId,fullBodyTracking,evaluatePostureAndGesture,mirrorTherapy,evaluateStatistics);
+			skeleton = new Skeleton(kinect,_userId,fullBodyTracking);
 			skeleton.setPostureTolerance(DEFAULT_POSTURE_TOLERANCE);
 			skeleton.setGestureTolerance(DEFAULT_GESTURE_TOLERANCE);
+			skeleton.setEvaluatePostureAndGesture(evaluatePostureAndGesture);
+			skeleton.setMirrorTherapy(mirrorTherapy);
+			if (evaluateStatistics) {
+				beginStatistics();
+			}
 			kinect.setSmoothingSkeleton(smoothingSkeleton);
 			// start default scene and visualisation
 			postureProcessing = new PostureProcessing(this,skeleton,scene,visualisation);
@@ -503,6 +526,9 @@ public class TherapeuticPresence extends PApplet {
 		if (_userId < 0 || _userId > TherapeuticPresence.MAX_USERS) {
 			debugMessage("skeletonLost: User id "+_userId+" outside range. Maximum users: "+TherapeuticPresence.MAX_USERS);
 		} else {
+			if (evaluateStatistics) {
+				endStatistics();
+			}
 			skeleton = null;
 			postureProcessing = null;
 			setupScene(initialSceneType);
@@ -512,6 +538,42 @@ public class TherapeuticPresence extends PApplet {
 				if(TherapeuticPresence.autoCalibration) kinect.requestCalibrationSkeleton(users[0],true);
 				else kinect.startPoseDetection("Psi",users[0]);
 			}
+		}
+	}
+	
+	private void beginStatistics () {
+		if (skeleton != null) {
+			String fileName = "../log/statistics-"+PApplet.year()+"_"+PApplet.month()+"_"+PApplet.day()+"-"+PApplet.hour()+"_"+PApplet.minute()+"_"+PApplet.second()+".log";
+			try {
+				fileWriter = new FileWriter(fileName);
+				buffer = new BufferedWriter(fileWriter);
+				skeleton.setEvaluateStatistics(true,buffer);
+			} catch (Exception e) {
+				debugMessage("beginStatistics: could not open file "+fileName+" or buffer");
+			}
+		} else {
+			debugMessage("beginStatistics: no skeleton found or statistics evaluation switched off");
+		}
+	}
+	
+	private void endStatistics() {
+		if (skeleton != null) {
+			skeleton.setEvaluateStatistics(false,null);
+			if (fileWriter != null && buffer != null) {
+				try {
+					// close java I/O
+					buffer.close();
+					fileWriter.close();
+					fileWriter = null;
+					buffer = null;
+				} catch (Exception e) {
+					debugMessage("endStatistics: could not close fileWriter or buffer. "+e.getMessage());
+				}
+			} else {
+				debugMessage("endStatistics: no file or buffer active");
+			}
+		} else {
+			debugMessage("endStatistics: no skeleton available");
 		}
 	}
 	
@@ -538,6 +600,30 @@ public class TherapeuticPresence extends PApplet {
 		
 		if (skeleton != null) {
 			skeleton.setMirrorTherapy(mirrorTherapy);
+		}
+	}
+
+	public void startStatistics() {
+		if (skeleton != null) {
+			if (evaluateStatistics) {
+				debugMessage("startStatistics: new statistics object will be started");
+				endStatistics();
+			}
+			evaluateStatistics = true;
+			beginStatistics();
+		} else{
+			debugMessage("startStatistics: can't generate statistics without skeleton");
+		}
+	}
+	public void stopStatistics() {
+		if (skeleton != null) {
+			if (!evaluateStatistics) {
+				debugMessage("stopStatistics: statistics generation was switched off");
+			} 
+			evaluateStatistics = false;
+			endStatistics();
+		} else{
+			debugMessage("stopStatistics: no skeleton in the scene");
 		}
 	}
 	
@@ -712,7 +798,55 @@ public class TherapeuticPresence extends PApplet {
 				setupScene(TherapeuticPresence.BASIC_SCENE);
 				setupVisualisation(TherapeuticPresence.STATISTICS_VISUALISATION);
 				break;
-			    
+			
+		  	case 'Ÿ':
+		  		TherapeuticPresence.showLiveStatistics = !TherapeuticPresence.showLiveStatistics;
+				break;
+				
+		  	case '1':
+				switchMirrorTherapy(Skeleton.MIRROR_THERAPY_OFF);
+		  		break;
+		  		
+		  	case '2':
+				switchMirrorTherapy(Skeleton.MIRROR_THERAPY_LEFT);
+		  		break;
+		  		
+		  	case '3':
+				switchMirrorTherapy(Skeleton.MIRROR_THERAPY_RIGHT);
+		  		break;
+		  		
+		  	case '4':
+				startStatistics();
+		  		break;
+		  		
+		  	case '5':
+				stopStatistics();
+		  		break;
+		  		
+		  	case '6':
+				setupScene(TherapeuticPresence.BASIC_SCENE);
+				setupVisualisation(TherapeuticPresence.STICKFIGURE_VISUALISATION);
+		  		break;
+		  		
+		  	case '7':
+				setupScene(TherapeuticPresence.TUNNEL_SCENE);
+				setupVisualisation(TherapeuticPresence.WAVEFORM_VISUALISATION);
+		  		break;
+		  		
+		  	case '8':
+				setupScene(TherapeuticPresence.LIQUID_SCENE);
+				setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_VISUALISATION);
+		  		break;
+
+		  	case '9':
+				setupScene(TherapeuticPresence.LIQUID_SCENE);
+				setupVisualisation(TherapeuticPresence.ELLIPSOIDAL_VISUALISATION);
+		  		break;
+
+		  	case '0':
+				toggleScenes();
+		  		break;
+
 			case 'w':
 				centerOfSkeletonDetectionSpace.z -= 50f;
 				break;

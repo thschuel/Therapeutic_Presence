@@ -205,22 +205,22 @@ public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
 			float userX = skeleton.getOrigin().x/2f;
 			centerX += (userX-centerX)/movementResponseDelay;
 			// center.y reacts to hand movement of user if statistics is used
-			if (skeleton.getEvaluateStatistics()) {
-				SkeletonStatistics statistics = skeleton.getLiveStatistics();
-				PVector leftHandMovementDirection = statistics.getDirectionOfMovementLeftHand();
-				if (PVector.angleBetween(leftHandMovementDirection,new PVector(0,1,0)) < PConstants.HALF_PI) {
-					centerY+=5f;
-				} else {
-					centerY-=5f;
-				}
-				PVector rightHandMovementDirection = statistics.getDirectionOfMovementRightHand();
-				if (PVector.angleBetween(rightHandMovementDirection,new PVector(0,1,0)) < PConstants.HALF_PI) {
-					centerY+=5f;
-				} else {
-					centerY-=5f;
-				}
-				centerY = PApplet.constrain(centerY,-height/4f,height/3f);
-			}
+//			if (skeleton.getEvaluateStatistics()) {
+//				SkeletonStatistics statistics = skeleton.getLiveStatistics();
+//				PVector leftHandMovementDirection = statistics.getDirectionOfMovementLeftHand();
+//				if (PVector.angleBetween(leftHandMovementDirection,new PVector(0,1,0)) < PConstants.HALF_PI) {
+//					centerY+=5f;
+//				} else {
+//					centerY-=5f;
+//				}
+//				PVector rightHandMovementDirection = statistics.getDirectionOfMovementRightHand();
+//				if (PVector.angleBetween(rightHandMovementDirection,new PVector(0,1,0)) < PConstants.HALF_PI) {
+//					centerY+=5f;
+//				} else {
+//					centerY-=5f;
+//				}
+//				centerY = PApplet.constrain(centerY,-height/4f,height/3f);
+//			}
 			
 			updateCanvasCoordinates();
 			updateBezierCurves();

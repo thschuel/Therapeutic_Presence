@@ -105,7 +105,7 @@ public class PostureProcessing {
 	
 	public void triggerAction () {
 		if (timeSinceLastAction > timeBlockTrigger) {
-			if (activePosture == SkeletonPosture.HANDS_FORWARD_DOWN_POSE || activePosture == SkeletonPosture.I_SHAPE) {
+			if (activePosture == SkeletonPosture.HANDS_FORWARD_DOWN_POSE) {
 				scene.shapeActiveAlert(shapeActiveCounters[activePosture]);
 			}
 			if (currentGesture == SkeletonGesture.PUSH_GESTURE) {
@@ -117,11 +117,6 @@ public class PostureProcessing {
 					((GenerativeTreeVisualisation)visualisation).shakeTree();
 					timeSinceLastAction = 0f;
 				}
-			}
-			if (TherapeuticPresence.useIShapeToStartStatistics && shapeActiveCounters[SkeletonPosture.I_SHAPE] > timeHoldShapeToTrigger) {
-				mainApplet.setupScene(TherapeuticPresence.BASIC_SCENE);
-				mainApplet.setupVisualisation(TherapeuticPresence.STATISTICS_VISUALISATION);
-				timeSinceLastAction = 0f;
 			}
 			
 		}

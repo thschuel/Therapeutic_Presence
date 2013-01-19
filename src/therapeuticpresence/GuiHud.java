@@ -103,8 +103,9 @@ public class GuiHud {
 			case SkeletonPosture.HANDS_FORWARD_DOWN_POSE: shapeString="HF"; break;
 			default: shapeString="NO"+PostureProcessing.activePosture; break;
 		}
-	    fps.setText("pG "+SkeletonGesture.pushGestureStartCycle+" g "+PostureProcessing.currentGesture+" shape: "+shapeString+" fps: "+PApplet.round(mainApplet.frameRate));
-	    // toggle debug output
+	    //fps.setText("pG "+SkeletonGesture.pushGestureStartFrame+" g "+PostureProcessing.currentGesture+" shape: "+shapeString+" fps: "+PApplet.round(mainApplet.frameRate));
+	    fps.setText("fps: "+PApplet.round(mainApplet.frameRate)+" shape: "+shapeString);
+		// toggle debug output
 	    if (TherapeuticPresence.debugOutput) {
 			guiMessages.show();
 			info.show();
@@ -147,9 +148,33 @@ public class GuiHud {
 		task.setText("Next pose: "+_task);
 	}
 	
-	public void updateLiveStatistics (float dPSLeftHand, float dPSLeftElbow, float dPSRightHand, float dPSRightElbow) {
+	public void updateLiveStatistics (SkeletonStatistics _statistics) {
+		float dPSLeftHand = _statistics.getDistancePerSecondLeftHand();
+		float dPSRightHand = _statistics.getDistancePerSecondRightHand();
+		float dPSLeftElbow = _statistics.getDistancePerSecondLeftElbow();
+		float dPSRightElbow = _statistics.getDistancePerSecondRightElbow();
+		float maxAbduktionLeftShoulder = _statistics.getMaxAbduktionLShoulder();
+		float maxAbduktionRightShoulder = _statistics.getMaxAbduktionRShoulder();
+		float maxAdduktionLeftShoulder = _statistics.getMaxAdduktionLShoulder();
+		float maxAdduktionRightShoulder = _statistics.getMaxAdduktionRShoulder();
+		float maxAnteversionLeftShoulder = _statistics.getMaxAnteversionLShoulder();
+		float maxAnteversionRightShoulder = _statistics.getMaxAnteversionRShoulder();
+		float maxRetroversionLeftShoulder = _statistics.getMaxRetroversionLShoulder();
+		float maxRetroversionRightShoulder = _statistics.getMaxRetroversionRShoulder();
+		
 		DecimalFormat df = new DecimalFormat ("0.00");
-		liveStatistics.setText("mm per second\nLH: "+df.format(dPSLeftHand)+"\nLE: "+df.format(dPSLeftElbow)+"\nRH: "+df.format(dPSRightHand)+"\nRE: "+df.format(dPSRightElbow));
+		liveStatistics.setText("mm per second\nLH: "+df.format(dPSLeftHand)+
+				"\nLE: "+df.format(dPSLeftElbow)+
+				"\nRH: "+df.format(dPSRightHand)+
+				"\nRE: "+df.format(dPSRightElbow)+
+				"\nABL: "+df.format(maxAbduktionLeftShoulder)+
+				"\nABR: "+df.format(maxAbduktionRightShoulder)+
+				"\nADL: "+df.format(maxAdduktionLeftShoulder)+
+				"\nADR: "+df.format(maxAdduktionRightShoulder)+
+				"\nANL: "+df.format(maxAnteversionLeftShoulder)+
+				"\nANR: "+df.format(maxAnteversionRightShoulder)+
+				"\nREL: "+df.format(maxRetroversionLeftShoulder)+
+				"\nRER: "+df.format(maxRetroversionRightShoulder));
 	}
 	
 	public void setFinalStatistics (float dLeftHand, float dLeftElbow, float dRightHand, float dRightElbow) {
@@ -194,7 +219,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,200);
-		menu.setBackgroundHeight(500);
+		menu.setBackgroundHeight(540);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -202,62 +227,74 @@ public class GuiHud {
 		
 		controlP5.Button mirrorTherapyOff = control.addButton("switchMirrorTherapyOff",Skeleton.MIRROR_THERAPY_OFF,0,positionY,200,20);
 		mirrorTherapyOff.moveTo(menu);
-		mirrorTherapyOff.setCaptionLabel("Mirror off");
+		mirrorTherapyOff.setCaptionLabel("1: Mirror off");
 		mirrorTherapyOff.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Button mirrorTherapyLeft = control.addButton("switchMirrorTherapyLeft",Skeleton.MIRROR_THERAPY_LEFT,0,positionY,200,20);
 		mirrorTherapyLeft.moveTo(menu);
-		mirrorTherapyLeft.setCaptionLabel("Mirror left");
+		mirrorTherapyLeft.setCaptionLabel("2: Mirror left");
 		mirrorTherapyLeft.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Button mirrorTherapyRight = control.addButton("switchMirrorTherapyRight",Skeleton.MIRROR_THERAPY_RIGHT,0,positionY,200,20);
 		mirrorTherapyRight.moveTo(menu);
-		mirrorTherapyRight.setCaptionLabel("Mirror right");
+		mirrorTherapyRight.setCaptionLabel("3: Mirror right");
 		mirrorTherapyRight.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button startGenerateStatistics = control.addButton("startGenerateStatistics",0,0,positionY,200,20);
+		startGenerateStatistics.moveTo(menu);
+		startGenerateStatistics.setCaptionLabel("4: Start statistics");
+		startGenerateStatistics.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button stopGenerateStatistics = control.addButton("stopGenerateStatistics",0,0,positionY,200,20);
+		stopGenerateStatistics.moveTo(menu);
+		stopGenerateStatistics.setCaptionLabel("5: Stop statistics");
+		stopGenerateStatistics.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button drawSkeletons = control.addButton("switchVisualisationSkeletons",TherapeuticPresence.STICKFIGURE_VISUALISATION,0,positionY,200,20);
+		drawSkeletons.moveTo(menu);
+		drawSkeletons.setCaptionLabel("6: Draw Skeletons");
+		drawSkeletons.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button drawWaveform = control.addButton("switchVisualisationWaveform",TherapeuticPresence.WAVEFORM_VISUALISATION,0,positionY,200,20);
+		drawWaveform.moveTo(menu);
+		drawWaveform.setCaptionLabel("7: Draw Waveform");
+		drawWaveform.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button drawTree = control.addButton("switchVisualisationTree",TherapeuticPresence.GENERATIVE_TREE_VISUALISATION,0,positionY,200,20);
+		drawTree.moveTo(menu);
+		drawTree.setCaptionLabel("8: Draw Tree");
+		drawTree.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button drawEllipsoid = control.addButton("switchVisualisationEllipsoid",TherapeuticPresence.ELLIPSOIDAL_VISUALISATION,0,positionY,200,20);
+		drawEllipsoid.moveTo(menu);
+		drawEllipsoid.setCaptionLabel("9: Draw Ellipsoid");
+		drawEllipsoid.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Button switchScene = control.addButton("switchScene",TherapeuticPresence.TUNNEL_SCENE,0,positionY,200,20);
 		switchScene.moveTo(menu);
-		switchScene.setCaptionLabel("Switch Scenes");
+		switchScene.setCaptionLabel("0: Switch Scenes");
 		switchScene.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button drawStatistics = control.addButton("switchVisualisationStatistics",TherapeuticPresence.STATISTICS_VISUALISATION,0,positionY,200,20);
+		drawStatistics.moveTo(menu);
+		drawStatistics.setCaptionLabel("RET: Draw Statistics");
+		drawStatistics.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Button drawDepthMap = control.addButton("switchVisualisationDepthMap",TherapeuticPresence.DEPTHMAP_VISUALISATION,0,positionY,200,20);
 		drawDepthMap.moveTo(menu);
 		drawDepthMap.setCaptionLabel("Draw DepthMap");
 		drawDepthMap.plugTo(this);
-		positionY += 20;
-		
-		controlP5.Button drawSkeletons = control.addButton("switchVisualisationSkeletons",TherapeuticPresence.STICKFIGURE_VISUALISATION,0,positionY,200,20);
-		drawSkeletons.moveTo(menu);
-		drawSkeletons.setCaptionLabel("Draw Skeletons");
-		drawSkeletons.plugTo(this);
-		positionY += 20;
-		
-		controlP5.Button drawWaveform = control.addButton("switchVisualisationWaveform",TherapeuticPresence.WAVEFORM_VISUALISATION,0,positionY,200,20);
-		drawWaveform.moveTo(menu);
-		drawWaveform.setCaptionLabel("Draw Waveform");
-		drawWaveform.plugTo(this);
-		positionY += 20;
-		
-		controlP5.Button drawTree = control.addButton("switchVisualisationTree",TherapeuticPresence.GENERATIVE_TREE_VISUALISATION,0,positionY,200,20);
-		drawTree.moveTo(menu);
-		drawTree.setCaptionLabel("Draw Tree");
-		drawTree.plugTo(this);
-		positionY += 20;
-		
-		controlP5.Button drawEllipsoid = control.addButton("switchVisualisationEllipsoid",TherapeuticPresence.ELLIPSOIDAL_VISUALISATION,0,positionY,200,20);
-		drawEllipsoid.moveTo(menu);
-		drawEllipsoid.setCaptionLabel("Draw Ellipsoid");
-		drawEllipsoid.plugTo(this);
-		positionY += 20;
-		
-		controlP5.Button drawStatistics = control.addButton("switchVisualisationStatistics",TherapeuticPresence.STATISTICS_VISUALISATION,0,positionY,200,20);
-		drawStatistics.moveTo(menu);
-		drawStatistics.setCaptionLabel("Draw Statistics");
-		drawStatistics.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Textarea showLiveStatisticsLabel = control.addTextarea("showLiveStatisticsLabel","Live Statistics",2,positionY+4,178,16);
@@ -384,6 +421,16 @@ public class GuiHud {
 	
 	private void switchMirrorTherapyRight (int theValue) {
 		mainApplet.switchMirrorTherapy(Skeleton.MIRROR_THERAPY_RIGHT);
+		menu.hide();
+	}
+	
+	private void startGenerateStatistics (int theValue) {
+		mainApplet.startStatistics();
+		menu.hide();
+	}
+	
+	private void stopGenerateStatistics (int theValue) {
+		mainApplet.stopStatistics();
 		menu.hide();
 	}
 
