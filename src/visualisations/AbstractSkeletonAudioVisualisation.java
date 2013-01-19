@@ -34,7 +34,7 @@ import therapeuticpresence.TherapeuticPresence;
 public abstract class AbstractSkeletonAudioVisualisation extends AbstractSkeletonVisualisation {
 	protected AudioManager audioManager = null;
 
-	public static float movementResponseDelay = 8f;
+	public static float movementResponseDelay = 7f;
 	
 	public AbstractSkeletonAudioVisualisation (TherapeuticPresence _mainApplet, Skeleton _skeleton, AudioManager _audioManager) {
 		super(_mainApplet,_skeleton);

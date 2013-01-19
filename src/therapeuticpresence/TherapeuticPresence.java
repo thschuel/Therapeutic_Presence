@@ -102,7 +102,7 @@ public class TherapeuticPresence extends PApplet {
 	public static float gestureTolerance = TherapeuticPresence.DEFAULT_GESTURE_TOLERANCE;
 	public static final float DEFAULT_SMOOTHING_SKELETON = 0.8f;
 	public static float smoothingSkeleton = TherapeuticPresence.DEFAULT_SMOOTHING_SKELETON;
-	public static final String[] audioFiles = {"../data/moan.mp3", "../data/rjd2.mp3"/*, "../data/latin.mp3", "../data/vivaldi.mp3"*/};
+	public static String audioFile = "../data/moan.mp3";
 	public static short initialAudioFile = 0;
 	public static PVector centerOfSkeletonDetectionSpace = new PVector(0,0,maxDistanceToKinect/2f); // calibrate skeleton only for users in a defined centered space. used for stability when more users are in the scene
 	public static float radiusOfSkeletonDetectionSpace = 500f;
@@ -111,7 +111,8 @@ public class TherapeuticPresence extends PApplet {
 	private int activeUserId = -1;
 	private boolean skeletonDetectionStarted = false;
 	private boolean drawRunning = false;
-	private boolean runDraw = false; // activated after setup
+	private boolean runTherapyDraw = false; // activated after initial setup screen is done
+	private boolean runInitDraw = true;
 	
 	// --- interfaces to other modules ---
 	// interface to talk to kinect
@@ -124,8 +125,10 @@ public class TherapeuticPresence extends PApplet {
 	protected AbstractVisualisation lastVisualisation = null;
 	// the skeleton that control the scene, only one user for now
 	protected Skeleton skeleton = null;
-	// user interface
+	// user interface while in therapy
 	protected GuiHud guiHud = null;
+	// user interface for init
+	protected GuiInit guiInit = null;
 	// audio interface
 	protected AudioManager audioManager = null;
 	// posture processing for skeleton interface
@@ -138,14 +141,21 @@ public class TherapeuticPresence extends PApplet {
 	
 	
 	// -----------------------------------------------------------------
-	public void setup() {		
+	public void setup() {
 		size(screenWidth-16,screenHeight-128,OPENGL);
-		
+		setup_init();
+	}
+	private void setup_init() {
+		guiInit = new GuiInit(this);
+	}
+	private void setup_therapy() {		
+
 		// establish connection to kinect/openni
 		setupKinect();
+		
 		// start the audio interface
 		audioManager = new AudioManager(this);
-		audioManager.setup(audioFiles[(int)random(audioFiles.length-0.01f)]);
+		audioManager.setup(audioFile);
 		audioManager.start();
 		
 		// setup Scene
@@ -157,7 +167,7 @@ public class TherapeuticPresence extends PApplet {
 		// generate HUD
 		guiHud = new GuiHud(this);
 		
-		runDraw = true;
+		runTherapyDraw = true;
 	}
 	
 	private void setupKinect () {
@@ -357,11 +367,27 @@ public class TherapeuticPresence extends PApplet {
 	
 	// -----------------------------------------------------------------
 	public void draw() {
-		draw_therapy();
+		if (runInitDraw) {
+			draw_init();
+		}
+		
+		if (runTherapyDraw) {
+			draw_therapy();
+		}
+	}
+	
+	private void draw_init () {
+		if (guiInit != null) {
+			guiInit.draw();
+		}
+		if (guiInit.startTherapy()) {
+			runInitDraw = false;
+			setup_therapy();
+		}
 	}
 	
 	private void draw_therapy() {
-		if (!runDraw) return;
+		if (!runTherapyDraw) return;
 		drawRunning = true;
 		
 		// -------- update status --------------------------
@@ -431,7 +457,7 @@ public class TherapeuticPresence extends PApplet {
 	
 	public void close() {
 		while (drawRunning); // wait for last draw to finish
-		runDraw = false; // stop draw 
+		runTherapyDraw = false; // stop draw 
 		
 		// TODO: Do closing work
 		if (skeleton != null && fileWriter != null && buffer != null) {
@@ -440,8 +466,10 @@ public class TherapeuticPresence extends PApplet {
 		skeleton = null;
 		scene = null;
 		postureProcessing = null;
-		audioManager.stop();
-		kinect.close();
+		if (audioManager != null)
+			audioManager.stop();
+		if (kinect != null)
+			kinect.close();
 		exit();
 	}
 	

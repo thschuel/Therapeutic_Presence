@@ -365,7 +365,7 @@ public class GuiHud {
 		sceneAnimationSpeed.plugTo(this);
 		positionY += 20;
 		
-		controlP5.Slider movementResponseDelay = control.addSlider("changeMovementResponseDelay",0.0f,20.0f,AbstractSkeletonAudioVisualisation.movementResponseDelay,0,positionY,108,20);
+		controlP5.Slider movementResponseDelay = control.addSlider("changeMovementResponseDelay",4.0f,10.0f,AbstractSkeletonAudioVisualisation.movementResponseDelay,0,positionY,108,20);
 		movementResponseDelay.moveTo(menu);
 		movementResponseDelay.setCaptionLabel("Movement Response");
 		movementResponseDelay.plugTo(this);
