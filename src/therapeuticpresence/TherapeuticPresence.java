@@ -109,7 +109,6 @@ public class TherapeuticPresence extends PApplet {
 	public static short initialAudioFile = 0;
 	public static PVector centerOfSkeletonDetectionSpace = new PVector(0,0,maxDistanceToKinect/2f); // calibrate skeleton only for users in a defined centered space. used for stability when more users are in the scene
 	public static float radiusOfSkeletonDetectionSpace = 500f;
-	public static boolean structuredTaskMode = false;
 	
 	private int activeUserId = -1;
 	private boolean skeletonDetectionStarted = false;
@@ -136,8 +135,8 @@ public class TherapeuticPresence extends PApplet {
 	protected AudioManager audioManager = null;
 	// posture processing for skeleton interface
 	protected PostureProcessing postureProcessing = null;
-	// task manager for structured therapy
-	protected TherapyTaskManager taskManager = null;
+	// progression manager for structured therapy
+	protected ProgressionManager progressionManager = null;
 	// For statistics logging
 	protected FileWriter fileWriter = null;
 	protected BufferedWriter buffer = null;
@@ -153,7 +152,9 @@ public class TherapeuticPresence extends PApplet {
 		guiInit = new GuiInit(this);
 	}
 	private void setup_therapy() {		
-
+		// setup_therapy is invoked from guiInit
+		// some setup work is done when skeleton is found in newSkeletonFound()!
+		
 		// establish connection to kinect/openni
 		setupKinect();
 		
@@ -171,6 +172,10 @@ public class TherapeuticPresence extends PApplet {
 			
 			// generate HUD
 			guiHud = new GuiHud(this);
+			
+			// generate the progressionManager at the end since it may use guiHud for display
+			progressionManager = new ProgressionManager(this);
+			progressionManager.reset();
 			
 			runTherapyDraw = true;
 		}
@@ -351,36 +356,38 @@ public class TherapeuticPresence extends PApplet {
 	}
 	
 	public void toggleVisualisations () {
-		if (demo) {
-			if (currentVisualisationMethod == WAVEFORM_VISUALISATION) {
-				setupScene(LIQUID_SCENE);
-				setupVisualisation(GENERATIVE_TREE_VISUALISATION);
-			} else if (currentVisualisationMethod == GENERATIVE_TREE_VISUALISATION) {
-				setupScene(LIQUID_SCENE);
-				setupVisualisation(ELLIPSOIDAL_VISUALISATION);
-			}  else {
-				setupScene(TUNNEL_SCENE);
-				setupVisualisation(WAVEFORM_VISUALISATION);
-			}
-		} else {
-			if (currentVisualisationMethod == WAVEFORM_VISUALISATION) {
-				setupScene(LIQUID_SCENE);
-				setupVisualisation(GENERATIVE_TREE_VISUALISATION);
-			} else if (currentVisualisationMethod == GENERATIVE_TREE_VISUALISATION) {
-				setupScene(LIQUID_SCENE);
-				setupVisualisation(ELLIPSOIDAL_VISUALISATION);
-			}  else if (currentVisualisationMethod == ELLIPSOIDAL_VISUALISATION) {
-				setupScene(TUNNEL_SCENE);
-				setupVisualisation(MESH_VISUALISATION);
-			}  else if (currentVisualisationMethod == MESH_VISUALISATION) {
-				setupScene(TUNNEL_SCENE);
-				setupVisualisation(AGENT_VISUALISATION);
-			}  else if (currentVisualisationMethod == AGENT_VISUALISATION) {
-				setupScene(BASIC_SCENE);
-				setupVisualisation(STICKFIGURE_VISUALISATION);
-			}  else {
-				setupScene(TUNNEL_SCENE);
-				setupVisualisation(WAVEFORM_VISUALISATION);
+		if (skeleton != null) {
+			if (demo) {
+				if (currentVisualisationMethod == WAVEFORM_VISUALISATION) {
+					setupScene(LIQUID_SCENE);
+					setupVisualisation(GENERATIVE_TREE_VISUALISATION);
+				} else if (currentVisualisationMethod == GENERATIVE_TREE_VISUALISATION) {
+					setupScene(LIQUID_SCENE);
+					setupVisualisation(ELLIPSOIDAL_VISUALISATION);
+				}  else {
+					setupScene(TUNNEL_SCENE);
+					setupVisualisation(WAVEFORM_VISUALISATION);
+				}
+			} else {
+				if (currentVisualisationMethod == WAVEFORM_VISUALISATION) {
+					setupScene(LIQUID_SCENE);
+					setupVisualisation(GENERATIVE_TREE_VISUALISATION);
+				} else if (currentVisualisationMethod == GENERATIVE_TREE_VISUALISATION) {
+					setupScene(LIQUID_SCENE);
+					setupVisualisation(ELLIPSOIDAL_VISUALISATION);
+				}  else if (currentVisualisationMethod == ELLIPSOIDAL_VISUALISATION) {
+					setupScene(TUNNEL_SCENE);
+					setupVisualisation(MESH_VISUALISATION);
+				}  else if (currentVisualisationMethod == MESH_VISUALISATION) {
+					setupScene(TUNNEL_SCENE);
+					setupVisualisation(AGENT_VISUALISATION);
+				}  else if (currentVisualisationMethod == AGENT_VISUALISATION) {
+					setupScene(BASIC_SCENE);
+					setupVisualisation(STICKFIGURE_VISUALISATION);
+				}  else {
+					setupScene(TUNNEL_SCENE);
+					setupVisualisation(WAVEFORM_VISUALISATION);
+				}
 			}
 		}
 	}
@@ -426,6 +433,9 @@ public class TherapeuticPresence extends PApplet {
 		if (postureProcessing != null) {
 			postureProcessing.updatePosture();
 			postureProcessing.triggerAction();
+		}
+		if (progressionManager != null && progressionManager.isActive() && ProgressionManager.progressionMode == ProgressionManager.TIME_PROGRESSION_MODE) {
+			progressionManager.updateTime(frameCount,frameRate);
 		}
 		
 		// -------- drawing --------------------------------
@@ -486,6 +496,7 @@ public class TherapeuticPresence extends PApplet {
 		skeleton = null;
 		scene = null;
 		postureProcessing = null;
+		progressionManager = null;
 		if (audioManager != null)
 			audioManager.stop();
 		if (kinect != null)
@@ -500,7 +511,6 @@ public class TherapeuticPresence extends PApplet {
 	
 	public void updateScore (int _score) {
 		guiHud.updateScore(_score);
-		println("Score: "+_score);
 	}
 	
 	public void updateTask (short _task) {
@@ -517,7 +527,6 @@ public class TherapeuticPresence extends PApplet {
 			default: taskString="NO"; break;
 		}
 		guiHud.updateTask(taskString);
-		println("Task: "+taskString);
 	}
 
 	
@@ -562,8 +571,15 @@ public class TherapeuticPresence extends PApplet {
 				beginStatistics();
 			}
 			kinect.setSmoothingSkeleton(smoothingSkeleton);
-			// start default scene and visualisation
+			
+			// initialize managers
 			postureProcessing = new PostureProcessing(this,skeleton,scene,visualisation);
+			if (ProgressionManager.progressionMode == ProgressionManager.POSTURE_PROGRESSION_MODE) {
+				postureProcessing.setProgressionManager(progressionManager);
+			}
+			progressionManager.reset();
+			
+			// start default scene and visualisation
 			setupScene(defaultSceneType);
 			setupVisualisation(defaultVisualisationMethod);
 		}
@@ -579,6 +595,7 @@ public class TherapeuticPresence extends PApplet {
 			}
 			skeleton = null;
 			postureProcessing = null;
+			progressionManager.setActive(false);
 			setupScene(initialSceneType);
 			setupVisualisation(initialVisualisationMethod);
 			int[] users = kinect.getUsers();
@@ -709,17 +726,17 @@ public class TherapeuticPresence extends PApplet {
 		}
 	}
 	
-	public void switchStructuredTaskMode () {
-		if (taskManager == null && postureProcessing != null) {
-			// switch on
-			structuredTaskMode = true;
-			taskManager = new TherapyTaskManager(this);
-			postureProcessing.setTaskManager(taskManager);
-		} else if (taskManager != null && postureProcessing != null) {
-			// switch off
-			structuredTaskMode = false;
-			taskManager = null;
-			postureProcessing.removeTaskManager();
+	public void setProgressionMode (short _mode) {
+		if (_mode >= ProgressionManager.MANUAL_PROGRESSION_MODE && _mode <= ProgressionManager.POSTURE_PROGRESSION_MODE) {
+			ProgressionManager.progressionMode = _mode;
+		} else {
+			ProgressionManager.progressionMode = ProgressionManager.MANUAL_PROGRESSION_MODE;
+		}
+		if (progressionManager != null) {
+			progressionManager.reset();
+			if (ProgressionManager.progressionMode == ProgressionManager.POSTURE_PROGRESSION_MODE) {
+				postureProcessing.setProgressionManager(progressionManager);
+			}
 		}
 	}
 	
@@ -810,6 +827,7 @@ public class TherapeuticPresence extends PApplet {
 		switch(key) {
 			case ' ':
 				toggleVisualisations();
+				progressionManager.reset();
 				break;
 		
 		  	// save user calibration data

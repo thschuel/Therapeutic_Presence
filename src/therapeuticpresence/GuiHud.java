@@ -113,9 +113,12 @@ public class GuiHud {
 			guiMessages.hide();
 			info.hide();
 		}
-	    if (TherapeuticPresence.structuredTaskMode) {
+	    if (ProgressionManager.progressionMode == ProgressionManager.POSTURE_PROGRESSION_MODE) {
 	    	score.show();
 	    	task.show();
+	    } else if (ProgressionManager.progressionMode == ProgressionManager.TIME_PROGRESSION_MODE){
+	    	score.show();
+	    	task.hide();
 	    } else {
 	    	score.hide();
 	    	task.hide();
@@ -245,7 +248,7 @@ public class GuiHud {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",0,20,200);
-		menu.setBackgroundHeight(540);
+		menu.setBackgroundHeight(600);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -331,14 +334,6 @@ public class GuiHud {
 		showLiveStatistics.plugTo(this);
 		positionY += 20;
 		
-		controlP5.Textarea switchTaskModeLabel = control.addTextarea("switchTaskModeLabel","Task Mode",2,positionY+4,178,16);
-		switchTaskModeLabel.moveTo(menu);
-		controlP5.Toggle switchTaskMode = control.addToggle("switchTaskMode",TherapeuticPresence.structuredTaskMode,180,positionY,20,20);
-		switchTaskMode.moveTo(menu);
-		switchTaskMode.setLabelVisible(false);
-		switchTaskMode.plugTo(this);
-		positionY += 20;
-		
 		controlP5.Textarea demoLabel = control.addTextarea("demoLabel","Toggle Demo",2,positionY+4,178,16);
 		demoLabel.moveTo(menu);
 		controlP5.Toggle demo = control.addToggle("switchDemo",TherapeuticPresence.demo,180,positionY,20,20);
@@ -353,6 +348,12 @@ public class GuiHud {
 		debugOuput.moveTo(menu);
 		debugOuput.setLabelVisible(false);
 		debugOuput.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Slider progressionSeconds = control.addSlider("progressionSeconds",5.0f,500.0f,ProgressionManager.secondsToProgress,0,positionY,108,20);
+		progressionSeconds.moveTo(menu);
+		progressionSeconds.setCaptionLabel("Progression Time");
+		progressionSeconds.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Slider fftGain = control.addSlider("changeFFTGain",0.0f,1.0f,AudioManager.gain,0,positionY,108,20);
@@ -413,6 +414,24 @@ public class GuiHud {
 		angleScale3.moveTo(menu);
 		angleScale3.setCaptionLabel("Angle Scale 3");
 		angleScale3.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button progressionManual = control.addButton("progressionManual",ProgressionManager.MANUAL_PROGRESSION_MODE,0,positionY,200,20);
+		progressionManual.moveTo(menu);
+		progressionManual.setCaptionLabel("Manual progression");
+		progressionManual.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button progressionTime = control.addButton("progressionTime",ProgressionManager.TIME_PROGRESSION_MODE,0,positionY,200,20);
+		progressionTime.moveTo(menu);
+		progressionTime.setCaptionLabel("Time progression");
+		progressionTime.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button progressionPosture = control.addButton("progressionPosture",ProgressionManager.POSTURE_PROGRESSION_MODE,0,positionY,200,20);
+		progressionPosture.moveTo(menu);
+		progressionPosture.setCaptionLabel("Posture progression");
+		progressionPosture.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Button closeApplication = control.addButton("closeApplication",0,0,positionY,200,20);
@@ -505,8 +524,19 @@ public class GuiHud {
 		TherapeuticPresence.showLiveStatistics = !TherapeuticPresence.showLiveStatistics;
 	}
 	
-	private void switchTaskMode (int theValue) {
-		mainApplet.switchStructuredTaskMode();
+	private void progressionManual (int theValue) {
+		mainApplet.setProgressionMode(ProgressionManager.MANUAL_PROGRESSION_MODE);
+		menu.hide();
+	}
+	
+	private void progressionTime (int theValue) {
+		mainApplet.setProgressionMode(ProgressionManager.TIME_PROGRESSION_MODE);
+		menu.hide();
+	}
+	
+	private void progressionPosture (int theValue) {
+		mainApplet.setProgressionMode(ProgressionManager.POSTURE_PROGRESSION_MODE);
+		menu.hide();
 	}
 	
 	private void switchDemo (int theValue) {
@@ -515,6 +545,10 @@ public class GuiHud {
 	
 	private void switchDebugOuput (int theValue) {
 		TherapeuticPresence.debugOutput = !TherapeuticPresence.debugOutput;
+	}
+	
+	private void progressionSeconds (float theValue) {
+		ProgressionManager.secondsToProgress = theValue;
 	}
 	
 	private void changeFFTGain (float theValue) {

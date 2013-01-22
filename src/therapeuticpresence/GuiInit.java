@@ -90,7 +90,7 @@ public class GuiInit {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",mainApplet.width/2-200,50,400);
-		menu.setBackgroundHeight(440);
+		menu.setBackgroundHeight(500);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -128,7 +128,7 @@ public class GuiInit {
 		
 		controlP5.Textarea recordSessionLabel = control.addTextarea("recordSessionLabel","Record Session",2,positionY+4,378,16);
 		recordSessionLabel.moveTo(menu);
-		recordSession = control.addToggle("recordSession",TherapeuticPresence.recordFlag,180,positionY,20,20);
+		recordSession = control.addToggle("recordSession",TherapeuticPresence.recordFlag,380,positionY,20,20);
 		recordSession.moveTo(menu);
 		recordSession.setLabelVisible(false);
 		recordSession.plugTo(this);
@@ -136,7 +136,7 @@ public class GuiInit {
 		
 		controlP5.Textarea playbackSessionLabel = control.addTextarea("playbackSessionLabel","Playback Session",2,positionY+4,378,16);
 		playbackSessionLabel.moveTo(menu);
-		playbackSession = control.addToggle("playbackSession",TherapeuticPresence.playbackFlag,180,positionY,20,20);
+		playbackSession = control.addToggle("playbackSession",TherapeuticPresence.playbackFlag,380,positionY,20,20);
 		playbackSession.moveTo(menu);
 		playbackSession.setLabelVisible(false);
 		playbackSession.plugTo(this);
@@ -144,23 +144,15 @@ public class GuiInit {
 		
 		controlP5.Textarea showLiveStatisticsLabel = control.addTextarea("showLiveStatisticsLabel","Live Statistics",2,positionY+4,378,16);
 		showLiveStatisticsLabel.moveTo(menu);
-		controlP5.Toggle showLiveStatistics = control.addToggle("showLiveStatistics",TherapeuticPresence.showLiveStatistics,180,positionY,20,20);
+		controlP5.Toggle showLiveStatistics = control.addToggle("showLiveStatistics",TherapeuticPresence.showLiveStatistics,380,positionY,20,20);
 		showLiveStatistics.moveTo(menu);
 		showLiveStatistics.setLabelVisible(false);
 		showLiveStatistics.plugTo(this);
 		positionY += 20;
 		
-		controlP5.Textarea switchTaskModeLabel = control.addTextarea("switchTaskModeLabel","Task Mode",2,positionY+4,378,16);
-		switchTaskModeLabel.moveTo(menu);
-		controlP5.Toggle switchTaskMode = control.addToggle("switchTaskMode",TherapeuticPresence.structuredTaskMode,180,positionY,20,20);
-		switchTaskMode.moveTo(menu);
-		switchTaskMode.setLabelVisible(false);
-		switchTaskMode.plugTo(this);
-		positionY += 20;
-		
 		controlP5.Textarea demoLabel = control.addTextarea("demoLabel","Toggle Demo",2,positionY+4,378,16);
 		demoLabel.moveTo(menu);
-		controlP5.Toggle demo = control.addToggle("switchDemo",TherapeuticPresence.demo,180,positionY,20,20);
+		controlP5.Toggle demo = control.addToggle("switchDemo",TherapeuticPresence.demo,380,positionY,20,20);
 		demo.moveTo(menu);
 		demo.setLabelVisible(false);
 		demo.plugTo(this);
@@ -168,10 +160,16 @@ public class GuiInit {
 		
 		controlP5.Textarea debugOutputLabel = control.addTextarea("debugOutputLabel","Toggle debugOutput",2,positionY+4,378,16);
 		debugOutputLabel.moveTo(menu);
-		controlP5.Toggle debugOuput = control.addToggle("switchDebugOuput",TherapeuticPresence.debugOutput,180,positionY,20,20);
+		controlP5.Toggle debugOuput = control.addToggle("switchDebugOuput",TherapeuticPresence.debugOutput,380,positionY,20,20);
 		debugOuput.moveTo(menu);
 		debugOuput.setLabelVisible(false);
 		debugOuput.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Slider progressionSeconds = control.addSlider("progressionSeconds",5.0f,500.0f,ProgressionManager.secondsToProgress,0,positionY,308,20);
+		progressionSeconds.moveTo(menu);
+		progressionSeconds.setCaptionLabel("Progression Time");
+		progressionSeconds.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Slider fftGain = control.addSlider("changeFFTGain",0.0f,1.0f,AudioManager.gain,0,positionY,308,20);
@@ -232,6 +230,24 @@ public class GuiInit {
 		angleScale3.moveTo(menu);
 		angleScale3.setCaptionLabel("Angle Scale 3");
 		angleScale3.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button progressionManual = control.addButton("progressionManual",ProgressionManager.MANUAL_PROGRESSION_MODE,0,positionY,400,20);
+		progressionManual.moveTo(menu);
+		progressionManual.setCaptionLabel("Manual progression");
+		progressionManual.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button progressionTime = control.addButton("progressionTime",ProgressionManager.TIME_PROGRESSION_MODE,0,positionY,400,20);
+		progressionTime.moveTo(menu);
+		progressionTime.setCaptionLabel("Time progression");
+		progressionTime.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Button progressionPosture = control.addButton("progressionPosture",ProgressionManager.POSTURE_PROGRESSION_MODE,0,positionY,400,20);
+		progressionPosture.moveTo(menu);
+		progressionPosture.setCaptionLabel("Posture progression");
+		progressionPosture.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Button startTherapy = control.addButton("startTherapy",0,0,positionY,400,20);
@@ -333,8 +349,16 @@ public class GuiInit {
 		TherapeuticPresence.showLiveStatistics = !TherapeuticPresence.showLiveStatistics;
 	}
 	
-	private void switchTaskMode (int theValue) {
-		mainApplet.switchStructuredTaskMode();
+	private void progressionManual (int theValue) {
+		mainApplet.setProgressionMode(ProgressionManager.MANUAL_PROGRESSION_MODE);
+	}
+	
+	private void progressionTime (int theValue) {
+		mainApplet.setProgressionMode(ProgressionManager.TIME_PROGRESSION_MODE);
+	}
+	
+	private void progressionPosture (int theValue) {
+		mainApplet.setProgressionMode(ProgressionManager.POSTURE_PROGRESSION_MODE);
 	}
 	
 	private void switchDemo (int theValue) {
@@ -343,6 +367,10 @@ public class GuiInit {
 	
 	private void switchDebugOuput (int theValue) {
 		TherapeuticPresence.debugOutput = !TherapeuticPresence.debugOutput;
+	}
+
+	private void progressionSeconds (float theValue) {
+		ProgressionManager.secondsToProgress = theValue;
 	}
 	
 	private void changeFFTGain (float theValue) {

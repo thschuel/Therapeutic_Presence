@@ -36,7 +36,7 @@ public class PostureProcessing {
 	private TherapeuticPresence mainApplet;
 	private AbstractScene scene;
 	private AbstractVisualisation visualisation;
-	private TherapyTaskManager taskManager = null;
+	private ProgressionManager taskManager = null;
 
 	public static final float timeHoldShapeToTrigger = 1.7f;
 	public static final float timeBlockTrigger = 2.5f;
@@ -66,7 +66,7 @@ public class PostureProcessing {
 		visualisation = _visualisation;
 	}
 	
-	public void setTaskManager (TherapyTaskManager _taskManager) {
+	public void setProgressionManager (ProgressionManager _taskManager) {
 		taskManager = _taskManager;
 	}
 	
