@@ -293,6 +293,7 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		frontalN0Vector.set(skeleton.getN0VectorFrontalPlane());
 		PVector transversalN0Vector = new PVector();
 		transversalN0Vector.set(skeleton.getN0VectorTransversalPlane());
+		
 		xVector.mult(1000);
 		yVector.mult(1000);
 		zVector.mult(1000);

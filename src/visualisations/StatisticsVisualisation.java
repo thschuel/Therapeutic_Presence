@@ -32,24 +32,25 @@ public class StatisticsVisualisation extends AbstractVisualisation {
 		ArrayList<PVector> rightHand = statistics.getHistoryRightHand();
 		ArrayList<PVector> leftElbow = statistics.getHistoryLeftElbow();
 		ArrayList<PVector> rightElbow = statistics.getHistoryRightElbow();
+
+		mainApplet.colorMode(PConstants.RGB,255,255,255,100);
+		strokeColor = mainApplet.color(255,0,255,100);
+		mainApplet.strokeWeight(1f);
 		
+		mainApplet.stroke(strokeColor);
 		for (int i=0; i<leftHand.size()-1; i++) {
-			mainApplet.colorMode(PConstants.HSB,4,100,100,100);
-			strokeColor = mainApplet.color(1,100,100,100);
 			drawLineBetweenJoints(leftHand.get(i),leftHand.get(i+1));
-			strokeColor = mainApplet.color(2,100,100,100);
 			drawLineBetweenJoints(rightHand.get(i),rightHand.get(i+1));
-			strokeColor = mainApplet.color(3,100,100,100);
+		}
+		strokeColor = mainApplet.color(0,255,255,100);
+		mainApplet.stroke(strokeColor);
+		for (int i=0; i<leftElbow.size()-1; i++) {
 			drawLineBetweenJoints(leftElbow.get(i),leftElbow.get(i+1));
-			strokeColor = mainApplet.color(4,100,100,100);
 			drawLineBetweenJoints(rightElbow.get(i),rightElbow.get(i+1));
 		}
 	}
 	
 	private void drawLineBetweenJoints (PVector joint1, PVector joint2) {
-		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
-		mainApplet.stroke(strokeColor,255);
-		mainApplet.strokeWeight(1f);
 		mainApplet.line(joint1.x,joint1.y,joint1.z,joint2.x,joint2.y,joint2.z);
 	}
 

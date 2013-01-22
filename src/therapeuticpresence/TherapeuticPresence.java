@@ -103,7 +103,7 @@ public class TherapeuticPresence extends PApplet {
 	public static float smoothingSkeleton = TherapeuticPresence.DEFAULT_SMOOTHING_SKELETON;
 	public static String audioFile = "../music/moan.mp3";
 	public static boolean recordFlag = false; // record session (can't be active together with playbackFlag)
-	public static boolean playbackFlag = true; // playback session (can't be active together with recordFlag)
+	public static boolean playbackFlag = false; // playback session (can't be active together with recordFlag)
 	public static String recordingFile = "default.oni";
 	public static String playbackFile = "standard_playback.oni";
 	public static short initialAudioFile = 0;

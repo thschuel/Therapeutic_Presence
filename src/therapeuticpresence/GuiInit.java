@@ -294,7 +294,7 @@ public class GuiInit {
 		
 		// create a file chooser 
 		final JFileChooser fc = new JFileChooser(); 
-		fc.setCurrentDirectory(new File("./data/")); // recording directory is in /bin. because of simpleopenni implementation. Can be fixed at some point
+		fc.setCurrentDirectory(new File("../rec/")); // recording directory is in /bin. because of simpleopenni implementation. Can be fixed at some point
 			 
 		// in response to a button click: 
 		int returnVal = fc.showOpenDialog(mainApplet); 

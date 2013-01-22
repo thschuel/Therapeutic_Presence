@@ -135,14 +135,14 @@ public class EllipsoidalVisualisation extends AbstractSkeletonAudioVisualisation
 		PVector lHand = skeleton.getJoint(Skeleton.LEFT_HAND);
 		PVector rHand = skeleton.getJoint(Skeleton.RIGHT_HAND);
 		// expand x-range of arms to yield better visualisation
-		lHand.x *= 1f+(2f*scale);
-		rHand.x *= 1f+(2f*scale);
+		float tempLHandX = lHand.x * 1f+(2f*scale);
+		float tempRHandX = rHand.x * 1f+(2f*scale);
 		//lHand.x = PApplet.map(lHand.x,0,900f,0,width/2);
 		//rHand.x = PApplet.map(rHand.x,-900f,0f,-width/2,0);
-		lHandX += (lHand.x-lHandX)/movementResponseDelay;
+		lHandX += (tempLHandX-lHandX)/movementResponseDelay;
 		lHandY += (lHand.y-lHandY)/movementResponseDelay;
 		lHandZ += (lHand.z-lHandZ)/movementResponseDelay;
-		rHandX += (rHand.x-rHandX)/movementResponseDelay;
+		rHandX += (tempRHandX-rHandX)/movementResponseDelay;
 		rHandY += (rHand.y-rHandY)/movementResponseDelay;
 		rHandZ += (rHand.z-rHandZ)/movementResponseDelay;
 		
