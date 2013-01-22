@@ -1,5 +1,0 @@
-applet=SimpleOpenNI.jar
-
-application.macosx=SimpleOpenNI.jar,libSimpleOpenNI.jnilib
-application.windows=SimpleOpenNI.jar,SimpleOpenNI.dll
-application.linux=SimpleOpenNI.jar,libSimpleOpenNI.so

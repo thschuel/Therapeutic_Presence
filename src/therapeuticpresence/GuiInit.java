@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package therapeuticpresence;
 
+import java.io.File;
 import java.text.DecimalFormat;
 
 import peasy.PeasyCam;
@@ -48,6 +49,10 @@ public class GuiInit {
 	// The HUD controls
 	private ControlP5 control;
 	private ControlGroup menu;
+
+	// need to be able to change value from callbacks
+	private controlP5.Toggle recordSession = null;
+	private controlP5.Toggle playbackSession = null;
 	
 	private boolean startTherapy = false;
 
@@ -85,7 +90,7 @@ public class GuiInit {
 	private void createMenu() {
 		// create a group to store the menu elements
 		menu = control.addGroup("Menu",mainApplet.width/2-200,50,400);
-		menu.setBackgroundHeight(380);
+		menu.setBackgroundHeight(440);
 		menu.setBackgroundColor(mainApplet.color(70,70));
 		menu.hideBar();
 		
@@ -95,6 +100,12 @@ public class GuiInit {
 		pickMusicTrackButton.moveTo(menu);
 		pickMusicTrackButton.setCaptionLabel("Pick music track");
 		pickMusicTrackButton.plugTo(this);
+		positionY += 20;
+
+		controlP5.Button pickPlaybackONIButton = control.addButton("pickPlaybackONI",0,0,positionY,400,20);
+		pickPlaybackONIButton.moveTo(menu);
+		pickPlaybackONIButton.setCaptionLabel("Pick playback ONI File");
+		pickPlaybackONIButton.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Button mirrorTherapyOff = control.addButton("switchMirrorTherapyOff",Skeleton.MIRROR_THERAPY_OFF,0,positionY,400,20);
@@ -113,6 +124,22 @@ public class GuiInit {
 		mirrorTherapyRight.moveTo(menu);
 		mirrorTherapyRight.setCaptionLabel("3: Mirror right");
 		mirrorTherapyRight.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Textarea recordSessionLabel = control.addTextarea("recordSessionLabel","Record Session",2,positionY+4,378,16);
+		recordSessionLabel.moveTo(menu);
+		recordSession = control.addToggle("recordSession",TherapeuticPresence.recordFlag,180,positionY,20,20);
+		recordSession.moveTo(menu);
+		recordSession.setLabelVisible(false);
+		recordSession.plugTo(this);
+		positionY += 20;
+		
+		controlP5.Textarea playbackSessionLabel = control.addTextarea("playbackSessionLabel","Playback Session",2,positionY+4,378,16);
+		playbackSessionLabel.moveTo(menu);
+		playbackSession = control.addToggle("playbackSession",TherapeuticPresence.playbackFlag,180,positionY,20,20);
+		playbackSession.moveTo(menu);
+		playbackSession.setLabelVisible(false);
+		playbackSession.plugTo(this);
 		positionY += 20;
 		
 		controlP5.Textarea showLiveStatisticsLabel = control.addTextarea("showLiveStatisticsLabel","Live Statistics",2,positionY+4,378,16);
@@ -225,6 +252,7 @@ public class GuiInit {
 		
 		// create a file chooser 
 		final JFileChooser fc = new JFileChooser(); 
+		fc.setCurrentDirectory(new File("../music/"));
 			 
 		// in response to a button click: 
 		int returnVal = fc.showOpenDialog(mainApplet); 
@@ -236,7 +264,33 @@ public class GuiInit {
 			    PApplet.println("pickMusicTrack: chosen track is "+fileName);
 			    TherapeuticPresence.audioFile = fileName;
 			} else { 
-			    PApplet.println("pickMusicTrack: wrong filetype chosen track is "+fileName); 
+			    PApplet.println("pickMusicTrack: wrong filetype! chosen file is "+fileName); 
+			} 
+		}
+	}
+	
+	private void pickPlaybackONI (int theValue) {
+		try { 
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); 
+		} catch (Exception e) { 
+			e.printStackTrace();  
+		} 
+		
+		// create a file chooser 
+		final JFileChooser fc = new JFileChooser(); 
+		fc.setCurrentDirectory(new File("./data/")); // recording directory is in /bin. because of simpleopenni implementation. Can be fixed at some point
+			 
+		// in response to a button click: 
+		int returnVal = fc.showOpenDialog(mainApplet); 
+			 
+		if (returnVal == JFileChooser.APPROVE_OPTION) { 
+			String fileName = fc.getSelectedFile().getPath(); 
+			// see if it's an audiotrack  
+			if (fileName.endsWith("oni")) { 
+			    PApplet.println("pickPlaybackONI: chosen track is "+fileName);
+			    TherapeuticPresence.playbackFile = fileName;
+			} else { 
+			    PApplet.println("pickPlaybackONI: wrong filetype! chosen file is "+fileName); 
 			} 
 		}
 	}
@@ -251,6 +305,28 @@ public class GuiInit {
 	
 	private void switchMirrorTherapyRight (int theValue) {
 		mainApplet.switchMirrorTherapy(Skeleton.MIRROR_THERAPY_RIGHT);
+	}
+	
+	private void recordSession (int theValue) {
+		TherapeuticPresence.recordFlag = !TherapeuticPresence.recordFlag;
+		if (TherapeuticPresence.recordFlag && TherapeuticPresence.playbackFlag) {
+			PApplet.println("recordSessionCallBack: Playback and Record can't be active together.");
+			TherapeuticPresence.recordFlag = !TherapeuticPresence.recordFlag;
+			recordSession.setBroadcast(false);
+			recordSession.setValue(TherapeuticPresence.recordFlag);
+			recordSession.setBroadcast(true);
+		}
+	}
+	
+	private void playbackSession (int theValue) {
+		TherapeuticPresence.playbackFlag = !TherapeuticPresence.playbackFlag;
+		if (TherapeuticPresence.recordFlag && TherapeuticPresence.playbackFlag) {
+			PApplet.println("playbackSessionCallBack: Playback and Record can't be active together.");
+			TherapeuticPresence.playbackFlag = !TherapeuticPresence.playbackFlag;
+			playbackSession.setBroadcast(false);
+			playbackSession.setValue(TherapeuticPresence.playbackFlag);
+			playbackSession.setBroadcast(true);
+		}
 	}
 	
 	private void showLiveStatistics (int theValue) {

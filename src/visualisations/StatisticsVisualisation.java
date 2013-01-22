@@ -22,7 +22,7 @@ public class StatisticsVisualisation extends AbstractVisualisation {
 	}
 	
 	public void setup() {
-		guiHud.setFinalStatistics(statistics.getDistanceLeftHand(), statistics.getDistanceLeftElbow(), statistics.getDistanceRightHand(), statistics.getDistanceRightElbow());
+		guiHud.setFinalStatistics(statistics);
 	}
 
 	public void draw() {

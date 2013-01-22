@@ -80,9 +80,8 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean fullBodyTracking = false; // control for full body tracking
 	public static boolean evaluatePostureAndGesture = true; // control for full body tracking
 	public static boolean evaluateStatistics = true; // control for skeleton statistics, switched on initially
-	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = false;
-	public static boolean showLiveStatistics = true;
+	public static boolean showLiveStatistics = false;
 	public static boolean demo=true;
 	public static boolean transferSkeleton=false;
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE;
@@ -102,7 +101,11 @@ public class TherapeuticPresence extends PApplet {
 	public static float gestureTolerance = TherapeuticPresence.DEFAULT_GESTURE_TOLERANCE;
 	public static final float DEFAULT_SMOOTHING_SKELETON = 0.8f;
 	public static float smoothingSkeleton = TherapeuticPresence.DEFAULT_SMOOTHING_SKELETON;
-	public static String audioFile = "../data/moan.mp3";
+	public static String audioFile = "../music/moan.mp3";
+	public static boolean recordFlag = false; // record session (can't be active together with playbackFlag)
+	public static boolean playbackFlag = true; // playback session (can't be active together with recordFlag)
+	public static String recordingFile = "default.oni";
+	public static String playbackFile = "standard_playback.oni";
 	public static short initialAudioFile = 0;
 	public static PVector centerOfSkeletonDetectionSpace = new PVector(0,0,maxDistanceToKinect/2f); // calibrate skeleton only for users in a defined centered space. used for stability when more users are in the scene
 	public static float radiusOfSkeletonDetectionSpace = 500f;
@@ -143,6 +146,7 @@ public class TherapeuticPresence extends PApplet {
 	// -----------------------------------------------------------------
 	public void setup() {
 		size(screenWidth-16,screenHeight-128,OPENGL);
+		recordingFile = "rec_"+year()+""+month()+""+day()+"_"+hour()+""+minute()+".oni";
 		setup_init();
 	}
 	private void setup_init() {
@@ -153,41 +157,57 @@ public class TherapeuticPresence extends PApplet {
 		// establish connection to kinect/openni
 		setupKinect();
 		
-		// start the audio interface
-		audioManager = new AudioManager(this);
-		audioManager.setup(audioFile);
-		audioManager.start();
-		
-		// setup Scene
-		setupScene(TherapeuticPresence.initialSceneType);
-
-		// start visualisation (default is depthMap)
-		setupVisualisation(TherapeuticPresence.initialVisualisationMethod);
-		
-		// generate HUD
-		guiHud = new GuiHud(this);
-		
-		runTherapyDraw = true;
+		if (kinect != null) {
+			// start the audio interface
+			audioManager = new AudioManager(this);
+			audioManager.setup(audioFile);
+			audioManager.start();
+			
+			// setup Scene
+			setupScene(TherapeuticPresence.initialSceneType);
+	
+			// start visualisation (default is depthMap)
+			setupVisualisation(TherapeuticPresence.initialVisualisationMethod);
+			
+			// generate HUD
+			guiHud = new GuiHud(this);
+			
+			runTherapyDraw = true;
+		}
 	}
 	
 	private void setupKinect () {
-		kinect = new SimpleOpenNI(this);
-		
-		if (TherapeuticPresence.recordFlag) {
-			// enable/disable mirror
-			kinect.setMirror(mirrorKinect);
-			// enable depthMap generation 
-			kinect.enableDepth();
+		if (recordFlag && playbackFlag) {
+			println("setupKinect: recording and playback can't be active together. exiting");
+			exit();
+		} else {
+			kinect = new SimpleOpenNI(this);
+			if (TherapeuticPresence.playbackFlag) {
+				if (kinect.openFileRecording(playbackFile) == false) {
+					println("setupKinect: error while opening recorded data. exiting");
+					kinect = null;
+					close();
+				}
+			    println("This file has " + kinect.framesPlayer() + " frames.");
+			} else {
+				// enable/disable mirror
+				kinect.setMirror(mirrorKinect);
+				// enable depthMap generation 
+				kinect.enableDepth();
+				if (TherapeuticPresence.recordFlag) {
+				    // setup the recording 
+				    kinect.enableRecorder(SimpleOpenNI.RECORD_MEDIUM_FILE,recordingFile);
+				    // select the recording channels
+				    kinect.addNodeToRecording(SimpleOpenNI.NODE_DEPTH,SimpleOpenNI.CODEC_16Z_EMB_TABLES);
+				}
+			}
+	
 			if (TherapeuticPresence.fullBodyTracking) {
 				// enable skeleton generation for all joints
 				kinect.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
 			} else {
 				// enable skeleton generation for upper joints
 				kinect.enableUser(SimpleOpenNI.SKEL_PROFILE_UPPER);
-			}
-		} else {
-			if (kinect.openFileRecording("../data/test.oni") == false) {
-				println("fehler");
 			}
 		}
 	}
@@ -213,7 +233,7 @@ public class TherapeuticPresence extends PApplet {
 					currentSceneType = TherapeuticPresence.LIQUID_SCENE;
 				} else {
 					setupScene(TherapeuticPresence.BASIC_SCENE);
-					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
+					debugMessage("setupScene: AudioManager needed for Tunnel Scene!");
 				}
 				break;
 			

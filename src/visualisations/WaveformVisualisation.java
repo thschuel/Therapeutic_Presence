@@ -78,90 +78,13 @@ public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
 		movementResponseDelay=8f;
 	}
 	
-	// TODO: change calculation so that higher degree of freedom of movements is possible
-	// use spherical coordinates? r = width/2, angle1 = angle of arm to body axis, angle2 = angle of arm segment to reference axis in reference plane
 	private void updateCanvasCoordinates () {
 	    center.set(centerX,centerY,centerZ);
 		width = TunnelScene.getTunnelWidthAt(centerZ);
 		height = TunnelScene.getTunnelHeightAt(centerZ);
-		// width/4 == distance between control points
-		// control points +- width/8 == anchor points
-//		left1.x = center.x+width/2;
-//		left2.x = center.x+width/4;
-//		right2.x = center.x-width/4;
-//		right1.x = center.x-width/2;	
-//		anchorL1.x = center.x+5*width/8;
-//		anchorL2.x = center.x+3*width/8;
-//		anchorL3.x = center.x+width/8;
-//		anchorR3.x = center.x-width/8;
-//		anchorR2.x = center.x-3*width/8;
-//		anchorR1.x = center.x-5*width/8;
-//		left1.z += (center.z + skeleton.getJoint(Skeleton.LEFT_HAND).z-skeleton.getJoint(Skeleton.LEFT_SHOULDER).z - left1.z)/movementResponseDelay;
-//		left2.z += (center.z + skeleton.getJoint(Skeleton.LEFT_ELBOW).z-skeleton.getJoint(Skeleton.LEFT_SHOULDER).z - left2.z)/movementResponseDelay;
-//		right2.z += (center.z + skeleton.getJoint(Skeleton.RIGHT_ELBOW).z-skeleton.getJoint(Skeleton.RIGHT_SHOULDER).z - right2.z)/movementResponseDelay;
-//		right1.z += (center.z + skeleton.getJoint(Skeleton.RIGHT_HAND).z-skeleton.getJoint(Skeleton.RIGHT_SHOULDER).z - right1.z)/movementResponseDelay;
-//		anchorL1.z += (left1.z - (left2.z-left1.z)/2f - anchorL1.z)/movementResponseDelay;
-//		anchorL2.z += (left1.z + (left2.z-left1.z)/2f - anchorL2.z)/movementResponseDelay;
-//		anchorL3.z += (left2.z + (center.z-left2.z)/2f - anchorL3.z)/movementResponseDelay;
-//		anchorR3.z += (right2.z + (center.z-right2.z)/2f - anchorR3.z)/movementResponseDelay;
-//		anchorR2.z += (right1.z + (right2.z-right1.z)/2f - anchorR2.z)/movementResponseDelay;
-//		anchorR1.z += (right1.z - (right2.z-right1.z)/2f - anchorR1.z)/movementResponseDelay;
 	}
 	
 	private void updateBezierCurves () {
-
-		
-		
-		
-		
-//		float angleLeftUpperArm = skeleton.getAngleLeftUpperArm();
-//		float angleRightUpperArm = skeleton.getAngleRightUpperArm();
-//		float angleLeftLowerArm = skeleton.getAngleLeftLowerArm();
-//		float angleRightLowerArm = skeleton.getAngleRightLowerArm();
-//		
-//		// check for angles not to reach out of quadrants.
-//		angleLeftUpperArm = PApplet.constrain(angleLeftUpperArm,PConstants.QUARTER_PI,3*PConstants.QUARTER_PI);
-//		angleRightUpperArm = PApplet.constrain(angleRightUpperArm,PConstants.QUARTER_PI,3*PConstants.QUARTER_PI);
-//		angleLeftLowerArm = PApplet.constrain(angleLeftLowerArm,0,PApplet.radians(120)*((angleLeftUpperArm-PConstants.QUARTER_PI)/PConstants.HALF_PI));
-//		angleRightLowerArm = PApplet.constrain(angleRightLowerArm,0,PApplet.radians(120)*((angleRightUpperArm-PConstants.QUARTER_PI)/PConstants.HALF_PI));
-//		
-//		// use negative angles for lower arms to bend waveform corresponding to arm position
-//		angleLeftLowerArm = -angleLeftLowerArm;
-//		angleRightLowerArm = -angleRightLowerArm;
-//		
-//		// shift angles of upper arms by 90 degree to use calculations in polar coordinates
-//		angleLeftUpperArm = (angleLeftUpperArm+PConstants.HALF_PI)%PConstants.PI;
-//		angleRightUpperArm = (angleRightUpperArm+PConstants.HALF_PI)%PConstants.PI;
-//		// shift angles of lower arms by angles of upper arms to use calculations in polar coordinates
-//		angleLeftLowerArm = (angleLeftLowerArm+angleLeftUpperArm)%PConstants.PI;
-//		angleRightLowerArm = (angleRightLowerArm+angleRightUpperArm)%PConstants.PI;
-//		
-//		// actual coordinates
-//		float left2YNew = center.y-(left2.x-center.x)*PApplet.sin(angleLeftUpperArm)/PApplet.cos(angleLeftUpperArm);
-//		float right2YNew = center.y+(right2.x-center.x)*PApplet.sin(angleRightUpperArm)/PApplet.cos(angleRightUpperArm);
-//		float left1YNew = left2YNew-(left1.x-left2.x)*PApplet.sin(angleLeftLowerArm)/PApplet.cos(angleLeftLowerArm);
-//		float right1YNew = right2YNew+(right1.x-right2.x)*PApplet.sin(angleRightLowerArm)/PApplet.cos(angleRightLowerArm);
-//		// constrain coordinates
-//		left2YNew = PApplet.constrain(left2YNew,center.y-height/2+50,center.y+height/2-50);
-//		right2YNew = PApplet.constrain(right2YNew,center.y-height/2+50,center.y+height/2-50);
-//		left1YNew = PApplet.constrain(left1YNew,center.y-height/2,center.y+height/2);
-//		right1YNew = PApplet.constrain(right1YNew,center.y-height/2,center.y+height/2);
-//
-//		// update coordinates with delay
-//		left2.y += (left2YNew-left2.y)/movementResponseDelay;
-//		right2.y += (right2YNew-right2.y)/movementResponseDelay;
-//		left1.y += (left1YNew-left1.y)/movementResponseDelay;
-//		right1.y += (right1YNew-right1.y)/movementResponseDelay;
-//		// update anchorpoints based on controlpoints
-//		anchorL1.y = left1.y - ((left2.y-left1.y)/2);
-//		anchorL2.y = left1.y + ((left2.y-left1.y)/2);
-//		anchorL3.y = center.y + ((left2.y-center.y)/2);
-//		anchorR3.y = center.y + ((right2.y-center.y)/2);
-//		anchorR2.y = right1.y + ((right2.y-right1.y)/2);
-//		anchorR1.y = right1.y - ((right2.y-right1.y)/2);
-		
-
-
 		PVector leftLowerArm = skeleton.getLeftLowerArmLCS();
 		PVector leftUpperArm = skeleton.getLeftUpperArmLCS();
 		PVector rightLowerArm = skeleton.getRightLowerArmLCS();
@@ -189,7 +112,6 @@ public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
 		right2.z += ((center.z-rightUpperArm.z)-right2.z)/movementResponseDelay;
 		right1.z += ((right2.z-rightLowerArm.z)-right1.z)/movementResponseDelay;
 
-
 		// update anchorpoints based on controlpoints
 		anchorL1.x = left1.x;//left1.x - (left2.x-left1.x)/2f;
 		anchorL2.x = left1.x + (left2.x-left1.x)/2f;
@@ -211,9 +133,7 @@ public class WaveformVisualisation extends AbstractSkeletonAudioVisualisation {
 		anchorR3.z = right2.z + (center.z-right2.z)/2f;
 		anchorR2.z = right1.z + (right2.z-right1.z)/2f;
 		anchorR1.z = right1.z;//right1.z - (right2.z-right1.z)/2f;
-		
 
-		
 		// use sample data to shift offset
 		float sampleValues[] = new float[11];
 		for (int i=0; i<11; i++) {

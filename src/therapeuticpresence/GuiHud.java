@@ -149,37 +149,63 @@ public class GuiHud {
 	}
 	
 	public void updateLiveStatistics (SkeletonStatistics _statistics) {
-		float dPSLeftHand = _statistics.getDistancePerSecondLeftHand();
-		float dPSRightHand = _statistics.getDistancePerSecondRightHand();
-		float dPSLeftElbow = _statistics.getDistancePerSecondLeftElbow();
-		float dPSRightElbow = _statistics.getDistancePerSecondRightElbow();
-		float maxAbduktionLeftShoulder = _statistics.getMaxAbduktionLShoulder();
-		float maxAbduktionRightShoulder = _statistics.getMaxAbduktionRShoulder();
-		float maxAdduktionLeftShoulder = _statistics.getMaxAdduktionLShoulder();
-		float maxAdduktionRightShoulder = _statistics.getMaxAdduktionRShoulder();
+		float velLeftHand = _statistics.getVelocityLeftHand();
+		float velRightHand = _statistics.getVelocityRightHand();
+		float velLeftElbow = _statistics.getVelocityLeftElbow();
+		float velRightElbow = _statistics.getVelocityRightElbow();
+		float abductionLeftShoulder = _statistics.getAbductionLShoulder();
+		float abductionRightShoulder = _statistics.getAbductionRShoulder();
+		float adductionLeftShoulder = _statistics.getAdductionLShoulder();
+		float adductionRightShoulder = _statistics.getAdductionRShoulder();
+		float anteversionLeftShoulder = _statistics.getAnteversionLShoulder();
+		float anteversionRightShoulder = _statistics.getAnteversionRShoulder();
+		float retroversionLeftShoulder = _statistics.getRetroversionLShoulder();
+		float retroversionRightShoulder = _statistics.getRetroversionRShoulder();
+		
+		liveStatistics.setText("Velocity (mm/second)" +
+				"\nLH: "+df.format(velLeftHand)+
+				"\nLE: "+df.format(velLeftElbow)+
+				"\nRH: "+df.format(velRightHand)+
+				"\nRE: "+df.format(velRightElbow)+
+				"\nAnatomical Angles" +
+				"\nAbdL: "+ (abductionLeftShoulder >= 0f ? (int)PApplet.degrees(abductionLeftShoulder) : 0) +
+				"\nAbdR: "+ (abductionRightShoulder >= 0f ? (int)PApplet.degrees(abductionRightShoulder) : 0) +
+				"\nAddL: "+ (adductionLeftShoulder >= 0f ? (int)PApplet.degrees(adductionLeftShoulder) : 0) +
+				"\nAddR: "+ (adductionRightShoulder >= 0f ? (int)PApplet.degrees(adductionRightShoulder) : 0) +
+				"\nAntL: "+ (anteversionLeftShoulder >= 0f ? (int)PApplet.degrees(anteversionLeftShoulder) : 0) +
+				"\nAntR: "+ (anteversionRightShoulder >= 0f ? (int)PApplet.degrees(anteversionRightShoulder) : 0) +
+				"\nRetL: "+ (retroversionLeftShoulder >= 0f ? (int)PApplet.degrees(retroversionLeftShoulder) : 0) +
+				"\nRetR: "+ (retroversionLeftShoulder >= 0f ? (int)PApplet.degrees(retroversionRightShoulder) : 0));
+	}
+	
+	public void setFinalStatistics (SkeletonStatistics _statistics) {
+		float dLeftHand = _statistics.getDistanceLeftHand();
+		float dLeftElbow = _statistics.getDistanceLeftElbow();
+		float dRightHand = _statistics.getDistanceRightHand();
+		float dRightElbow = _statistics.getDistanceRightElbow();
+		float maxAbductionLeftShoulder = _statistics.getMaxAbductionLShoulder();
+		float maxAbductionRightShoulder = _statistics.getMaxAbductionRShoulder();
+		float maxAdductionLeftShoulder = _statistics.getMaxAdductionLShoulder();
+		float maxAdductionRightShoulder = _statistics.getMaxAdductionRShoulder();
 		float maxAnteversionLeftShoulder = _statistics.getMaxAnteversionLShoulder();
 		float maxAnteversionRightShoulder = _statistics.getMaxAnteversionRShoulder();
 		float maxRetroversionLeftShoulder = _statistics.getMaxRetroversionLShoulder();
 		float maxRetroversionRightShoulder = _statistics.getMaxRetroversionRShoulder();
 		
-		DecimalFormat df = new DecimalFormat ("0.00");
-		liveStatistics.setText("mm per second\nLH: "+df.format(dPSLeftHand)+
-				"\nLE: "+df.format(dPSLeftElbow)+
-				"\nRH: "+df.format(dPSRightHand)+
-				"\nRE: "+df.format(dPSRightElbow)+
-				"\nABL: "+df.format(maxAbduktionLeftShoulder)+
-				"\nABR: "+df.format(maxAbduktionRightShoulder)+
-				"\nADL: "+df.format(maxAdduktionLeftShoulder)+
-				"\nADR: "+df.format(maxAdduktionRightShoulder)+
-				"\nANL: "+df.format(maxAnteversionLeftShoulder)+
-				"\nANR: "+df.format(maxAnteversionRightShoulder)+
-				"\nREL: "+df.format(maxRetroversionLeftShoulder)+
-				"\nRER: "+df.format(maxRetroversionRightShoulder));
-	}
-	
-	public void setFinalStatistics (float dLeftHand, float dLeftElbow, float dRightHand, float dRightElbow) {
-		DecimalFormat df = new DecimalFormat ("0.00");
-		finalStatistics.setText("distance in mm\nLH: "+df.format(dLeftHand)+"\nLE: "+df.format(dLeftElbow)+"\nRH: "+df.format(dRightHand)+"\nRE: "+df.format(dRightElbow));
+		finalStatistics.setText("distance in mm" +
+				"\nLH: "+df.format(dLeftHand)+
+				"\nLE: "+df.format(dLeftElbow)+
+				"\nRH: "+df.format(dRightHand)+
+				"\nRE: "+df.format(dRightElbow)+
+				"\nMax anatomical Angles" +
+				"\nAbdL: "+(int)PApplet.degrees(maxAbductionLeftShoulder)+
+				"\nAbdR: "+(int)PApplet.degrees(maxAbductionRightShoulder)+
+				"\nAddL: "+(int)PApplet.degrees(maxAdductionLeftShoulder)+
+				"\nAddR: "+(int)PApplet.degrees(maxAdductionRightShoulder)+
+				"\nAntL: "+(int)PApplet.degrees(maxAnteversionLeftShoulder)+
+				"\nAntR: "+(int)PApplet.degrees(maxAnteversionRightShoulder)+
+				"\nRetL: "+(int)PApplet.degrees(maxRetroversionLeftShoulder)+
+				"\nRetR: "+(int)PApplet.degrees(maxRetroversionRightShoulder));
 	}
 	
 	private void createInfoElements() {
