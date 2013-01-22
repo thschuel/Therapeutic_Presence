@@ -94,7 +94,6 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		drawJoints(false);
 		//drawBodyPlanes();
 		drawLocalCoordinateSystem();
-		//drawArmProjections();
 	}
 	
 	private void drawUserPixels () {
@@ -188,27 +187,6 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 			
 			mainApplet.popMatrix();
 		}
-	}
-	
-	private void drawArmProjections () {
-		// DRAWING IS DONE IN WRONG COORDINATE SYSTEM. RESULT IS ONLY FOR DEBUG PURPOSES
-		PVector lUpperArmProjected = skeleton.projectionOnTransversalPlane(Skeleton.LEFT_ELBOW,Skeleton.LEFT_SHOULDER);
-		PVector lShoulder = skeleton.getJoint(Skeleton.LEFT_SHOULDER);
-		mainApplet.pushMatrix();
-		mainApplet.translate(lShoulder.x,lShoulder.y,lShoulder.z);
-		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
-		mainApplet.stroke(255,255,255,255);
-		mainApplet.line(0f,0f,0f,lUpperArmProjected.x,lUpperArmProjected.y,lUpperArmProjected.z);
-		mainApplet.popMatrix();
-
-		PVector rUpperArmProjected = skeleton.projectionOnTransversalPlane(Skeleton.RIGHT_ELBOW,Skeleton.RIGHT_SHOULDER);
-		PVector rShoulder = skeleton.getJoint(Skeleton.RIGHT_SHOULDER);
-		mainApplet.pushMatrix();
-		mainApplet.translate(rShoulder.x,rShoulder.y,rShoulder.z);
-		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
-		mainApplet.stroke(255,255,255,255);
-		mainApplet.line(0f,0f,0f,rUpperArmProjected.x,rUpperArmProjected.y,rUpperArmProjected.z);
-		mainApplet.popMatrix();
 	}
 
 	private void drawBodyPlanes () {

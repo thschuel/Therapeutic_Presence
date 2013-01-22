@@ -1,5 +1,7 @@
 package visualisations;
 
+import java.util.ArrayList;
+
 import processing.core.*;
 import SimpleOpenNI.*;
 import therapeuticpresence.*;
@@ -13,11 +15,6 @@ public class StatisticsVisualisation extends AbstractVisualisation {
 	private SkeletonStatistics statistics = null;
 	private GuiHud guiHud = null;
 	
-	private PVector skeletonPosition = new PVector();
-	private PVector lastLeftShoulderLCS = new PVector();
-	private PVector lastRightShoulderLCS = new PVector();
-	private PVector lastTorsoLCS = new PVector();
-	
 	public StatisticsVisualisation (TherapeuticPresence _mainApplet, SkeletonStatistics _statistics, GuiHud _guiHud) {
 		super(_mainApplet);
 		statistics = _statistics;
@@ -25,55 +22,35 @@ public class StatisticsVisualisation extends AbstractVisualisation {
 	}
 	
 	public void setup() {
-		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
-		strokeColor = mainApplet.color(0,255,255);
-		jointColor = mainApplet.color(0,0,255);
-		mainApplet.colorMode(PConstants.HSB,360,100,100,100);
-		
-		skeletonPosition = statistics.getLastSkeletonPosition();
-		lastLeftShoulderLCS = statistics.getLastLeftShoulderLCS();
-		lastRightShoulderLCS = statistics.getLastRightShoulderLCS();
-		lastTorsoLCS = statistics.getLastTorsoLCS();
-
 		guiHud.setFinalStatistics(statistics.getDistanceLeftHand(), statistics.getDistanceLeftElbow(), statistics.getDistanceRightHand(), statistics.getDistanceRightElbow());
 	}
 
 	public void draw() {
 		
-		// draw Skeleton with max angles
-		mainApplet.pushMatrix();
-		mainApplet.translate(0f,0f,3f*TherapeuticPresence.maxDistanceToKinect/4f);
-		mainApplet.rotateY(PConstants.PI); // skeleton coordinate system faces towards scene coordinate system on z axis.
+		// draw upper limb joints history
+		ArrayList<PVector> leftHand = statistics.getHistoryLeftHand();
+		ArrayList<PVector> rightHand = statistics.getHistoryRightHand();
+		ArrayList<PVector> leftElbow = statistics.getHistoryLeftElbow();
+		ArrayList<PVector> rightElbow = statistics.getHistoryRightElbow();
 		
-		drawLineBetweenJoints(new PVector(),lastLeftShoulderLCS);
-		drawLineBetweenJoints(new PVector(),lastRightShoulderLCS);
-		drawLineBetweenJoints(lastTorsoLCS,lastLeftShoulderLCS);
-		drawLineBetweenJoints(lastTorsoLCS,lastRightShoulderLCS);
-		
-		drawJoint(new PVector());
-		drawJoint(lastLeftShoulderLCS);
-		drawJoint(lastRightShoulderLCS);
-		drawJoint(lastTorsoLCS);
-		
-		
-		mainApplet.popMatrix();
+		for (int i=0; i<leftHand.size()-1; i++) {
+			mainApplet.colorMode(PConstants.HSB,4,100,100,100);
+			strokeColor = mainApplet.color(1,100,100,100);
+			drawLineBetweenJoints(leftHand.get(i),leftHand.get(i+1));
+			strokeColor = mainApplet.color(2,100,100,100);
+			drawLineBetweenJoints(rightHand.get(i),rightHand.get(i+1));
+			strokeColor = mainApplet.color(3,100,100,100);
+			drawLineBetweenJoints(leftElbow.get(i),leftElbow.get(i+1));
+			strokeColor = mainApplet.color(4,100,100,100);
+			drawLineBetweenJoints(rightElbow.get(i),rightElbow.get(i+1));
+		}
 	}
 	
 	private void drawLineBetweenJoints (PVector joint1, PVector joint2) {
 		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 		mainApplet.stroke(strokeColor,255);
-		mainApplet.strokeWeight(2f);
+		mainApplet.strokeWeight(1f);
 		mainApplet.line(joint1.x,joint1.y,joint1.z,joint2.x,joint2.y,joint2.z);
-	}
-	
-	private void drawJoint (PVector joint) {
-		mainApplet.pushMatrix();
-		mainApplet.translate(joint.x,joint.y,joint.z);
-		mainApplet.noStroke();
-		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
-		mainApplet.fill(jointColor,255);
-		mainApplet.sphere(10f);
-		mainApplet.popMatrix();
 	}
 
 	public short getVisualisationType() {

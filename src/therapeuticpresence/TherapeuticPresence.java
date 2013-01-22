@@ -82,7 +82,7 @@ public class TherapeuticPresence extends PApplet {
 	public static boolean evaluateStatistics = true; // control for skeleton statistics, switched on initially
 	public static boolean recordFlag = true; // set to false for playback
 	public static boolean debugOutput = false;
-	public static boolean showLiveStatistics = false;
+	public static boolean showLiveStatistics = true;
 	public static boolean demo=true;
 	public static boolean transferSkeleton=false;
 	public static short initialSceneType = TherapeuticPresence.BASIC_SCENE;
