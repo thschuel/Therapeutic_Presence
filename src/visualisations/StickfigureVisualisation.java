@@ -93,7 +93,7 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		drawStickfigure(false);
 		drawJoints(false);
 		//drawBodyPlanes();
-		drawLocalCoordinateSystem();
+		//drawLocalCoordinateSystem();
 	}
 	
 	private void drawUserPixels () {

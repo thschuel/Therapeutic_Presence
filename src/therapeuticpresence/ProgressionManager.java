@@ -108,7 +108,7 @@ public class ProgressionManager {
 				mainApplet.toggleVisualisations();
 				secondsSinceLastChange = 0f;
 			}
-			mainApplet.updateScore(PApplet.round(secondsToProgress-secondsSinceLastChange));
+			mainApplet.updateTime(secondsSinceLastChange);
 			lastFrameCount = _frameCount;
 		}
 	}

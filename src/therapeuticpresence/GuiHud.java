@@ -55,6 +55,7 @@ public class GuiHud {
 	private Textarea score;
 	private Textarea task;
 	private Textarea guiMessages;
+	private Slider timeProgression;
 
 	public DecimalFormat df = new DecimalFormat("0.00");
 	
@@ -64,7 +65,6 @@ public class GuiHud {
 		control = new ControlP5(mainApplet);
 		g3 = (PGraphics3D)_mainApplet.g;
 		
-		mainApplet.colorMode(PConstants.RGB,255,255,255,255);
 		createMenu();
 		menu.hide();
 		menuButton = control.addButton("toggleMenu",1,0,0,150,20);
@@ -116,12 +116,15 @@ public class GuiHud {
 	    if (ProgressionManager.progressionMode == ProgressionManager.POSTURE_PROGRESSION_MODE) {
 	    	score.show();
 	    	task.show();
+	    	timeProgression.hide();
 	    } else if (ProgressionManager.progressionMode == ProgressionManager.TIME_PROGRESSION_MODE){
-	    	score.show();
+	    	score.hide();
 	    	task.hide();
+	    	timeProgression.show();
 	    } else {
 	    	score.hide();
 	    	task.hide();
+	    	timeProgression.hide();
 	    }
 	    if (TherapeuticPresence.showLiveStatistics) {
 	    	liveStatistics.show();
@@ -149,6 +152,10 @@ public class GuiHud {
 	
 	public void updateTask (String _task) {
 		task.setText("Next pose: "+_task);
+	}
+	
+	public void updateTime (float _time) {
+		timeProgression.setValue(_time/ProgressionManager.secondsToProgress);
 	}
 	
 	public void updateLiveStatistics (SkeletonStatistics _statistics) {
@@ -235,13 +242,17 @@ public class GuiHud {
 		
 		guiMessages = control.addTextarea("guiMessagesArea","",mainApplet.width-200,10,200,mainApplet.height-20);
 
-		score = control.addTextarea("scoreArea","",mainApplet.width/2-100,20,70,70);
+		score = control.addTextarea("scoreArea","",mainApplet.width/2-20,20,70,70);
 		score.setFont(mainApplet.createFont("Helvetica",30));
 		score.setText(""+0);
 		
-		task = control.addTextarea("taskArea","",mainApplet.width/2-400,20,300,70);
+		task = control.addTextarea("taskArea","",mainApplet.width/2+50,20,300,70);
 		task.setFont(mainApplet.createFont("Helvetica",30));
 		task.setText(""+0);
+		
+		timeProgression = control.addSlider("timeProgression",0f,1.0f,0,150,0,mainApplet.width-150,20);
+		timeProgression.setCaptionLabel("");
+		timeProgression.setLabelVisible(false);
 	}
 	
 	
@@ -485,31 +496,26 @@ public class GuiHud {
 	}
 	
 	private void switchVisualisationDepthMap (int theValue) {
-		mainApplet.setupScene(TherapeuticPresence.BASIC_SCENE);
 		mainApplet.setupVisualisation(TherapeuticPresence.DEPTHMAP_VISUALISATION);
 		menu.hide();
 	}
 	
 	private void switchVisualisationSkeletons (int theValue) {
-		mainApplet.setupScene(TherapeuticPresence.BASIC_SCENE);
 		mainApplet.setupVisualisation(TherapeuticPresence.STICKFIGURE_VISUALISATION);
 		menu.hide();
 	}
 	
 	private void switchVisualisationWaveform (int theValue) {
-		mainApplet.setupScene(TherapeuticPresence.TUNNEL_SCENE);
 		mainApplet.setupVisualisation(TherapeuticPresence.WAVEFORM_VISUALISATION);
 		menu.hide();
 	}
 	
 	private void switchVisualisationTree (int theValue) {
-		mainApplet.setupScene(TherapeuticPresence.LIQUID_SCENE);
 		mainApplet.setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_VISUALISATION);
 		menu.hide();
 	}
 	
 	private void switchVisualisationEllipsoid (int theValue) {
-		mainApplet.setupScene(TherapeuticPresence.LIQUID_SCENE);
 		mainApplet.setupVisualisation(TherapeuticPresence.ELLIPSOIDAL_VISUALISATION);
 		menu.hide();
 	}

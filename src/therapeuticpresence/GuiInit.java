@@ -98,13 +98,13 @@ public class GuiInit {
 
 		controlP5.Button pickMusicTrackButton = control.addButton("pickMusicTrack",0,0,positionY,400,20);
 		pickMusicTrackButton.moveTo(menu);
-		pickMusicTrackButton.setCaptionLabel("Pick music track");
+		pickMusicTrackButton.setCaptionLabel("Select music track");
 		pickMusicTrackButton.plugTo(this);
 		positionY += 20;
 
 		controlP5.Button pickPlaybackONIButton = control.addButton("pickPlaybackONI",0,0,positionY,400,20);
 		pickPlaybackONIButton.moveTo(menu);
-		pickPlaybackONIButton.setCaptionLabel("Pick playback ONI File");
+		pickPlaybackONIButton.setCaptionLabel("Select playback ONI File");
 		pickPlaybackONIButton.plugTo(this);
 		positionY += 20;
 		
@@ -305,6 +305,7 @@ public class GuiInit {
 			if (fileName.endsWith("oni")) { 
 			    PApplet.println("pickPlaybackONI: chosen track is "+fileName);
 			    TherapeuticPresence.playbackFile = fileName;
+			    playbackSession.toggle();
 			} else { 
 			    PApplet.println("pickPlaybackONI: wrong filetype! chosen file is "+fileName); 
 			} 

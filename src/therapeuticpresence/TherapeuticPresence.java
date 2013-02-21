@@ -75,6 +75,7 @@ public class TherapeuticPresence extends PApplet {
 	public static final short BASIC_SCENE = 0;
 	public static final short TUNNEL_SCENE = 1;
 	public static final short LIQUID_SCENE = 2;
+	public static final short HORIZON_SCENE = 3;
 
 	// --- static setup variables ---
 	public static boolean fullBodyTracking = false; // control for full body tracking
@@ -93,13 +94,13 @@ public class TherapeuticPresence extends PApplet {
 	public static short mirrorTherapy = Skeleton.MIRROR_THERAPY_OFF;
 	public static boolean autoCalibration = true; // control for auto calibration of skeleton
 	public static boolean mirrorKinect = false;
-	public static float maxDistanceToKinect = 4000f; // in mm, is used for scaling the visuals
+	public static float maxDistanceToKinect = 3500f; // in mm, is used for scaling the visuals
 	public static final float cameraEyeZ = 5000f; // in mm, visuals are sensitive to this!
-	public static final float DEFAULT_POSTURE_TOLERANCE = 0.3f;
+	public static final float DEFAULT_POSTURE_TOLERANCE = 0.01f;
 	public static float postureTolerance = TherapeuticPresence.DEFAULT_POSTURE_TOLERANCE;
-	public static final float DEFAULT_GESTURE_TOLERANCE = 0.4f;
+	public static final float DEFAULT_GESTURE_TOLERANCE = 0.01f;
 	public static float gestureTolerance = TherapeuticPresence.DEFAULT_GESTURE_TOLERANCE;
-	public static final float DEFAULT_SMOOTHING_SKELETON = 0.8f;
+	public static final float DEFAULT_SMOOTHING_SKELETON = 0.65f;
 	public static float smoothingSkeleton = TherapeuticPresence.DEFAULT_SMOOTHING_SKELETON;
 	public static String audioFile = "../music/moan.mp3";
 	public static boolean recordFlag = false; // record session (can't be active together with playbackFlag)
@@ -144,7 +145,7 @@ public class TherapeuticPresence extends PApplet {
 	
 	// -----------------------------------------------------------------
 	public void setup() {
-		size(screenWidth-16,screenHeight-128,OPENGL);
+		size(screenWidth-1,screenHeight-70,OPENGL);
 		recordingFile = "rec_"+year()+""+month()+""+day()+"_"+hour()+""+minute()+".oni";
 		setup_init();
 	}
@@ -219,6 +220,17 @@ public class TherapeuticPresence extends PApplet {
 	
 	public void setupScene (short _sceneType) {
 		switch (_sceneType) {
+		
+			case TherapeuticPresence.HORIZON_SCENE:
+				if (audioManager != null) {
+					scene = new HorizonScene(this,color(0,0,0),audioManager);
+					scene.reset();
+					currentSceneType = TherapeuticPresence.HORIZON_SCENE;
+				} else {
+					setupScene(TherapeuticPresence.BASIC_SCENE);
+					debugMessage("setupScene(short): AudioManager needed for Tunnel Scene!");
+				}
+				break;
 				
 			case TherapeuticPresence.TUNNEL_SCENE:
 				if (audioManager != null) {
@@ -348,6 +360,8 @@ public class TherapeuticPresence extends PApplet {
 		if (currentSceneType == BASIC_SCENE) {
 			setupScene(LIQUID_SCENE);
 		} else if (currentSceneType == LIQUID_SCENE) {
+			setupScene(HORIZON_SCENE);
+		} else if (currentSceneType == HORIZON_SCENE) {
 			setupScene(TUNNEL_SCENE);
 		} else {
 			setupScene(BASIC_SCENE);
@@ -359,33 +373,24 @@ public class TherapeuticPresence extends PApplet {
 		if (skeleton != null) {
 			if (demo) {
 				if (currentVisualisationMethod == WAVEFORM_VISUALISATION) {
-					setupScene(LIQUID_SCENE);
 					setupVisualisation(GENERATIVE_TREE_VISUALISATION);
 				} else if (currentVisualisationMethod == GENERATIVE_TREE_VISUALISATION) {
-					setupScene(LIQUID_SCENE);
 					setupVisualisation(ELLIPSOIDAL_VISUALISATION);
 				}  else {
-					setupScene(TUNNEL_SCENE);
 					setupVisualisation(WAVEFORM_VISUALISATION);
 				}
 			} else {
 				if (currentVisualisationMethod == WAVEFORM_VISUALISATION) {
-					setupScene(LIQUID_SCENE);
 					setupVisualisation(GENERATIVE_TREE_VISUALISATION);
 				} else if (currentVisualisationMethod == GENERATIVE_TREE_VISUALISATION) {
-					setupScene(LIQUID_SCENE);
 					setupVisualisation(ELLIPSOIDAL_VISUALISATION);
 				}  else if (currentVisualisationMethod == ELLIPSOIDAL_VISUALISATION) {
-					setupScene(TUNNEL_SCENE);
 					setupVisualisation(MESH_VISUALISATION);
 				}  else if (currentVisualisationMethod == MESH_VISUALISATION) {
-					setupScene(TUNNEL_SCENE);
 					setupVisualisation(AGENT_VISUALISATION);
 				}  else if (currentVisualisationMethod == AGENT_VISUALISATION) {
-					setupScene(BASIC_SCENE);
 					setupVisualisation(STICKFIGURE_VISUALISATION);
 				}  else {
-					setupScene(TUNNEL_SCENE);
 					setupVisualisation(WAVEFORM_VISUALISATION);
 				}
 			}
@@ -511,6 +516,10 @@ public class TherapeuticPresence extends PApplet {
 	
 	public void updateScore (int _score) {
 		guiHud.updateScore(_score);
+	}
+	
+	public void updateTime (float _time) {
+		guiHud.updateTime(_time);
 	}
 	
 	public void updateTask (short _task) {
@@ -890,22 +899,18 @@ public class TherapeuticPresence extends PApplet {
 		  		break;
 		  		
 		  	case '6':
-				setupScene(TherapeuticPresence.BASIC_SCENE);
 				setupVisualisation(TherapeuticPresence.STICKFIGURE_VISUALISATION);
 		  		break;
 		  		
 		  	case '7':
-				setupScene(TherapeuticPresence.TUNNEL_SCENE);
 				setupVisualisation(TherapeuticPresence.WAVEFORM_VISUALISATION);
 		  		break;
 		  		
 		  	case '8':
-				setupScene(TherapeuticPresence.LIQUID_SCENE);
 				setupVisualisation(TherapeuticPresence.GENERATIVE_TREE_VISUALISATION);
 		  		break;
 
 		  	case '9':
-				setupScene(TherapeuticPresence.LIQUID_SCENE);
 				setupVisualisation(TherapeuticPresence.ELLIPSOIDAL_VISUALISATION);
 		  		break;
 
