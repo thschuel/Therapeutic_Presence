@@ -84,7 +84,7 @@ public class StickfigureVisualisation extends AbstractSkeletonVisualisation {
 		transparency-=0.5f;
 		if (strokeWeight<15f) strokeWeight+=0.05f;
 		if (transparency<=0) return true;
-		drawStickfigure(true);
+		//drawStickfigure(true);
 		return false;
 	}
 	
