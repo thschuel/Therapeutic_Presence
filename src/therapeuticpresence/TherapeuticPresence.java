@@ -79,7 +79,7 @@ public class TherapeuticPresence extends PApplet {
 
 	// --- static setup variables ---
 	public static boolean fullBodyTracking = false; // control for full body tracking
-	public static boolean evaluatePostureAndGesture = true; // control for full body tracking
+	public static boolean evaluatePostureAndGesture = true; // control for evaluation of gestures and posture
 	public static boolean evaluateStatistics = true; // control for skeleton statistics, switched on initially
 	public static boolean debugOutput = false;
 	public static boolean showLiveStatistics = false;
@@ -102,7 +102,7 @@ public class TherapeuticPresence extends PApplet {
 	public static float gestureTolerance = TherapeuticPresence.DEFAULT_GESTURE_TOLERANCE;
 	public static final float DEFAULT_SMOOTHING_SKELETON = 0.65f;
 	public static float smoothingSkeleton = TherapeuticPresence.DEFAULT_SMOOTHING_SKELETON;
-	public static String audioFile = "../music/moan.mp3";
+	public static String audioFile = "../music/acoustic.mp3";
 	public static boolean recordFlag = false; // record session (can't be active together with playbackFlag)
 	public static boolean playbackFlag = false; // playback session (can't be active together with recordFlag)
 	public static String recordingFile = "default.oni";
@@ -163,7 +163,7 @@ public class TherapeuticPresence extends PApplet {
 			// start the audio interface
 			audioManager = new AudioManager(this);
 			audioManager.setup(audioFile);
-			audioManager.start();
+			//audioManager.start();
 			
 			// setup Scene
 			setupScene(TherapeuticPresence.initialSceneType);
@@ -510,7 +510,9 @@ public class TherapeuticPresence extends PApplet {
 	}
 	
 	public void debugMessage (String _message) {
-		guiHud.sendGuiMessage(_message);
+		if (guiHud != null) {
+			guiHud.sendGuiMessage(_message);
+		}
 		println(_message);
 	}
 	
@@ -536,6 +538,15 @@ public class TherapeuticPresence extends PApplet {
 			default: taskString="NO"; break;
 		}
 		guiHud.updateTask(taskString);
+	}
+	
+	public void toggleMusic () {
+  		if (audioManager != null) {
+  			if (audioManager.isPlaying()) audioManager.pause();
+  			else audioManager.start();
+  		} else {
+  			debugMessage("toggleMusic: audioManager is null");
+  		}
 	}
 
 	
@@ -873,6 +884,10 @@ public class TherapeuticPresence extends PApplet {
 				setupScene(TherapeuticPresence.BASIC_SCENE);
 				setupVisualisation(TherapeuticPresence.STATISTICS_VISUALISATION);
 				break;
+				
+		  	case 'm':
+		  		toggleMusic();
+		  		break;
 			
 		  	case 'Ÿ':
 		  		TherapeuticPresence.showLiveStatistics = !TherapeuticPresence.showLiveStatistics;

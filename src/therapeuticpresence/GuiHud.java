@@ -438,18 +438,24 @@ public class GuiHud {
 		progressionTime.setCaptionLabel("Time progression");
 		progressionTime.plugTo(this);
 		positionY += 20;
-		
+
 		controlP5.Button progressionPosture = control.addButton("progressionPosture",ProgressionManager.POSTURE_PROGRESSION_MODE,0,positionY,200,20);
 		progressionPosture.moveTo(menu);
 		progressionPosture.setCaptionLabel("Posture progression");
 		progressionPosture.plugTo(this);
 		positionY += 20;
 		
+		controlP5.Button toggleMusicButton = control.addButton("toggleMusic",0,0,positionY,200,20);
+		toggleMusicButton.moveTo(menu);
+		toggleMusicButton.setCaptionLabel("M: Toggle Music");
+		toggleMusicButton.plugTo(this);
+		positionY += 20;
+		
 		controlP5.Button closeApplication = control.addButton("closeApplication",0,0,positionY,200,20);
 		closeApplication.setColorBackground(mainApplet.color(150,0,0));
 		closeApplication.setColorForeground(mainApplet.color(200,0,0));
 		closeApplication.moveTo(menu);
-		closeApplication.setCaptionLabel("Close Application");
+		closeApplication.setCaptionLabel("Q: Close Application");
 		closeApplication.plugTo(this);
 		positionY += 20;
 	}
@@ -589,6 +595,10 @@ public class GuiHud {
 	}
 	private void changeAngleScale3 (float theValue) {
 		AbstractSkeletonVisualisation.angleScale3 = theValue;
+	}
+	private void toggleMusic (float theValue) {
+		mainApplet.toggleMusic();
+		menu.hide();
 	}
 	private void closeApplication (float theValue) {
 		mainApplet.close();

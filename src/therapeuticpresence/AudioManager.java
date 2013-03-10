@@ -47,6 +47,7 @@ public class AudioManager implements AudioListener{
 	protected float[] rightFFT = null;
 	
 	protected boolean isUpdated = false;
+	protected boolean isPlaying = false;
 
 	public AudioManager (TherapeuticPresence _mainApplet) {
 		mainApplet = _mainApplet;
@@ -72,6 +73,7 @@ public class AudioManager implements AudioListener{
 	public void start () {
 		audioPlayer.loop();
 		update();
+		isPlaying = true;
 	}
 	
 	public void update () {
@@ -88,11 +90,13 @@ public class AudioManager implements AudioListener{
 	
 	public void pause() {
 		audioPlayer.pause();
+		isPlaying = false;
 	}
 	
 	public void stop() {
 		audioPlayer.close();
 		minim.stop();
+		isPlaying = false;
 	}
 	
 	public float getLeftFFT (int _index) {
@@ -149,5 +153,9 @@ public class AudioManager implements AudioListener{
 
 	public boolean isUpdated() {
 		return isUpdated;
+	}
+	
+	public boolean isPlaying() {
+		return isPlaying;
 	}
 }

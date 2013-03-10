@@ -44,7 +44,7 @@ public class ProgressionManager {
 	public static short progressionMode = MANUAL_PROGRESSION_MODE;
 	
 	// this defines the therapy in time_progression_mode
-	public static float secondsToProgress = 100f;
+	public static float secondsToProgress = 90f;
 	private float secondsSinceLastChange = 0f;
 	private int lastFrameCount = -9999;
 	
